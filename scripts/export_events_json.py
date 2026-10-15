@@ -4,7 +4,7 @@ export_events_json.py
 ---------------------
 Converts the v3c coastal flood catalogue (with coastal-snapped coordinates,
 scientific regional overrides/exclusions, and matched BMKG tide gauge water
-level anomalies) into optimized JSON and JS payloads for the INDO-COASTFLOOD
+level anomalies) into optimized JSON and JS payloads for the INA-CoastalFlood
 interactive web dashboard.
 
 Features:
@@ -315,7 +315,7 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
 
     js_path = out_dir / "events.js"
     with open(js_path, 'w', encoding='utf-8') as f:
-        f.write("// INDO-COASTFLOOD: Indonesian Coastal Flood Catalogue Dataset (v3c)\n")
+        f.write("// INA-CoastalFlood: Indonesian Coastal Flood Catalogue Dataset (v3c)\n")
         f.write("// Loaded automatically when accessed via file:// without webserver\n")
         f.write("window.ROB_EVENTS = ")
         json.dump(records, f, separators=(',', ':'), ensure_ascii=False)

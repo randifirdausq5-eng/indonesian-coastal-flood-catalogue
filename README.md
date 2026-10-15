@@ -1,4 +1,4 @@
-# INDO-COASTFLOOD: Indonesian Coastal Flood Catalogue & Auto-Tracker Web App
+# INA-CoastalFlood: Indonesian Coastal Flood Catalogue & Auto-Tracker Web App
 
 > **Platform Web Interaktif & Pelacak Otomatis Kejadian Banjir Rob Pesisir Indonesia (2015–2026)**  
 > Berbasis Open-Source, Serverless, siap deploy ke **GitHub Pages**.

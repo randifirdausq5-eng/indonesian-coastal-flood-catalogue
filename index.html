@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Indonesian Coastal Flood Catalogue (v3c) | Interactive Dashboard & Tracker</title>
-  <meta name="description" content="Interactive Web Dashboard and Auto-Tracker for Indonesian Coastal Flooding Events (2015-2026)">
+  <title>INA-CoastalFlood (v3c) | Indonesian Coastal Flood Catalogue & Tracker</title>
+  <meta name="description" content="Interactive Web Dashboard and Auto-Tracker for Indonesian Coastal Flooding Events (2015-2026) - INA-CoastalFlood">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -128,7 +128,7 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
-              <span>INDO-COASTFLOOD</span>
+              <span>INA-CoastalFlood</span>
               <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">v3c Catalogue</span>
             </h1>
           </div>
@@ -637,7 +637,7 @@
       <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <i class="fa-solid fa-circle-info text-cyan-400 text-lg"></i>
-          <h3 class="font-bold text-base" id="about-modal-title">About the Indonesian Coastal Flood Catalogue (v3c)</h3>
+          <h3 class="font-bold text-base" id="about-modal-title">About INA-CoastalFlood (v3c)</h3>
         </div>
         <button onclick="toggleModal('modal-about', false)" class="text-slate-400 hover:text-white text-lg">
           <i class="fa-solid fa-xmark"></i>
@@ -947,7 +947,7 @@
       const contentEl = document.getElementById('about-modal-content');
 
       if (l === 'en') {
-        titleEl.textContent = "About the Indonesian Coastal Flood Catalogue (v3c)";
+        titleEl.textContent = "About INA-CoastalFlood (v3c)";
         contentEl.innerHTML = `
           <div>
             <h4 class="font-bold text-slate-800 text-sm mb-1">1. Background & Project Goal</h4>
@@ -985,7 +985,7 @@
           </div>
         `;
       } else {
-        titleEl.textContent = "Tentang Indonesian Coastal Flood Catalogue (v3c)";
+        titleEl.textContent = "Tentang INA-CoastalFlood (v3c)";
         contentEl.innerHTML = `
           <div>
             <h4 class="font-bold text-slate-800 text-sm mb-1">1. Latar Belakang & Tujuan Proyek</h4>
