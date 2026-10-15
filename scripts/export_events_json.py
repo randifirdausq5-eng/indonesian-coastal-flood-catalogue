@@ -100,6 +100,40 @@ def load_tidegauge_data(repo_root: Path) -> dict:
     return tg_data
 
 
+def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Great-circle distance in kilometers."""
+    R = 6371.0
+    dlat = np.radians(lat2 - lat1)
+    dlon = np.radians(lon2 - lon1)
+    a = np.sin(dlat / 2.0)**2 + np.cos(np.radians(lat1)) * np.cos(np.radians(lat2)) * np.sin(dlon / 2.0)**2
+    c = 2.0 * np.arcsin(np.sqrt(a))
+    return round(float(R * c), 1)
+
+
+def load_satellite_data(repo_root: Path) -> dict:
+    """Load nearest ocean pixel satellite sea level anomaly and decomposed bands."""
+    bands_file = repo_root / "data/processed/rob_events_with_bands_v3c.csv"
+    sat_data = {}
+    if bands_file.is_file():
+        df_bands = pd.read_csv(bands_file)
+        for _, r in df_bands.iterrows():
+            ev_id = str(r['event_id'])
+            sla_cm = round(float(r['detrended_sla_cm']), 1) if pd.notna(r['detrended_sla_cm']) else None
+            seas_cm = round(float(r['seasonal_cm']), 1) if pd.notna(r['seasonal_cm']) else None
+            intra_cm = round(float(r['intraseasonal_cm']), 1) if pd.notna(r['intraseasonal_cm']) else None
+            px_lat = round(float(r['pixel_lat']), 3) if pd.notna(r['pixel_lat']) else None
+            px_lon = round(float(r['pixel_lon']), 3) if pd.notna(r['pixel_lon']) else None
+
+            sat_data[ev_id] = {
+                'sla_cm': sla_cm,
+                'seasonal_cm': seas_cm,
+                'intra_cm': intra_cm,
+                'pixel_lat': px_lat,
+                'pixel_lon': px_lon
+            }
+    return sat_data
+
+
 def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_exclusions: bool = True):
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -151,11 +185,17 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         merged = merged.dropna(subset=['lat', 'lon'])
 
     # Load tide gauge observations
-    print("[4/5] Matching nearest BMKG tide gauge water level anomalies...")
+    print("[4/6] Matching nearest BMKG tide gauge water level anomalies...")
     tg_data = load_tidegauge_data(REPO_ROOT)
     matched_tg_count = sum(1 for e in merged['event_id'] if e in tg_data)
     with_anom_count = sum(1 for e in merged['event_id'] if e in tg_data and tg_data[e]['anom_cm'] is not None)
     print(f"      Matched {matched_tg_count} events to nearest tide station ({with_anom_count} with active water level anomalies).")
+
+    # Load satellite sea level altimetry
+    print("[5/6] Matching nearest satellite altimetry sea level anomalies (C3S)...")
+    sat_data = load_satellite_data(REPO_ROOT)
+    matched_sat_count = sum(1 for e in merged['event_id'] if e in sat_data and sat_data[e]['sla_cm'] is not None)
+    print(f"      Matched {matched_sat_count} events to nearest satellite ocean grid pixels.")
 
     # Sort descending by date (newest first)
     merged = merged.sort_values(by='date_start', ascending=False)
@@ -191,9 +231,27 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         reg_code = str(row['region']).strip()
         tier_code = str(row['tier']).strip().lower()
         hazard_code = str(row['hazard']).strip()
+        ev_lat = round(float(row['lat']), 5)
+        ev_lon = round(float(row['lon']), 5)
 
         # Tide gauge match info
         tg_info = tg_data.get(ev_id, None)
+
+        # Satellite SLA match info
+        sat_raw = sat_data.get(ev_id, None)
+        sat_info = None
+        if sat_raw and sat_raw.get('sla_cm') is not None:
+            dist_sat = None
+            if sat_raw.get('pixel_lat') is not None and sat_raw.get('pixel_lon') is not None:
+                dist_sat = haversine_km(ev_lat, ev_lon, sat_raw['pixel_lat'], sat_raw['pixel_lon'])
+            sat_info = {
+                'sla_cm': sat_raw['sla_cm'],
+                'seasonal_cm': sat_raw['seasonal_cm'],
+                'intra_cm': sat_raw['intra_cm'],
+                'pixel_lat': sat_raw['pixel_lat'],
+                'pixel_lon': sat_raw['pixel_lon'],
+                'dist_km': dist_sat
+            }
 
         records.append({
             'id': ev_id,
@@ -216,9 +274,10 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
             'url': str(row['urls']) if pd.notna(row['urls']) else '',
             'n_articles': int(row['n_articles']) if pd.notna(row['n_articles']) else 1,
             'n_domains': int(row['n_domains_indep']) if pd.notna(row['n_domains_indep']) else 1,
-            'lat': round(float(row['lat']), 5),
-            'lon': round(float(row['lon']), 5),
+            'lat': ev_lat,
+            'lon': ev_lon,
             'tg': tg_info,
+            'sat': sat_info,
         })
 
     # Summary statistics
@@ -244,14 +303,15 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         'region_counts': region_counts,
         'tide_gauge_matches': matched_tg_count,
         'tide_gauge_anomalies': with_anom_count,
+        'satellite_sla_matches': matched_sat_count,
         'generated_at': pd.Timestamp.now().isoformat()
     }
 
-    # [5/5] Output files
+    # [6/6] Output files
     json_path = out_dir / "events.json"
     with open(json_path, 'w', encoding='utf-8') as f:
         json.dump(records, f, separators=(',', ':'), ensure_ascii=False)
-    print(f"[5/5] Wrote {total_events} events to {json_path} ({json_path.stat().st_size / 1024:.1f} KB)")
+    print(f"[6/6] Wrote {total_events} events to {json_path} ({json_path.stat().st_size / 1024:.1f} KB)")
 
     js_path = out_dir / "events.js"
     with open(js_path, 'w', encoding='utf-8') as f:
