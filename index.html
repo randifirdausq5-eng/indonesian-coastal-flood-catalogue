@@ -892,6 +892,7 @@
       activeRegion: 'all',
       map: null,
       markerClusterGroup: null,
+      markersById: {},
       currentBasemap: null,
       basemapLayers: {},
       charts: {},
@@ -1112,15 +1113,24 @@
         .slice(0, 7);
 
       container.innerHTML = topPlaces.map(([place, count]) => {
-        const sample = events.find(e => e.place === place);
+        const safePlace = place.replace(/'/g, "\\'");
         return `
-          <button onclick="focusMapLocation(${sample.lat}, ${sample.lon}, 11, '${place}')" 
+          <button onclick="selectHotspotFilter('${safePlace}')" 
             class="px-2 py-0.5 rounded bg-white hover:bg-cyan-50 border border-slate-200 hover:border-cyan-400 text-slate-700 hover:text-cyan-800 text-[11px] font-medium flex items-center gap-1 transition shadow-xs">
             <span>${place}</span>
             <span class="text-[10px] text-slate-400 font-mono">(${count})</span>
           </button>
         `;
       }).join('');
+    }
+
+    // Select Hotspot: set search, switch to map, and apply filter
+    function selectHotspotFilter(placeName) {
+      document.getElementById('search-input').value = placeName;
+      if (AppState.currentView !== 'map') {
+        switchView('map');
+      }
+      applyFilters(true);
     }
 
     // Initialize Leaflet Map (Free OpenStreetMap & Esri Ocean / Satellite)
@@ -1163,8 +1173,10 @@
       // Create MarkerClusterGroup
       AppState.markerClusterGroup = L.markerClusterGroup({
         showCoverageOnHover: false,
-        maxClusterRadius: 45,
+        maxClusterRadius: 35,
         spiderfyOnMaxZoom: true,
+        disableClusteringAtZoom: 12,
+        chunkedLoading: true
       });
 
       AppState.map.addLayer(AppState.markerClusterGroup);
@@ -1269,10 +1281,10 @@
           return false;
         }
 
-        // Free search text
+        // Free search text (includes Event ID, place, regency, province, headline, terms, reason, tide station)
         if (searchVal.length > 0) {
           const tgText = e.tg ? `${e.tg.station}` : '';
-          const matchTarget = `${e.place} ${e.regency} ${e.province} ${e.title} ${e.terms} ${e.tier_reason} ${tgText}`.toLowerCase();
+          const matchTarget = `${e.id} ${e.place} ${e.regency} ${e.province} ${e.title} ${e.terms} ${e.tier_reason} ${tgText}`.toLowerCase();
           if (!matchTarget.includes(searchVal)) return false;
         }
 
@@ -1282,8 +1294,8 @@
       // Update UI Counters & Stats
       updateHeaderAndSidebarStats();
 
-      // Refresh Map Markers
-      refreshMapMarkers();
+      // Refresh Map Markers & Auto-fit bounds
+      refreshMapMarkers(true);
 
       // Refresh Table
       renderTablePage(1);
@@ -1293,8 +1305,12 @@
         updateCharts();
       }
 
-      // Visual feedback on manual button click
+      // If manual button clicked, switch to map view so user immediately sees filtered markers
       if (isManual) {
+        if (AppState.currentView !== 'map') {
+          switchView('map');
+        }
+
         const dict = I18N[AppState.lang];
         const btnTop = document.getElementById('btn-apply-filters');
         const btnBtm = document.getElementById('btn-apply-filters-bottom');
@@ -1343,6 +1359,10 @@
       document.getElementById('tier-possible').checked = true;
 
       setRegionFilter('all');
+      if (AppState.map) {
+        AppState.map.closePopup();
+        AppState.map.setView([-2.5, 118.0], 5, { animate: true });
+      }
     }
 
     // Update Header & Sidebar Statistics
@@ -1383,10 +1403,16 @@
     }
 
     // Refresh Map Markers with MarkerCluster
-    function refreshMapMarkers() {
+    function refreshMapMarkers(autoFit = true) {
       if (!AppState.markerClusterGroup) return;
 
+      // Close any active open popup so it doesn't linger
+      if (AppState.map) {
+        AppState.map.closePopup();
+      }
+
       AppState.markerClusterGroup.clearLayers();
+      AppState.markersById = {};
 
       const markers = [];
       const dict = I18N[AppState.lang];
@@ -1413,6 +1439,7 @@
         });
 
         const marker = L.marker([e.lat, e.lon], { icon: markerIcon });
+        marker.eventId = e.id;
 
         // Build Tide Station & Water Level Anomaly Box
         let tgBoxHtml = '';
@@ -1496,6 +1523,21 @@
           }
         }
 
+        // Multi-event switcher for same coastal coordinates
+        const sameLocEvents = AppState.filteredEvents.filter(ev => ev.lat === e.lat && ev.lon === e.lon);
+        let sameLocSwitcherHtml = '';
+        if (sameLocEvents.length > 1) {
+          sameLocSwitcherHtml = `
+            <div class="px-3 py-1.5 bg-slate-800 border-t border-slate-700 flex items-center gap-1.5 overflow-x-auto text-[10px]">
+              <span class="text-slate-400 whitespace-nowrap font-medium">${AppState.lang === 'en' ? 'Events here:' : 'Kejadian di sini:'}</span>
+              ${sameLocEvents.map(s => {
+                const isCur = s.id === e.id;
+                return `<button onclick="focusMapEvent('${s.id}')" class="px-1.5 py-0.5 rounded font-mono font-semibold transition whitespace-nowrap ${isCur ? 'bg-cyan-500 text-slate-950 font-bold' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}">${s.date_start.substring(5)} (${s.id})</button>`;
+              }).join('')}
+            </div>
+          `;
+        }
+
         // Popup Content
         const popupContent = `
           <div class="w-80 text-xs font-sans">
@@ -1508,6 +1550,8 @@
                 ${e.tier_label}
               </span>
             </div>
+
+            ${sameLocSwitcherHtml}
 
             <!-- Popup Body -->
             <div class="p-3.5 space-y-2.5 bg-white text-slate-700">
@@ -1571,9 +1615,45 @@
 
         marker.bindPopup(popupContent, { maxWidth: 340 });
         markers.push(marker);
+        AppState.markersById[e.id] = marker;
       });
 
       AppState.markerClusterGroup.addLayers(markers);
+
+      // Auto-fit map to filtered markers if requested
+      if (autoFit && AppState.map && markers.length > 0) {
+        if (AppState.filteredEvents.length < AppState.allEvents.length) {
+          const group = L.featureGroup(markers);
+          const bounds = group.getBounds();
+          if (bounds.isValid()) {
+            if (AppState.filteredEvents.length === 1) {
+              const single = AppState.filteredEvents[0];
+              AppState.map.setView([single.lat, single.lon], 12, { animate: true });
+              setTimeout(() => {
+                focusMapEvent(single.id);
+              }, 300);
+            } else {
+              AppState.map.fitBounds(bounds.pad(0.12), { maxZoom: 12, animate: true });
+            }
+          }
+        }
+      }
+    }
+
+    // Focus Map to specific Event and automatically open its popup
+    function focusMapEvent(eventId) {
+      if (AppState.currentView !== 'map') {
+        switchView('map');
+      }
+      const marker = AppState.markersById ? AppState.markersById[eventId] : null;
+      const ev = AppState.allEvents.find(e => e.id === eventId);
+      if (marker && AppState.markerClusterGroup) {
+        AppState.markerClusterGroup.zoomToShowLayer(marker, () => {
+          marker.openPopup();
+        });
+      } else if (ev && AppState.map) {
+        AppState.map.setView([ev.lat, ev.lon], 12, { animate: true });
+      }
     }
 
     // Focus Map to Location
@@ -1867,7 +1947,7 @@
                 <span class="text-slate-800 font-medium">${e.title || 'Coastal Flood Report'}</span>
               </td>
               <td class="py-2 px-3 text-center whitespace-nowrap space-x-1">
-                <button onclick="focusMapLocation(${e.lat}, ${e.lon}, 11, '${e.place}')" title="Zoom to Location" 
+                <button onclick="focusMapEvent('${e.id}')" title="Focus & Open Popup on Map" 
                   class="px-2 py-1 bg-slate-100 hover:bg-cyan-50 hover:text-cyan-700 rounded text-slate-600 transition">
                   <i class="fa-solid fa-map-location-dot"></i>
                 </button>
