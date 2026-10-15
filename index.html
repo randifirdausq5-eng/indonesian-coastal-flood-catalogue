@@ -1373,29 +1373,40 @@
       const dict = I18N[AppState.lang];
 
       // Header numbers
-      document.getElementById('stat-filtered').textContent = count.toLocaleString();
-      document.getElementById('stat-total').textContent = total.toLocaleString();
+      const elFiltered = document.getElementById('stat-filtered');
+      if (elFiltered) elFiltered.textContent = count.toLocaleString();
+
+      const elTotal = document.getElementById('stat-total');
+      if (elTotal) elTotal.textContent = total.toLocaleString();
 
       const uniquePlaces = new Set(AppState.filteredEvents.map(e => e.place)).size;
-      document.getElementById('stat-places').textContent = uniquePlaces.toLocaleString();
+      const elPlaces = document.getElementById('stat-places');
+      if (elPlaces) elPlaces.textContent = uniquePlaces.toLocaleString();
 
       // Max depth
       const depths = AppState.filteredEvents.map(e => e.depth_cm).filter(d => d !== null && !isNaN(d));
       const maxDepth = depths.length > 0 ? Math.max(...depths) : null;
-      document.getElementById('stat-max-depth').textContent = maxDepth ? `${maxDepth} cm` : '-';
+      const elMaxDepth = document.getElementById('stat-max-depth');
+      if (elMaxDepth) elMaxDepth.textContent = maxDepth ? `${maxDepth} cm` : '-';
 
-      // Sidebar counters
-      document.getElementById('label-count-active').textContent = count.toLocaleString();
-      document.getElementById('active-percentage').textContent = `${pct}%`;
+      // Sidebar percentage
+      const elPct = document.getElementById('active-percentage');
+      if (elPct) elPct.textContent = `${pct}%`;
       
-      const yr = document.getElementById('filter-year').value;
-      document.getElementById('label-year-active').textContent = yr === 'all' 
-        ? (AppState.lang === 'en' ? 'All Years' : 'Semua Tahun') 
-        : `${yr}`;
+      const yrEl = document.getElementById('filter-year');
+      const yr = yrEl ? yrEl.value : 'all';
+      const elYr = document.getElementById('label-year-active');
+      if (elYr) {
+        elYr.textContent = yr === 'all' 
+          ? (AppState.lang === 'en' ? 'All Years' : 'Semua Tahun') 
+          : `${yr}`;
+      }
 
       // Summary text
       const summaryEl = document.getElementById('filter-summary-text');
-      if (summaryEl) summaryEl.innerHTML = dict.filter_summary(count, total);
+      if (summaryEl && dict.filter_summary) {
+        summaryEl.innerHTML = dict.filter_summary(count, total);
+      }
 
       // Chart count in Analytics view
       const chartCountEl = document.getElementById('chart-filter-count');
