@@ -416,7 +416,41 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         json.dump(summary, f, indent=2, ensure_ascii=False)
     print(f"      Wrote summary metadata to {summary_path}")
 
+    # [7/7] Update index.html static placeholders & cache-buster tags if present
+    for candidate_index in [out_dir.parent / "index.html", Path("/Users/randifirdaus/Documents/indonesian-coastal-flood-catalogue/index.html")]:
+        if candidate_index.is_file():
+            try:
+                update_index_html(candidate_index, total_events)
+            except Exception as e:
+                print(f"      Notice: Could not update {candidate_index.name}: {e}")
+
     return records, summary
+
+
+def update_index_html(index_path: Path, total_events: int):
+    """Automatically update index.html static placeholder counts and cache-busting version params."""
+    import re
+    content = index_path.read_text(encoding='utf-8')
+    v_tag = f"{total_events}.{pd.Timestamp.now().strftime('%Y%m%d%H%M')}"
+    total_fmt = f"{total_events:,}"
+
+    # Update cache-busting params for events.js and events.json
+    content = re.sub(r'data/events\.js\?v=[^"\'\s>]+', f'data/events.js?v={v_tag}', content)
+    content = re.sub(r'data/events\.json\?v=[^"\'\s>]+', f'data/events.json?v={v_tag}', content)
+
+    # Update static badge/stat placeholders
+    content = re.sub(r'(id="stat-total"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_fmt}\g<2>', content)
+    content = re.sub(r'(id="stat-filtered"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_fmt}\g<2>', content)
+    content = re.sub(r'(id="badge-all-reg"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_events}\g<2>', content)
+    content = re.sub(r'(id="label-count-active"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_fmt}\g<2>', content)
+    content = re.sub(r'(id="mobile-fab-count"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_fmt}\g<2>', content)
+    content = re.sub(r'(id="chart-filter-count"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_fmt}\g<2>', content)
+    content = re.sub(r'(id="table-total-count"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_fmt}\g<2>', content)
+    content = re.sub(r'(<span class="font-semibold font-mono">)[0-9,]+(</span> verified events)', rf'\g<1>{total_fmt}\g<2>', content)
+
+    index_path.write_text(content, encoding='utf-8')
+    print(f"      Updated {index_path.name} with total={total_fmt} and v={v_tag}")
+
 
 
 if __name__ == '__main__':
