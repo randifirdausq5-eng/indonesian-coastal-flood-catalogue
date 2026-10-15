@@ -1,6 +1,6 @@
 {
-  "total_events": 1111,
-  "unique_places": 157,
+  "total_events": 1093,
+  "unique_places": 156,
   "unique_provinces": [
     "Aceh",
     "Bali",
@@ -42,20 +42,20 @@
     "2026"
   ],
   "tier_counts": {
-    "probable": 699,
-    "possible": 334,
-    "confirmed": 78
+    "probable": 700,
+    "possible": 316,
+    "confirmed": 77
   },
   "region_counts": {
-    "sumatra_east": 120,
-    "java_north": 765,
+    "sumatra_east": 118,
+    "java_north": 751,
     "java_south": 56,
-    "east_indo": 91,
-    "kalimantan": 58,
+    "east_indo": 90,
+    "kalimantan": 57,
     "sumatra_west": 21
   },
-  "tide_gauge_matches": 410,
-  "tide_gauge_anomalies": 197,
-  "satellite_sla_matches": 888,
-  "generated_at": "2026-10-15T21:50:19.165013"
+  "tide_gauge_matches": 407,
+  "tide_gauge_anomalies": 194,
+  "satellite_sla_matches": 882,
+  "generated_at": "2026-10-15T22:24:41.686328"
 }
