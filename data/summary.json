@@ -54,5 +54,7 @@
     "sumatra_west": 40,
     "kalimantan": 62
   },
-  "generated_at": "2026-10-15T14:55:54.383677"
+  "tide_gauge_matches": 466,
+  "tide_gauge_anomalies": 223,
+  "generated_at": "2026-10-15T15:28:06.425034"
 }

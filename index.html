@@ -605,6 +605,7 @@
               <th class="py-2.5 px-3" data-i18n="th_region">Region</th>
               <th class="py-2.5 px-3" data-i18n="th_tier">Tier</th>
               <th class="py-2.5 px-3" data-i18n="th_depth">Depth</th>
+              <th class="py-2.5 px-3" data-i18n="th_tg">Nearest Tide Station & Anomaly</th>
               <th class="py-2.5 px-3" data-i18n="th_title">News Headline & Sources</th>
               <th class="py-2.5 px-3 text-center" data-i18n="th_action">Actions</th>
             </tr>
@@ -750,6 +751,7 @@
         th_region: "Region",
         th_tier: "Tier",
         th_depth: "Depth",
+        th_tg: "Nearest Tide Station & Anomaly",
         th_title: "News Headline & Sources",
         th_action: "Actions",
         btn_prev: "Previous",
@@ -761,6 +763,11 @@
         popup_days: "days",
         popup_loc: "COASTAL LOCATION",
         popup_depth: "Estimated Inundation:",
+        popup_tg_station: "Nearest Tide Station",
+        popup_tg_anom: "Max Water Level Anomaly",
+        popup_tg_peak_wl: "Observed Peak WL",
+        popup_tg_pct: "Daily Percentile",
+        popup_tg_inactive: "Station inactive on event date",
         popup_headline: "ARCHIVED NEWS HEADLINE:",
         popup_region: "Region:",
         popup_terms: "Terms:",
@@ -845,6 +852,7 @@
         th_region: "Wilayah",
         th_tier: "Tingkat (Tier)",
         th_depth: "Genangan",
+        th_tg: "Stasiun Pasut BMKG & Anomali",
         th_title: "Judul Berita & Sumber",
         th_action: "Aksi",
         btn_prev: "Sebelumnya",
@@ -856,6 +864,11 @@
         popup_days: "hari",
         popup_loc: "LOKASI PESISIR",
         popup_depth: "Estimasi Genangan:",
+        popup_tg_station: "Stasiun Pasut BMKG Terdekat",
+        popup_tg_anom: "Anomali Muka Air Maks.",
+        popup_tg_peak_wl: "Muka Air Puncak",
+        popup_tg_pct: "Persentil Harian",
+        popup_tg_inactive: "Stasiun belum aktif / pra-2022",
         popup_headline: "JUDUL BERITA ARSIP:",
         popup_region: "Wilayah:",
         popup_terms: "Istilah:",
@@ -1253,7 +1266,8 @@
 
         // Free search text
         if (searchVal.length > 0) {
-          const matchTarget = `${e.place} ${e.regency} ${e.province} ${e.title} ${e.terms} ${e.tier_reason}`.toLowerCase();
+          const tgText = e.tg ? `${e.tg.station}` : '';
+          const matchTarget = `${e.place} ${e.regency} ${e.province} ${e.title} ${e.terms} ${e.tier_reason} ${tgText}`.toLowerCase();
           if (!matchTarget.includes(searchVal)) return false;
         }
 
@@ -1366,6 +1380,46 @@
 
         const marker = L.marker([e.lat, e.lon], { icon: markerIcon });
 
+        // Build Tide Station & Water Level Anomaly Box
+        let tgBoxHtml = '';
+        if (e.tg) {
+          if (e.tg.anom_cm !== null && e.tg.anom_cm !== undefined) {
+            const anomSign = e.tg.anom_cm > 0 ? '+' : '';
+            const isHigh = e.tg.anom_cm >= 20;
+            const cardBg = isHigh ? 'bg-amber-50/80 border-amber-200' : 'bg-cyan-50/70 border-cyan-200';
+            const anomTextColor = isHigh ? 'text-amber-800' : 'text-cyan-900';
+
+            tgBoxHtml = `
+              <div class="p-2.5 rounded-lg border ${cardBg} space-y-1">
+                <div class="flex items-center justify-between text-[11px] font-bold text-slate-900">
+                  <span class="flex items-center gap-1.5 text-cyan-950">
+                    <i class="fa-solid fa-tower-broadcast text-cyan-600"></i>
+                    <span>${dict.popup_tg_station}: ${e.tg.station}</span>
+                  </span>
+                  <span class="text-[10px] text-slate-500 font-normal">(${e.tg.dist_km} km)</span>
+                </div>
+                <div class="flex items-center justify-between pt-0.5 text-xs">
+                  <span class="text-slate-600 font-medium">${dict.popup_tg_anom}:</span>
+                  <span class="font-mono font-bold text-sm ${anomTextColor}">${anomSign}${e.tg.anom_cm} cm</span>
+                </div>
+                ${e.tg.wl_m !== null ? `
+                  <div class="text-[10px] text-slate-500 flex justify-between border-t border-slate-200/60 pt-1">
+                    <span>${dict.popup_tg_peak_wl}: <strong class="font-mono text-slate-800">${e.tg.wl_m} m</strong></span>
+                    ${e.tg.pct !== null ? `<span>${dict.popup_tg_pct}: <strong class="font-mono text-slate-800">${e.tg.pct}%</strong></span>` : ''}
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          } else {
+            tgBoxHtml = `
+              <div class="p-2 rounded bg-slate-50 border border-slate-100 text-[10px] text-slate-500 flex items-center justify-between">
+                <span><i class="fa-solid fa-tower-broadcast text-slate-400 mr-1"></i> ${dict.popup_tg_station}: <strong>${e.tg.station}</strong> (${e.tg.dist_km} km)</span>
+                <span class="italic text-slate-400">${dict.popup_tg_inactive}</span>
+              </div>
+            `;
+          }
+        }
+
         // Popup Content
         const popupContent = `
           <div class="w-80 text-xs font-sans">
@@ -1403,6 +1457,9 @@
                   <span class="font-mono font-bold text-cyan-950 text-sm">${e.depth_cm} cm</span>
                 </div>
               ` : ''}
+
+              <!-- Nearest BMKG Tide Station & Water Level Anomaly Box -->
+              ${tgBoxHtml}
 
               <!-- News Title -->
               <div>
@@ -1692,7 +1749,7 @@
       if (pageEvents.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="9" class="text-center py-10 text-slate-400">
+            <td colspan="10" class="text-center py-10 text-slate-400">
               <i class="fa-solid fa-box-open text-2xl mb-2 block"></i>
               ${dict.table_empty}
             </td>
@@ -1715,6 +1772,12 @@
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeClass}">${e.tier_label}</span>
               </td>
               <td class="py-2 px-3 font-mono font-medium text-cyan-900">${e.depth_cm ? `${e.depth_cm} cm` : '-'}</td>
+              <td class="py-2 px-3 font-mono">
+                ${e.tg && e.tg.anom_cm !== null 
+                  ? `<span class="font-bold text-xs ${e.tg.anom_cm > 0 ? 'text-amber-700' : 'text-slate-600'}">${e.tg.anom_cm > 0 ? '+' : ''}${e.tg.anom_cm} cm</span>
+                     <span class="block text-[10px] text-slate-500 font-sans font-medium">${e.tg.station} (${e.tg.dist_km} km)</span>` 
+                  : (e.tg ? `<span class="text-slate-400 text-[10px] font-sans">${e.tg.station} (${e.tg.dist_km} km)</span>` : '-')}
+              </td>
               <td class="py-2 px-3 max-w-xs truncate" title="${e.title}">
                 <span class="text-slate-800 font-medium">${e.title || 'Coastal Flood Report'}</span>
               </td>
@@ -1766,12 +1829,18 @@
       const timestamp = new Date().toISOString().slice(0, 10);
 
       if (format === 'csv') {
-        const headers = ['id', 'date_start', 'date_end', 'days', 'place', 'regency', 'province', 'region', 'hazard', 'tier', 'depth_cm', 'lat', 'lon', 'title', 'terms', 'url'];
+        const headers = ['id', 'date_start', 'date_end', 'days', 'place', 'regency', 'province', 'region', 'hazard', 'tier', 'depth_cm', 'tg_station', 'tg_dist_km', 'tg_anom_cm', 'tg_wl_m', 'tg_pct', 'lat', 'lon', 'title', 'terms', 'url'];
         const csvRows = [headers.join(',')];
 
         data.forEach(item => {
           const row = headers.map(h => {
-            let val = item[h];
+            let val = null;
+            if (h.startsWith('tg_')) {
+              const prop = h.replace('tg_', '');
+              val = item.tg ? item.tg[prop] : null;
+            } else {
+              val = item[h];
+            }
             if (val === null || val === undefined) val = '';
             val = String(val).replace(/"/g, '""');
             return `"${val}"`;
@@ -1800,6 +1869,11 @@
             hazard: item.hazard,
             tier: item.tier,
             depth_cm: item.depth_cm,
+            tg_station: item.tg ? item.tg.station : null,
+            tg_dist_km: item.tg ? item.tg.dist_km : null,
+            tg_anom_cm: item.tg ? item.tg.anom_cm : null,
+            tg_wl_m: item.tg ? item.tg.wl_m : null,
+            tg_pct: item.tg ? item.tg.pct : null,
             title: item.title,
             url: item.url
           }
