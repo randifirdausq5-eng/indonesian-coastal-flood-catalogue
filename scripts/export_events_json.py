@@ -2,13 +2,15 @@
 """
 export_events_json.py
 ---------------------
-Converts the v3c coastal flood catalogue (with coastal-snapped coordinates and
-scientific regional overrides/exclusions) into optimized JSON and JS payloads
-for the INDO-COASTFLOOD interactive web dashboard.
+Converts the v3c coastal flood catalogue (with coastal-snapped coordinates,
+scientific regional overrides/exclusions, and matched BMKG tide gauge water
+level anomalies) into optimized JSON and JS payloads for the INDO-COASTFLOOD
+interactive web dashboard.
 
 Features:
   - Reads data/processed/rob_events_v3c.csv and data/processed/rob_places_latlon.csv
   - Applies scientific filters from src.regions (drop_excluded, apply_event_overrides, apply_region_overrides)
+  - Matches nearest BMKG tide station and computes peak water level anomaly (anom_obs_cm, wl_m, pct)
   - Exports clean, structured data/events.json for web fetch
   - Exports data/events.js (window.ROB_EVENTS) for zero-CORS local file:// viewing
   - Exports data/summary.json with aggregated metadata
@@ -19,6 +21,7 @@ import os
 import json
 import argparse
 from pathlib import Path
+import numpy as np
 import pandas as pd
 
 # Add repo root to sys.path to import src.regions if needed
@@ -34,6 +37,69 @@ except ImportError:
     print("Notice: src.regions module not found, continuing without custom overrides.")
 
 
+def load_tidegauge_data(repo_root: Path) -> dict:
+    """Load nearest BMKG tide station matches and calculate water level anomalies."""
+    tg_match_file = repo_root / "data/processed/rob_tg_match_v3c.csv"
+    contrib_file = repo_root / "data/processed/rob_contrib_v3c.csv"
+    daily_pct_file = repo_root / "data/raw/tidegauge/restricted/tg_daily_pct_local.parquet"
+
+    tg_data = {}
+
+    if tg_match_file.is_file():
+        df_match = pd.read_csv(tg_match_file)
+        for _, r in df_match.iterrows():
+            ev_id = str(r['event_id'])
+            tg_data[ev_id] = {
+                'station': str(r['station']),
+                'dist_km': round(float(r['dist_km']), 1),
+                'pct': round(float(r['pct_max']), 1) if pd.notna(r['pct_max']) else None,
+                'anom_cm': None,
+                'wl_m': None
+            }
+
+    if contrib_file.is_file():
+        df_contrib = pd.read_csv(contrib_file)
+        for _, r in df_contrib.iterrows():
+            ev_id = str(r['event_id'])
+            if ev_id in tg_data:
+                if pd.notna(r['anom_obs_cm']):
+                    tg_data[ev_id]['anom_cm'] = round(float(r['anom_obs_cm']), 1)
+                if pd.notna(r['wl_obs_m']):
+                    tg_data[ev_id]['wl_m'] = round(float(r['wl_obs_m']), 2)
+
+    if daily_pct_file.is_file() and tg_match_file.is_file():
+        df_match = pd.read_csv(tg_match_file)
+        df_pct = pd.read_parquet(daily_pct_file)
+        df_pct['date'] = pd.to_datetime(df_pct['date'])
+        df_pct['doy'] = df_pct['date'].dt.dayofyear
+
+        for ev_id, info in tg_data.items():
+            if info['anom_cm'] is not None:
+                continue
+            ev_matches = df_match[df_match['event_id'] == ev_id]
+            if len(ev_matches) == 0:
+                continue
+            ev_date = pd.to_datetime(ev_matches['date_start'].iloc[0])
+            stn = info['station']
+            stn_df = df_pct[df_pct['station'] == stn]
+            ev_row = stn_df[stn_df['date'] == ev_date]
+            if len(ev_row) > 0 and pd.notna(ev_row['wl_max'].iloc[0]):
+                seg_id = ev_row['segment_id'].iloc[0]
+                stn_seg = stn_df[stn_df['segment_id'] == seg_id]
+                diff = np.abs(stn_seg['doy'].values - ev_date.dayofyear)
+                circ_diff = np.minimum(diff, 366 - diff)
+                ref_vals = stn_seg['wl_max'].values[circ_diff <= 45]
+                ref_vals = ref_vals[~np.isnan(ref_vals)]
+                if len(ref_vals) >= 15:
+                    wl_obs = float(ev_row['wl_max'].iloc[0])
+                    wl_ref = float(np.median(ref_vals))
+                    anom_cm = round((wl_obs - wl_ref) * 100.0, 1)
+                    info['anom_cm'] = anom_cm
+                    info['wl_m'] = round(wl_obs, 2)
+
+    return tg_data
+
+
 def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_exclusions: bool = True):
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -42,19 +108,19 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
     if not places_csv.is_file():
         raise FileNotFoundError(f"Places CSV not found at {places_csv}")
 
-    print(f"[1/4] Reading events from {events_csv.name}...")
+    print(f"[1/5] Reading events from {events_csv.name}...")
     df_events = pd.read_csv(events_csv)
     raw_count = len(df_events)
 
     # Apply scientific overrides & exclusions if available
     if HAS_REGIONS_MODULE and apply_exclusions:
-        print("[2/4] Applying scientific exclusions & place/region overrides from src.regions...")
+        print("[2/5] Applying scientific exclusions & place/region overrides from src.regions...")
         df_events = drop_excluded(df_events)
         print(f"      Filtered {raw_count} raw events down to {len(df_events)} verified coastal flood events.")
     elif HAS_REGIONS_MODULE:
         df_events = apply_region_overrides(apply_event_overrides(df_events))
 
-    print(f"[3/4] Reading places coordinates from {places_csv.name}...")
+    print(f"[3/5] Reading places coordinates from {places_csv.name}...")
     df_places = pd.read_csv(places_csv)
     places_clean = df_places.drop_duplicates(subset=['place', 'province'])
 
@@ -84,6 +150,13 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         print(f"      Warning: Dropping {unlocated} events without valid coastal coordinates.")
         merged = merged.dropna(subset=['lat', 'lon'])
 
+    # Load tide gauge observations
+    print("[4/5] Matching nearest BMKG tide gauge water level anomalies...")
+    tg_data = load_tidegauge_data(REPO_ROOT)
+    matched_tg_count = sum(1 for e in merged['event_id'] if e in tg_data)
+    with_anom_count = sum(1 for e in merged['event_id'] if e in tg_data and tg_data[e]['anom_cm'] is not None)
+    print(f"      Matched {matched_tg_count} events to nearest tide station ({with_anom_count} with active water level anomalies).")
+
     # Sort descending by date (newest first)
     merged = merged.sort_values(by='date_start', ascending=False)
 
@@ -111,6 +184,7 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
 
     records = []
     for _, row in merged.iterrows():
+        ev_id = str(row['event_id'])
         title = str(row['first_title']).strip('"\' ') if pd.notna(row['first_title']) else ''
         terms = str(row['terms']).strip('"\' ') if pd.notna(row['terms']) else ''
         depth = float(row['depth_cm']) if pd.notna(row['depth_cm']) else None
@@ -118,8 +192,11 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         tier_code = str(row['tier']).strip().lower()
         hazard_code = str(row['hazard']).strip()
 
+        # Tide gauge match info
+        tg_info = tg_data.get(ev_id, None)
+
         records.append({
-            'id': str(row['event_id']),
+            'id': ev_id,
             'hazard': hazard_code,
             'hazard_label': hazard_display_map.get(hazard_code, hazard_code.replace('_', ' ').title()),
             'date_start': str(row['date_start']),
@@ -141,6 +218,7 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
             'n_domains': int(row['n_domains_indep']) if pd.notna(row['n_domains_indep']) else 1,
             'lat': round(float(row['lat']), 5),
             'lon': round(float(row['lon']), 5),
+            'tg': tg_info,
         })
 
     # Summary statistics
@@ -164,14 +242,16 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         'year_range': [unique_years[0], unique_years[-1]] if unique_years else [],
         'tier_counts': tier_counts,
         'region_counts': region_counts,
+        'tide_gauge_matches': matched_tg_count,
+        'tide_gauge_anomalies': with_anom_count,
         'generated_at': pd.Timestamp.now().isoformat()
     }
 
-    # [4/4] Output files
+    # [5/5] Output files
     json_path = out_dir / "events.json"
     with open(json_path, 'w', encoding='utf-8') as f:
         json.dump(records, f, separators=(',', ':'), ensure_ascii=False)
-    print(f"[4/4] Wrote {total_events} events to {json_path} ({json_path.stat().st_size / 1024:.1f} KB)")
+    print(f"[5/5] Wrote {total_events} events to {json_path} ({json_path.stat().st_size / 1024:.1f} KB)")
 
     js_path = out_dir / "events.js"
     with open(js_path, 'w', encoding='utf-8') as f:
@@ -195,7 +275,7 @@ if __name__ == '__main__':
     default_places = REPO_ROOT / "data/processed/rob_places_latlon.csv"
     default_out = Path(__file__).resolve().parent.parent / "data"
 
-    parser = argparse.ArgumentParser(description="Export v3c rob catalogue for web dashboard")
+    parser = argparse.ArgumentParser(description="Export v3c rob catalogue with tide gauge anomalies for web dashboard")
     parser.add_argument('--events', type=Path, default=default_events, help="Path to rob_events_v3c.csv")
     parser.add_argument('--places', type=Path, default=default_places, help="Path to rob_places_latlon.csv")
     parser.add_argument('--out', type=Path, default=default_out, help="Output directory for web data")
