@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Indonesian Coastal Flood Catalogue (v3c) | Dashboard & Tracker</title>
-  <meta name="description" content="Dashboard Web Interaktif dan Pelacak Kejadian Banjir Rob Pesisir Indonesia (2015-2026)">
+  <title>Indonesian Coastal Flood Catalogue (v3c) | Interactive Dashboard & Tracker</title>
+  <meta name="description" content="Interactive Web Dashboard and Auto-Tracker for Indonesian Coastal Flooding Events (2015-2026)">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -25,7 +25,6 @@
               900: '#0c4a6e',
               950: '#082f49',
             },
-            pantura: '#2563eb',
             tierConfirmed: '#059669',
             tierProbable: '#d97706',
             tierPossible: '#64748b',
@@ -129,52 +128,61 @@
         <div>
           <div class="flex items-center gap-2">
             <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
-              INDO-COASTFLOOD
+              <span>INDO-COASTFLOOD</span>
               <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">v3c Catalogue</span>
             </h1>
           </div>
-          <p class="text-xs text-slate-400 hidden sm:block">Katalog & Pelacak Kejadian Banjir Rob Pesisir Indonesia (2015–2026)</p>
+          <p id="app-tagline" class="text-xs text-slate-400 hidden sm:block">
+            Indonesian Coastal Flood Catalogue & Tracker (2015–2026)
+          </p>
         </div>
       </div>
 
       <!-- Quick Stats Banner -->
       <div class="hidden lg:flex items-center gap-6 px-4 py-1.5 bg-slate-800/80 rounded-lg border border-slate-700/60 text-xs">
         <div class="flex items-center gap-2">
-          <span class="text-slate-400">Total Kejadian:</span>
+          <span class="text-slate-400" data-i18n="stat_total">Total Events:</span>
           <span id="stat-total" class="font-bold text-white font-mono text-sm">1,219</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
-          <span class="text-slate-400">Aktif Tampil:</span>
+          <span class="text-slate-400" data-i18n="stat_active">Active Shown:</span>
           <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-sm">1,219</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
-          <span class="text-slate-400">Titik Pesisir:</span>
+          <span class="text-slate-400" data-i18n="stat_places">Coastal Places:</span>
           <span id="stat-places" class="font-bold text-emerald-400 font-mono text-sm">156</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
-          <span class="text-slate-400">Maks. Genangan:</span>
+          <span class="text-slate-400" data-i18n="stat_max_depth">Max Inundation:</span>
           <span id="stat-max-depth" class="font-bold text-amber-400 font-mono text-sm">-</span>
         </div>
       </div>
 
       <!-- Actions & Nav Tabs -->
       <div class="flex items-center gap-2">
+        
+        <!-- Language Switcher Button -->
+        <button onclick="toggleLanguage()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition" title="Switch Language / Ganti Bahasa">
+          <i class="fa-solid fa-language text-cyan-400 text-sm"></i>
+          <span id="current-lang-label" class="font-mono">EN</span>
+        </button>
+
         <!-- View Switcher Tabs -->
         <div class="bg-slate-800 p-1 rounded-lg border border-slate-700 flex text-xs font-medium">
           <button id="btn-view-map" onclick="switchView('map')" class="px-3 py-1.5 rounded-md bg-cyan-600 text-white flex items-center gap-1.5 shadow-sm transition">
             <i class="fa-solid fa-map"></i>
-            <span class="hidden md:inline">Peta Spasial</span>
+            <span class="hidden md:inline" data-i18n="view_map">Spatial Map</span>
           </button>
           <button id="btn-view-analytics" onclick="switchView('analytics')" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1.5 transition">
             <i class="fa-solid fa-chart-pie"></i>
-            <span class="hidden md:inline">Analitik</span>
+            <span class="hidden md:inline" data-i18n="view_analytics">Analytics</span>
           </button>
           <button id="btn-view-table" onclick="switchView('table')" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1.5 transition">
             <i class="fa-solid fa-table-list"></i>
-            <span class="hidden md:inline">Tabel Data</span>
+            <span class="hidden md:inline" data-i18n="view_table">Data Table</span>
           </button>
         </div>
 
@@ -182,23 +190,28 @@
         <div class="relative group">
           <button class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium border border-slate-700 flex items-center gap-1.5 transition">
             <i class="fa-solid fa-download text-cyan-400"></i>
-            <span class="hidden sm:inline">Ekspor</span>
+            <span class="hidden sm:inline" data-i18n="export">Export</span>
             <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
           </button>
-          <div class="absolute right-0 mt-1 w-44 bg-white rounded-lg shadow-xl border border-slate-200 py-1 hidden group-hover:block z-50">
+          <div class="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-xl border border-slate-200 py-1 hidden group-hover:block z-50">
             <button onclick="exportData('csv')" class="w-full px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-100 flex items-center gap-2">
-              <i class="fa-solid fa-file-csv text-emerald-600 text-sm"></i> Unduh CSV Terfilter
+              <i class="fa-solid fa-file-csv text-emerald-600 text-sm"></i> <span data-i18n="export_csv">Export Filtered CSV</span>
             </button>
             <button onclick="exportData('geojson')" class="w-full px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-100 flex items-center gap-2">
-              <i class="fa-solid fa-globe text-blue-600 text-sm"></i> Unduh GeoJSON
+              <i class="fa-solid fa-globe text-blue-600 text-sm"></i> <span data-i18n="export_geojson">Export GeoJSON</span>
             </button>
           </div>
         </div>
 
         <!-- About Modal Button -->
-        <button onclick="toggleModal('modal-about', true)" title="Informasi & Metodologi" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs border border-slate-700 transition">
+        <button onclick="toggleModal('modal-about', true)" title="About & Methodology" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs border border-slate-700 transition">
           <i class="fa-solid fa-circle-info text-sm"></i>
         </button>
+
+        <!-- GitHub Repo Button -->
+        <a href="https://github.com/randifirdausq5-eng/indonesian-coastal-flood-catalogue" target="_blank" rel="noopener noreferrer" title="View Source on GitHub" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs border border-slate-700 transition">
+          <i class="fa-brands fa-github text-sm"></i>
+        </a>
       </div>
 
     </div>
@@ -214,17 +227,17 @@
       <div class="p-4 border-b border-slate-100 space-y-3 bg-slate-50/50">
         <div class="flex items-center justify-between">
           <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-            <i class="fa-solid fa-sliders text-cyan-600"></i> Filter & Penelusuran
+            <i class="fa-solid fa-sliders text-cyan-600"></i> <span data-i18n="filter_title">Filter & Search</span>
           </h2>
           <button onclick="resetFilters()" class="text-xs text-slate-500 hover:text-red-600 font-medium flex items-center gap-1 transition">
-            <i class="fa-solid fa-rotate-left"></i> Reset
+            <i class="fa-solid fa-rotate-left"></i> <span data-i18n="reset">Reset</span>
           </button>
         </div>
 
         <!-- Free Text Search Bar -->
         <div class="relative">
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-          <input type="text" id="search-input" oninput="applyFilters()" placeholder="Cari kota, kabupaten, atau berita..." 
+          <input type="text" id="search-input" oninput="applyFilters()" placeholder="Search city, regency, or headline..." 
             class="w-full pl-8 pr-8 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition shadow-sm placeholder:text-slate-400">
           <button id="search-clear-btn" onclick="clearSearch()" class="hidden absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 text-xs">
             <i class="fa-solid fa-xmark"></i>
@@ -235,37 +248,36 @@
       <!-- Filter Controls (Scrollable) -->
       <div class="flex-1 overflow-y-auto p-4 space-y-5 text-xs">
 
-        <!-- 1. Rentang Waktu (Tahun & Bulan) -->
+        <!-- 1. Time Range (Year & Month) -->
         <div class="space-y-2">
           <label class="font-semibold text-slate-700 flex items-center justify-between">
-            <span><i class="fa-regular fa-calendar text-cyan-600 mr-1.5"></i> Rentang Waktu</span>
-            <span id="label-year-active" class="text-[11px] font-normal text-slate-500">Semua Tahun</span>
+            <span><i class="fa-regular fa-calendar text-cyan-600 mr-1.5"></i> <span data-i18n="time_range">Time Range</span></span>
+            <span id="label-year-active" class="text-[11px] font-normal text-slate-500">All Years</span>
           </label>
           
-          <!-- Year Select -->
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Tahun</label>
+              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="year">Year</label>
               <select id="filter-year" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
-                <option value="all">Semua (2015-2026)</option>
+                <option value="all" data-i18n="all_years">All (2015-2026)</option>
               </select>
             </div>
             <div>
-              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Bulan</label>
+              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="month">Month</label>
               <select id="filter-month" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
-                <option value="all">Semua Bulan</option>
-                <option value="1">Januari</option>
-                <option value="2">Februari</option>
-                <option value="3">Maret</option>
-                <option value="4">April</option>
-                <option value="5">Mei (Puncak Pantura)</option>
-                <option value="6">Juni (Puncak Pantura)</option>
-                <option value="7">Juli</option>
-                <option value="8">Agustus</option>
-                <option value="9">September</option>
-                <option value="10">Oktober</option>
-                <option value="11">November</option>
-                <option value="12">Desember</option>
+                <option value="all" data-i18n="all_months">All Months</option>
+                <option value="1">1 - January</option>
+                <option value="2">2 - February</option>
+                <option value="3">3 - March</option>
+                <option value="4">4 - April</option>
+                <option value="5">5 - May (Java Peak)</option>
+                <option value="6">6 - June (Java Peak)</option>
+                <option value="7">7 - July</option>
+                <option value="8">8 - August</option>
+                <option value="9">9 - September</option>
+                <option value="10">10 - October</option>
+                <option value="11">11 - November</option>
+                <option value="12">12 - December</option>
               </select>
             </div>
           </div>
@@ -273,80 +285,79 @@
 
         <div class="h-px bg-slate-200"></div>
 
-        <!-- 2. Wilayah Pesisir & Provinsi -->
+        <!-- 2. Coastal Region & Province -->
         <div class="space-y-2.5">
           <label class="font-semibold text-slate-700 flex items-center justify-between">
-            <span><i class="fa-solid fa-map-location-dot text-cyan-600 mr-1.5"></i> Wilayah Pesisir</span>
+            <span><i class="fa-solid fa-map-location-dot text-cyan-600 mr-1.5"></i> <span data-i18n="coastal_region">Coastal Region</span></span>
           </label>
           
-          <!-- Region Chips -->
           <div class="grid grid-cols-2 gap-1.5" id="region-chips-container">
             <button onclick="setRegionFilter('all')" data-region="all" class="region-chip active px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-cyan-50 border-cyan-500 text-cyan-800 font-medium">
-              <span>Semua Wilayah</span>
+              <span data-i18n="reg_all">All Regions</span>
               <span id="badge-all-reg" class="text-[10px] px-1.5 py-0.2 bg-white rounded-full font-mono">1219</span>
             </button>
             <button onclick="setRegionFilter('java_north')" data-region="java_north" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
-              <span>Pantura Jawa</span>
+              <span data-i18n="reg_java_north">Java North Coast</span>
               <span id="badge-javanorth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">841</span>
             </button>
             <button onclick="setRegionFilter('sumatra_east')" data-region="sumatra_east" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
-              <span>Sumatera Timur</span>
+              <span data-i18n="reg_sumatra_east">East Sumatra</span>
               <span id="badge-sumatraeast-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">130</span>
             </button>
             <button onclick="setRegionFilter('east_indo')" data-region="east_indo" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
-              <span>Indonesia Timur</span>
+              <span data-i18n="reg_east_indo">Eastern Indonesia</span>
               <span id="badge-eastindo-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">91</span>
             </button>
             <button onclick="setRegionFilter('kalimantan')" data-region="kalimantan" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
-              <span>Kalimantan</span>
+              <span data-i18n="reg_kalimantan">Kalimantan</span>
               <span id="badge-kalimantan-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">62</span>
             </button>
             <button onclick="setRegionFilter('java_south')" data-region="java_south" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
-              <span>Jawa Selatan</span>
+              <span data-i18n="reg_java_south">Java South Coast</span>
               <span id="badge-javasouth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">55</span>
             </button>
             <button onclick="setRegionFilter('sumatra_west')" data-region="sumatra_west" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 col-span-2">
-              <span>Sumatera Barat</span>
+              <span data-i18n="reg_sumatra_west">West Sumatra</span>
               <span id="badge-sumatrawest-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">40</span>
             </button>
           </div>
 
           <!-- Province Dropdown -->
           <div class="pt-1">
-            <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Filter Spesifik Provinsi</label>
+            <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="province_select">Filter Specific Province</label>
             <select id="filter-province" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
-              <option value="all">Semua Provinsi (34)</option>
+              <option value="all">All Provinces (34)</option>
             </select>
           </div>
         </div>
 
         <div class="h-px bg-slate-200"></div>
 
-        <!-- 3. Tingkat Keyakinan (Confidence Tier) -->
+        <!-- 3. Confidence Tier -->
         <div class="space-y-2">
           <label class="font-semibold text-slate-700 flex items-center justify-between">
-            <span><i class="fa-solid fa-shield-halved text-cyan-600 mr-1.5"></i> Tingkat Keyakinan (Tier)</span>
-            <span class="text-[10px] text-slate-400">Klasifikasi Riset</span>
+            <span><i class="fa-solid fa-shield-halved text-cyan-600 mr-1.5"></i> <span data-i18n="confidence_tier">Confidence Tier</span></span>
+            <span class="text-[10px] text-slate-400" data-i18n="research_class">Research Class</span>
           </label>
           <div class="space-y-1.5">
             <label class="flex items-center justify-between p-2 rounded-md border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50 cursor-pointer transition">
               <div class="flex items-center gap-2">
                 <input type="checkbox" id="tier-confirmed" value="confirmed" checked onchange="applyFilters()" class="rounded text-emerald-600 focus:ring-emerald-500">
-                <span class="font-medium text-emerald-900">Confirmed (Terverifikasi)</span>
+                <span class="font-medium text-emerald-900" data-i18n="tier_confirmed_desc">Confirmed (Physically verified)</span>
               </div>
               <span id="count-tier-confirmed" class="font-mono text-[11px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">83</span>
             </label>
             <label class="flex items-center justify-between p-2 rounded-md border border-amber-200 bg-amber-50/50 hover:bg-amber-50 cursor-pointer transition">
               <div class="flex items-center gap-2">
                 <input type="checkbox" id="tier-probable" value="probable" checked onchange="applyFilters()" class="rounded text-amber-600 focus:ring-amber-500">
-                <span class="font-medium text-amber-900">Probable (Sangat Mungkin)</span>
+                <span class="font-medium text-amber-900" data-i18n="tier_probable_desc">Probable (Explicit credible report)</span>
               </div>
               <span id="count-tier-probable" class="font-mono text-[11px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">678</span>
             </label>
             <label class="flex items-center justify-between p-2 rounded-md border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer transition">
               <div class="flex items-center gap-2">
                 <input type="checkbox" id="tier-possible" value="possible" checked onchange="applyFilters()" class="rounded text-slate-600 focus:ring-slate-500">
-                <span class="font-medium text-slate-800">Possible (Potensi/Ringan)</span>
+                <span class="font-medium text-slate-800" data-i18n="tier_possible_desc">Possible (General / minor impact)</span>
               </div>
               <span id="count-tier-possible" class="font-mono text-[11px] font-bold text-slate-600 bg-slate-200 px-1.5 py-0.2 rounded">458</span>
             </label>
@@ -355,27 +366,27 @@
 
         <div class="h-px bg-slate-200"></div>
 
-        <!-- 4. Parameter Tambahan: Bahaya & Tinggi Genangan -->
+        <!-- 4. Hazard & Inundation Depth Filter -->
         <div class="space-y-2">
           <label class="font-semibold text-slate-700 flex items-center justify-between">
-            <span><i class="fa-solid fa-ruler-vertical text-cyan-600 mr-1.5"></i> Parameter Khusus</span>
+            <span><i class="fa-solid fa-ruler-vertical text-cyan-600 mr-1.5"></i> <span data-i18n="specific_parameters">Parameters</span></span>
           </label>
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Jenis Bahaya</label>
+              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="hazard_type">Hazard Type</label>
               <select id="filter-hazard" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
-                <option value="all">Semua Bahaya</option>
-                <option value="rob">Banjir Rob Murni</option>
-                <option value="high_wave">Gelombang Pasang</option>
+                <option value="all" data-i18n="hazard_all">All Hazards</option>
+                <option value="rob" data-i18n="hazard_rob">Tidal Flood (Rob)</option>
+                <option value="high_wave" data-i18n="hazard_high_wave">High Wave / Swell</option>
               </select>
             </div>
             <div>
-              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Tinggi Genangan</label>
+              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="depth_filter">Water Depth</label>
               <select id="filter-depth" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
-                <option value="all">Semua Kejadian</option>
-                <option value="reported">Ada Angka (cm)</option>
+                <option value="all" data-i18n="depth_all">All Events</option>
+                <option value="reported" data-i18n="depth_reported">Depth Reported (cm)</option>
                 <option value="50">≥ 50 cm</option>
-                <option value="100">≥ 100 cm (Ekstrem)</option>
+                <option value="100">≥ 100 cm (Extreme)</option>
               </select>
             </div>
           </div>
@@ -384,22 +395,22 @@
         <!-- Live Status Card -->
         <div class="p-3 bg-gradient-to-br from-cyan-900 to-slate-900 text-white rounded-xl shadow-sm space-y-1">
           <div class="flex items-center justify-between text-[11px] text-cyan-300">
-            <span>Status Filter</span>
+            <span data-i18n="filter_status">Filter Status</span>
             <span id="active-percentage" class="font-mono font-bold">100%</span>
           </div>
-          <p class="text-xs text-slate-200">
-            Menampilkan <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,219</span> dari 
-            <span class="font-semibold font-mono">1,219</span> total kejadian terverifikasi.
+          <p class="text-xs text-slate-200" id="filter-summary-text">
+            Showing <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,219</span> of 
+            <span class="font-semibold font-mono">1,219</span> verified events in catalogue.
           </p>
         </div>
 
       </div>
 
-      <!-- Quick Hotspots / Top Locations Accordion/Footer -->
+      <!-- Quick Hotspots / Top Locations Footer -->
       <div class="p-3 border-t border-slate-200 bg-slate-50 text-xs">
         <div class="text-[11px] font-semibold text-slate-600 mb-1.5 flex items-center justify-between">
-          <span><i class="fa-solid fa-fire text-amber-500"></i> Hotspot Teratas:</span>
-          <span class="text-[10px] text-slate-400">Klik untuk zoom</span>
+          <span><i class="fa-solid fa-fire text-amber-500"></i> <span data-i18n="hotspots_title">Top Hotspots:</span></span>
+          <span class="text-[10px] text-slate-400" data-i18n="hotspots_hint">Click to zoom</span>
         </div>
         <div class="flex flex-wrap gap-1.5" id="hotspots-container">
           <!-- Populated by JS -->
@@ -417,36 +428,36 @@
       <!-- Floating Map Controls / Quick Zoom -->
       <div class="absolute top-4 right-4 z-20 flex flex-col gap-2">
         
-        <!-- Basemap Switcher -->
+        <!-- Basemap Switcher (100% Open Source / No API Key required!) -->
         <div class="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-slate-200 p-1 flex flex-col text-xs">
-          <button onclick="setBasemap('positron')" id="btn-basemap-positron" class="px-2.5 py-1.5 rounded text-left font-medium text-cyan-700 bg-cyan-50 flex items-center gap-2">
-            <i class="fa-solid fa-map"></i> Terang (Positron)
+          <button onclick="setBasemap('osm')" id="btn-basemap-osm" class="px-2.5 py-1.5 rounded text-left font-medium text-cyan-700 bg-cyan-50 flex items-center gap-2">
+            <i class="fa-solid fa-map"></i> <span>OpenStreetMap</span>
+          </button>
+          <button onclick="setBasemap('ocean')" id="btn-basemap-ocean" class="px-2.5 py-1.5 rounded text-left font-medium text-slate-600 hover:bg-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-water"></i> <span>Esri Ocean Basemap</span>
           </button>
           <button onclick="setBasemap('satellite')" id="btn-basemap-satellite" class="px-2.5 py-1.5 rounded text-left font-medium text-slate-600 hover:bg-slate-100 flex items-center gap-2">
-            <i class="fa-solid fa-satellite"></i> Citra Satelit
-          </button>
-          <button onclick="setBasemap('dark')" id="btn-basemap-dark" class="px-2.5 py-1.5 rounded text-left font-medium text-slate-600 hover:bg-slate-100 flex items-center gap-2">
-            <i class="fa-solid fa-moon"></i> Gelap (Dark Matter)
+            <i class="fa-solid fa-satellite"></i> <span>Esri Satellite</span>
           </button>
         </div>
 
         <!-- Quick Region Focus Buttons -->
         <div class="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-slate-200 p-2 text-xs space-y-1 hidden sm:block">
-          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Fokus Kawasan:</div>
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1" data-i18n="focus_corridors">Focus Region:</div>
           <button onclick="focusRegion([-6.9, 110.2, 8])" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between">
-            <span>Pantura Jawa</span>
+            <span data-i18n="reg_java_north">Java North Coast</span>
             <i class="fa-solid fa-crosshairs text-[10px] text-slate-400"></i>
           </button>
           <button onclick="focusRegion([0.5, 102.5, 7])" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between">
-            <span>Sumatera Timur</span>
+            <span data-i18n="reg_sumatra_east">East Sumatra</span>
             <i class="fa-solid fa-crosshairs text-[10px] text-slate-400"></i>
           </button>
           <button onclick="focusRegion([-6.1, 106.8, 10])" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between">
-            <span>DKI Jakarta & Teluk</span>
+            <span>Jakarta Bay</span>
             <i class="fa-solid fa-crosshairs text-[10px] text-slate-400"></i>
           </button>
           <button onclick="focusRegion([-2.5, 118.0, 5])" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-cyan-600 font-semibold flex items-center justify-between">
-            <span>Seluruh Indonesia</span>
+            <span data-i18n="all_indonesia">All Indonesia</span>
             <i class="fa-solid fa-compress text-[10px]"></i>
           </button>
         </div>
@@ -456,25 +467,25 @@
       <!-- Floating Map Legend -->
       <div class="absolute bottom-6 left-4 z-20 bg-white/95 backdrop-blur-sm p-3 rounded-xl shadow-lg border border-slate-200 text-xs max-w-xs pointer-events-auto">
         <div class="font-bold text-slate-800 text-[11px] mb-2 flex items-center justify-between">
-          <span>Legenda Tingkat Keyakinan</span>
+          <span data-i18n="legend_title">Confidence Tier Legend</span>
           <i class="fa-solid fa-layer-group text-slate-400"></i>
         </div>
         <div class="space-y-1.5 text-[11px]">
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-emerald-600 inline-block shadow-sm"></span>
-            <span class="font-medium text-slate-700">Confirmed (Dampak fisik terverifikasi)</span>
+            <span class="font-medium text-slate-700" data-i18n="legend_confirmed">Confirmed (Verified physical impact)</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-amber-500 inline-block shadow-sm"></span>
-            <span class="font-medium text-slate-700">Probable (Laporan rob kredibel)</span>
+            <span class="font-medium text-slate-700" data-i18n="legend_probable">Probable (Credible flood report)</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-blue-600 inline-block shadow-sm"></span>
-            <span class="font-medium text-slate-700">Possible (Dampak ringan / indikasi)</span>
+            <span class="font-medium text-slate-700" data-i18n="legend_possible">Possible (Minor / potential impact)</span>
           </div>
         </div>
-        <div class="mt-2.5 pt-2 border-t border-slate-100 text-[10px] text-slate-400 leading-tight">
-          Ukuran cluster angka menunjukkan kumpulan kejadian pada resolusi zoom tersebut.
+        <div class="mt-2.5 pt-2 border-t border-slate-100 text-[10px] text-slate-400 leading-tight" data-i18n="cluster_hint">
+          Cluster numbers show aggregate event counts at that spatial zoom level.
         </div>
       </div>
 
@@ -487,13 +498,13 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 class="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-            <i class="fa-solid fa-chart-column text-cyan-600"></i> Dasbor Analitik & Variabilitas Kejadian Rob
+            <i class="fa-solid fa-chart-column text-cyan-600"></i> <span data-i18n="analytics_title">Analytics Dashboard & Seasonal Variability</span>
           </h2>
-          <p class="text-xs text-slate-500">Statistik real-time yang secara dinamis mengikuti filter aktif yang dipilih di sidebar.</p>
+          <p class="text-xs text-slate-500" data-i18n="analytics_subtitle">Real-time statistics dynamically responding to active filter controls in the sidebar.</p>
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs bg-white px-3 py-1.5 rounded-lg border border-slate-200 font-mono text-slate-600 shadow-sm">
-            Data Terfilter: <strong id="chart-filter-count" class="text-cyan-600 font-bold">1,219</strong> kejadian
+            <span data-i18n="filtered_data">Filtered Data:</span> <strong id="chart-filter-count" class="text-cyan-600 font-bold">1,219</strong> <span data-i18n="events_unit">events</span>
           </span>
         </div>
       </div>
@@ -501,56 +512,56 @@
       <!-- 4 Charts Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        <!-- Chart 1: Kejadian Tahunan -->
+        <!-- Chart 1: Annual Trend -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
           <div class="flex items-center justify-between mb-3">
             <div>
-              <h3 class="font-bold text-sm text-slate-800">Tren Kejadian Rob Tahunan (2015–2026)</h3>
-              <p class="text-[11px] text-slate-500">Distribusi frekuensi laporan banjir rob per tahun</p>
+              <h3 class="font-bold text-sm text-slate-800" data-i18n="chart_annual_title">Annual Coastal Flood Events (2015–2026)</h3>
+              <p class="text-[11px] text-slate-500" data-i18n="chart_annual_sub">Frequency distribution of reported coastal floods per year</p>
             </div>
-            <span class="text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Tahunan</span>
+            <span class="text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded" data-i18n="badge_annual">Annual</span>
           </div>
           <div class="relative flex-1 min-h-[260px]">
             <canvas id="chart-annual"></canvas>
           </div>
         </div>
 
-        <!-- Chart 2: Siklus Musiman Bulanan -->
+        <!-- Chart 2: Monthly Seasonality -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
           <div class="flex items-center justify-between mb-3">
             <div>
-              <h3 class="font-bold text-sm text-slate-800">Siklus Musiman Bulanan (Klimatologi Jan–Des)</h3>
-              <p class="text-[11px] text-slate-500">Membuktikan puncak rob pesisir (misal Mei-Juli di Pantura Jawa)</p>
+              <h3 class="font-bold text-sm text-slate-800" data-i18n="chart_monthly_title">Monthly Climatology & Seasonality (Jan–Dec)</h3>
+              <p class="text-[11px] text-slate-500" data-i18n="chart_monthly_sub">Highlights regional flood season window (e.g. May–July peak along northern Java)</p>
             </div>
-            <span class="text-[10px] font-mono bg-cyan-50 text-cyan-700 px-2 py-0.5 rounded font-bold">Puncak Musiman</span>
+            <span class="text-[10px] font-mono bg-cyan-50 text-cyan-700 px-2 py-0.5 rounded font-bold" data-i18n="badge_seasonal">Seasonal Peak</span>
           </div>
           <div class="relative flex-1 min-h-[260px]">
             <canvas id="chart-monthly"></canvas>
           </div>
         </div>
 
-        <!-- Chart 3: Distribusi Wilayah -->
+        <!-- Chart 3: Regional Distribution -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
           <div class="flex items-center justify-between mb-3">
             <div>
-              <h3 class="font-bold text-sm text-slate-800">Distribusi Regional Pesisir</h3>
-              <p class="text-[11px] text-slate-500">Perbandingan jumlah kejadian antar koridor pesisir utama</p>
+              <h3 class="font-bold text-sm text-slate-800" data-i18n="chart_regional_title">Regional Coastal Distribution</h3>
+              <p class="text-[11px] text-slate-500" data-i18n="chart_regional_sub">Comparison of flood event shares across major Indonesian coastal corridors</p>
             </div>
-            <span class="text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Spasial</span>
+            <span class="text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded" data-i18n="badge_spatial">Spatial</span>
           </div>
           <div class="relative flex-1 min-h-[260px]">
             <canvas id="chart-regional"></canvas>
           </div>
         </div>
 
-        <!-- Chart 4: Top 10 Lokasi Paling Rawan -->
+        <!-- Chart 4: Top 10 Hotspots -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
           <div class="flex items-center justify-between mb-3">
             <div>
-              <h3 class="font-bold text-sm text-slate-800">Top 10 Lokasi / Kota Paling Rawan Rob</h3>
-              <p class="text-[11px] text-slate-500">Kota dan pesisir dengan frekuensi rob tertinggi</p>
+              <h3 class="font-bold text-sm text-slate-800" data-i18n="chart_places_title">Top 10 Most Flooded Coastal Locations</h3>
+              <p class="text-[11px] text-slate-500" data-i18n="chart_places_sub">Municipalities and coastal stretches with highest recorded flood frequencies</p>
             </div>
-            <span class="text-[10px] font-mono bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold">Hotspot</span>
+            <span class="text-[10px] font-mono bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold">Hotspots</span>
           </div>
           <div class="relative flex-1 min-h-[260px]">
             <canvas id="chart-places"></canvas>
@@ -568,16 +579,16 @@
       <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50">
         <div>
           <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-table-list text-cyan-600"></i> Tabel Data Katalog Banjir Rob
+            <i class="fa-solid fa-table-list text-cyan-600"></i> <span data-i18n="table_title">Coastal Flood Catalogue Records</span>
           </h2>
-          <p class="text-xs text-slate-500">Daftar lengkap record kejadian terverifikasi dengan tautan langsung ke artikel berita.</p>
+          <p class="text-xs text-slate-500" data-i18n="table_subtitle">Comprehensive event-level records with direct links to verified news sources.</p>
         </div>
         <div class="flex items-center gap-2">
           <button onclick="exportData('csv')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
-            <i class="fa-solid fa-file-csv"></i> Unduh CSV
+            <i class="fa-solid fa-file-csv"></i> <span data-i18n="export_csv">Export CSV</span>
           </button>
           <button onclick="exportData('geojson')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
-            <i class="fa-solid fa-globe"></i> Unduh GeoJSON
+            <i class="fa-solid fa-globe"></i> <span data-i18n="export_geojson">Export GeoJSON</span>
           </button>
         </div>
       </div>
@@ -588,14 +599,14 @@
           <thead class="bg-slate-100 text-slate-600 font-semibold sticky top-0 z-10 border-b border-slate-200">
             <tr>
               <th class="py-2.5 px-3">ID</th>
-              <th class="py-2.5 px-3">Tanggal Mulai</th>
-              <th class="py-2.5 px-3">Lokasi (Kota / Tempat)</th>
-              <th class="py-2.5 px-3">Provinsi</th>
-              <th class="py-2.5 px-3">Wilayah</th>
-              <th class="py-2.5 px-3">Tingkat (Tier)</th>
-              <th class="py-2.5 px-3">Genangan</th>
-              <th class="py-2.5 px-3">Judul Berita & Sumber</th>
-              <th class="py-2.5 px-3 text-center">Aksi</th>
+              <th class="py-2.5 px-3" data-i18n="th_date">Start Date</th>
+              <th class="py-2.5 px-3" data-i18n="th_place">Location</th>
+              <th class="py-2.5 px-3" data-i18n="th_province">Province</th>
+              <th class="py-2.5 px-3" data-i18n="th_region">Region</th>
+              <th class="py-2.5 px-3" data-i18n="th_tier">Tier</th>
+              <th class="py-2.5 px-3" data-i18n="th_depth">Depth</th>
+              <th class="py-2.5 px-3" data-i18n="th_title">News Headline & Sources</th>
+              <th class="py-2.5 px-3 text-center" data-i18n="th_action">Actions</th>
             </tr>
           </thead>
           <tbody id="table-body" class="divide-y divide-slate-100">
@@ -607,15 +618,15 @@
       <!-- Table Pagination / Footer -->
       <div class="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-600">
         <div id="table-pagination-info">
-          Menampilkan baris <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> dari <span id="table-total-count" class="font-bold">1,219</span>
+          Showing rows <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> of <span id="table-total-count" class="font-bold">1,219</span>
         </div>
         <div class="flex items-center gap-2">
           <button id="btn-page-prev" onclick="changeTablePage(-1)" class="px-3 py-1 bg-white border border-slate-300 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
-            <i class="fa-solid fa-chevron-left"></i> Sebelumnya
+            <i class="fa-solid fa-chevron-left"></i> <span data-i18n="btn_prev">Previous</span>
           </button>
-          <span class="font-mono text-xs px-2" id="table-page-indicator">Halaman 1</span>
+          <span class="font-mono text-xs px-2" id="table-page-indicator">Page 1</span>
           <button id="btn-page-next" onclick="changeTablePage(1)" class="px-3 py-1 bg-white border border-slate-300 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
-            Berikutnya <i class="fa-solid fa-chevron-right"></i>
+            <span data-i18n="btn_next">Next</span> <i class="fa-solid fa-chevron-right"></i>
           </button>
         </div>
       </div>
@@ -632,7 +643,7 @@
       <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <i class="fa-solid fa-circle-info text-cyan-400 text-lg"></i>
-          <h3 class="font-bold text-base">Tentang Indonesian Coastal Flood Catalogue (v3c)</h3>
+          <h3 class="font-bold text-base" id="about-modal-title">About the Indonesian Coastal Flood Catalogue (v3c)</h3>
         </div>
         <button onclick="toggleModal('modal-about', false)" class="text-slate-400 hover:text-white text-lg">
           <i class="fa-solid fa-xmark"></i>
@@ -640,49 +651,14 @@
       </div>
 
       <!-- Modal Body -->
-      <div class="p-6 overflow-y-auto text-xs text-slate-600 space-y-4 leading-relaxed">
-        
-        <div>
-          <h4 class="font-bold text-slate-800 text-sm mb-1">1. Latar Belakang & Tujuan Proyek</h4>
-          <p>
-            Katalog ini merupakan kompilasi independen kejadian banjir rob pesisir di seluruh Indonesia dari periode November 2015 hingga 2026. Data dihimpun melalui penelusuran sistematis ratusan ribu artikel berita media daring (Google News RSS & verifikasi independen), dirancang untuk menjembatani observasi satelit altimetri, pengukur pasang surut (tide gauges), dan dampak langsung di pesisir.
-          </p>
-        </div>
-
-        <div class="p-3 bg-cyan-50 border border-cyan-200 rounded-xl">
-          <h4 class="font-bold text-cyan-950 text-xs mb-1"><i class="fa-solid fa-shield-halved text-cyan-700 mr-1"></i> 2. Definisi Tingkat Keyakinan (Confidence Tiers)</h4>
-          <ul class="list-disc pl-4 space-y-1 text-cyan-900 text-[11px]">
-            <li><strong>Confirmed (Terverifikasi):</strong> Kejadian dengan laporan dampak fisik terukur (misal evakuasi/pengungsian, tinggi genangan air spesifik, laporan resmi instansi terkait, atau diliput oleh banyak domain media independen).</li>
-            <li><strong>Probable (Sangat Mungkin):</strong> Berita melaporkan banjir rob secara eksplisit di lokasi pesisir yang relevan dengan dampak genangan jalan/pemukiman.</li>
-            <li><strong>Possible (Potensi/Ringan):</strong> Laporan rob dengan bahasa dampak yang lebih umum atau minim detail kuantitatif.</li>
-          </ul>
-        </div>
-
-        <div>
-          <h4 class="font-bold text-slate-800 text-sm mb-1">3. Temuan Kunci Sains Oseanografi</h4>
-          <p>
-            Analisis menunjukkan bahwa siklus musiman menetapkan jendela waktu muka laut tinggi, sementara osilasi intraseasonal (seperti MJO dan gelombang Kelvin ekuator/pantai) serta siklus pasang surut (spring tide) menentukan hari terjadinya rob ekstrem. Puncak rob di Pantura Jawa sangat terkonsentrasi pada bulan Mei–Juli.
-          </p>
-        </div>
-
-        <div>
-          <h4 class="font-bold text-slate-800 text-sm mb-1">4. Penafian Ilmiah (Scientific Disclaimer)</h4>
-          <p class="text-slate-500">
-            Katalog ini ditujukan untuk analisis distribusi spasial, siklus musiman, dan keterkaitan dengan dinamika oseanografi-atmosfer. <strong>Katalog ini TIDAK boleh digunakan untuk menghitung tren jangka panjang</strong> (karena adanya variasi peliputan media massa dari waktu ke waktu).
-          </p>
-        </div>
-
-        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
-          <span>Pengembang & Peneliti: <strong>Randi Firdaus</strong> (Tohoku University)</span>
-          <span class="font-mono">Open Science Initiative</span>
-        </div>
-
+      <div class="p-6 overflow-y-auto text-xs text-slate-600 space-y-4 leading-relaxed" id="about-modal-content">
+        <!-- Rendered based on active language -->
       </div>
 
       <!-- Modal Footer -->
       <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 flex justify-end">
-        <button onclick="toggleModal('modal-about', false)" class="px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-700 transition">
-          Tutup
+        <button onclick="toggleModal('modal-about', false)" class="px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-700 transition" data-i18n="btn_close">
+          Close
         </button>
       </div>
 
@@ -696,8 +672,203 @@
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
   <script>
+    // ================= I18N DICTIONARY =================
+    const I18N = {
+      en: {
+        tagline: "Indonesian Coastal Flood Catalogue & Tracker (2015–2026)",
+        stat_total: "Total Events:",
+        stat_active: "Active Shown:",
+        stat_places: "Coastal Places:",
+        stat_max_depth: "Max Inundation:",
+        view_map: "Spatial Map",
+        view_analytics: "Analytics",
+        view_table: "Data Table",
+        export: "Export",
+        export_csv: "Export Filtered CSV",
+        export_geojson: "Export GeoJSON",
+        filter_title: "Filter & Search",
+        reset: "Reset",
+        search_placeholder: "Search city, regency, or headline...",
+        time_range: "Time Range",
+        all_years: "All (2015-2026)",
+        all_months: "All Months",
+        year: "Year",
+        month: "Month",
+        coastal_region: "Coastal Region",
+        reg_all: "All Regions",
+        reg_java_north: "Java North Coast",
+        reg_sumatra_east: "East Sumatra",
+        reg_east_indo: "Eastern Indonesia",
+        reg_kalimantan: "Kalimantan",
+        reg_java_south: "Java South Coast",
+        reg_sumatra_west: "West Sumatra",
+        province_select: "Filter Specific Province",
+        confidence_tier: "Confidence Tier",
+        research_class: "Research Class",
+        tier_confirmed_desc: "Confirmed (Physically verified)",
+        tier_probable_desc: "Probable (Explicit credible report)",
+        tier_possible_desc: "Possible (General / minor impact)",
+        specific_parameters: "Parameters",
+        hazard_type: "Hazard Type",
+        hazard_all: "All Hazards",
+        hazard_rob: "Tidal Flood (Rob)",
+        hazard_high_wave: "High Wave / Swell",
+        depth_filter: "Water Depth",
+        depth_all: "All Events",
+        depth_reported: "Depth Reported (cm)",
+        filter_status: "Filter Status",
+        filter_summary: (count, total) => `Showing <span class="font-bold text-cyan-300 font-mono">${count.toLocaleString()}</span> of <span class="font-semibold font-mono">${total.toLocaleString()}</span> verified events.`,
+        hotspots_title: "Top Hotspots:",
+        hotspots_hint: "Click to zoom",
+        focus_corridors: "Focus Region:",
+        all_indonesia: "All Indonesia",
+        legend_title: "Confidence Tier Legend",
+        legend_confirmed: "Confirmed (Verified physical impact)",
+        legend_probable: "Probable (Credible flood report)",
+        legend_possible: "Possible (Minor / potential impact)",
+        cluster_hint: "Cluster numbers show aggregate event counts at that spatial zoom level.",
+        analytics_title: "Analytics Dashboard & Seasonal Variability",
+        analytics_subtitle: "Real-time statistics dynamically responding to active filter controls in the sidebar.",
+        filtered_data: "Filtered Data:",
+        events_unit: "events",
+        chart_annual_title: "Annual Coastal Flood Events (2015–2026)",
+        chart_annual_sub: "Frequency distribution of reported coastal floods per year",
+        badge_annual: "Annual",
+        chart_monthly_title: "Monthly Climatology & Seasonality (Jan–Dec)",
+        chart_monthly_sub: "Highlights regional flood season window (e.g. May–July peak along northern Java)",
+        badge_seasonal: "Seasonal Peak",
+        chart_regional_title: "Regional Coastal Distribution",
+        chart_regional_sub: "Comparison of flood event shares across major Indonesian coastal corridors",
+        badge_spatial: "Spatial",
+        chart_places_title: "Top 10 Most Flooded Coastal Locations",
+        chart_places_sub: "Municipalities and coastal stretches with highest recorded flood frequencies",
+        table_title: "Coastal Flood Catalogue Records",
+        table_subtitle: "Comprehensive event-level records with direct links to verified news sources.",
+        th_date: "Start Date",
+        th_place: "Location",
+        th_province: "Province",
+        th_region: "Region",
+        th_tier: "Tier",
+        th_depth: "Depth",
+        th_title: "News Headline & Sources",
+        th_action: "Actions",
+        btn_prev: "Previous",
+        btn_next: "Next",
+        btn_close: "Close",
+        table_showing: (start, end, total) => `Showing rows <span class="font-bold">${start}</span> - <span class="font-bold">${end}</span> of <span class="font-bold">${total.toLocaleString()}</span>`,
+        table_empty: "No events match the active filter criteria.",
+        popup_date: "EVENT DATE",
+        popup_days: "days",
+        popup_loc: "COASTAL LOCATION",
+        popup_depth: "Estimated Inundation:",
+        popup_headline: "ARCHIVED NEWS HEADLINE:",
+        popup_region: "Region:",
+        popup_terms: "Terms:",
+        popup_reason: "Tier Reason:",
+        popup_source: "Sources:",
+        popup_btn: "Open Original News Source",
+        months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      },
+      id: {
+        tagline: "Katalog & Pelacak Kejadian Banjir Rob Pesisir Indonesia (2015–2026)",
+        stat_total: "Total Kejadian:",
+        stat_active: "Aktif Tampil:",
+        stat_places: "Titik Pesisir:",
+        stat_max_depth: "Maks. Genangan:",
+        view_map: "Peta Spasial",
+        view_analytics: "Analitik",
+        view_table: "Tabel Data",
+        export: "Ekspor",
+        export_csv: "Unduh CSV Terfilter",
+        export_geojson: "Unduh GeoJSON",
+        filter_title: "Filter & Penelusuran",
+        reset: "Reset",
+        search_placeholder: "Cari kota, kabupaten, atau berita...",
+        time_range: "Rentang Waktu",
+        all_years: "Semua (2015-2026)",
+        all_months: "Semua Bulan",
+        year: "Tahun",
+        month: "Bulan",
+        coastal_region: "Wilayah Pesisir",
+        reg_all: "Semua Wilayah",
+        reg_java_north: "Pantura Jawa",
+        reg_sumatra_east: "Sumatera Timur",
+        reg_east_indo: "Indonesia Timur",
+        reg_kalimantan: "Kalimantan",
+        reg_java_south: "Jawa Selatan",
+        reg_sumatra_west: "Sumatera Barat",
+        province_select: "Filter Spesifik Provinsi",
+        confidence_tier: "Tingkat Keyakinan",
+        research_class: "Klasifikasi Riset",
+        tier_confirmed_desc: "Confirmed (Terverifikasi fisik)",
+        tier_probable_desc: "Probable (Laporan rob kredibel)",
+        tier_possible_desc: "Possible (Dampak ringan / umum)",
+        specific_parameters: "Parameter Khusus",
+        hazard_type: "Jenis Bahaya",
+        hazard_all: "Semua Bahaya",
+        hazard_rob: "Banjir Rob Murni",
+        hazard_high_wave: "Gelombang Pasang",
+        depth_filter: "Tinggi Genangan",
+        depth_all: "Semua Kejadian",
+        depth_reported: "Ada Angka Genangan (cm)",
+        filter_status: "Status Filter",
+        filter_summary: (count, total) => `Menampilkan <span class="font-bold text-cyan-300 font-mono">${count.toLocaleString()}</span> dari <span class="font-semibold font-mono">${total.toLocaleString()}</span> total kejadian terverifikasi.`,
+        hotspots_title: "Hotspot Teratas:",
+        hotspots_hint: "Klik untuk zoom",
+        focus_corridors: "Fokus Kawasan:",
+        all_indonesia: "Seluruh Indonesia",
+        legend_title: "Legenda Tingkat Keyakinan",
+        legend_confirmed: "Confirmed (Dampak fisik terverifikasi)",
+        legend_probable: "Probable (Laporan rob kredibel)",
+        legend_possible: "Possible (Dampak ringan / indikasi)",
+        cluster_hint: "Ukuran cluster angka menunjukkan kumpulan kejadian pada resolusi zoom tersebut.",
+        analytics_title: "Dasbor Analitik & Variabilitas Kejadian Rob",
+        analytics_subtitle: "Statistik real-time yang secara dinamis mengikuti filter aktif yang dipilih di sidebar.",
+        filtered_data: "Data Terfilter:",
+        events_unit: "kejadian",
+        chart_annual_title: "Tren Kejadian Rob Tahunan (2015–2026)",
+        chart_annual_sub: "Distribusi frekuensi laporan banjir rob per tahun",
+        badge_annual: "Tahunan",
+        chart_monthly_title: "Siklus Musiman Bulanan (Klimatologi Jan–Des)",
+        chart_monthly_sub: "Membuktikan puncak rob pesisir (misal Mei-Juli di Pantura Jawa)",
+        badge_seasonal: "Puncak Musiman",
+        chart_regional_title: "Distribusi Regional Pesisir",
+        chart_regional_sub: "Perbandingan porsi kejadian rob antar koridor pesisir utama",
+        badge_spatial: "Spasial",
+        chart_places_title: "Top 10 Lokasi / Kota Paling Rawan Rob",
+        chart_places_sub: "Kota dan pesisir dengan frekuensi rob tertinggi",
+        table_title: "Tabel Data Katalog Banjir Rob",
+        table_subtitle: "Daftar lengkap record kejadian terverifikasi dengan tautan langsung ke artikel berita.",
+        th_date: "Tanggal Mulai",
+        th_place: "Lokasi",
+        th_province: "Provinsi",
+        th_region: "Wilayah",
+        th_tier: "Tingkat (Tier)",
+        th_depth: "Genangan",
+        th_title: "Judul Berita & Sumber",
+        th_action: "Aksi",
+        btn_prev: "Sebelumnya",
+        btn_next: "Berikutnya",
+        btn_close: "Tutup",
+        table_showing: (start, end, total) => `Menampilkan baris <span class="font-bold">${start}</span> - <span class="font-bold">${end}</span> dari <span class="font-bold">${total.toLocaleString()}</span>`,
+        table_empty: "Tidak ada data yang cocok dengan kriteria filter aktif saat ini.",
+        popup_date: "TANGGAL KEJADIAN",
+        popup_days: "hari",
+        popup_loc: "LOKASI PESISIR",
+        popup_depth: "Estimasi Genangan:",
+        popup_headline: "JUDUL BERITA ARSIP:",
+        popup_region: "Wilayah:",
+        popup_terms: "Istilah:",
+        popup_reason: "Alasan Tier:",
+        popup_source: "Sumber:",
+        popup_btn: "Buka Sumber Berita Asli",
+        months: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
+      }
+    };
+
     // Global Application State
     const AppState = {
+      lang: localStorage.getItem('indocoast_lang') || 'en', // 'en' or 'id'
       allEvents: [],
       filteredEvents: [],
       activeRegion: 'all',
@@ -710,6 +881,131 @@
       tablePageSize: 50,
       currentView: 'map',
     };
+
+    // Toggle Language between English and Indonesian
+    function toggleLanguage() {
+      AppState.lang = AppState.lang === 'en' ? 'id' : 'en';
+      localStorage.setItem('indocoast_lang', AppState.lang);
+      updateLanguageUI();
+    }
+
+    function updateLanguageUI() {
+      const l = AppState.lang;
+      const dict = I18N[l];
+
+      document.getElementById('current-lang-label').textContent = l.toUpperCase();
+      document.getElementById('app-tagline').textContent = dict.tagline;
+      document.getElementById('search-input').placeholder = dict.search_placeholder;
+
+      // Update static data-i18n elements
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) {
+          el.textContent = dict[key];
+        }
+      });
+
+      // Update about modal content
+      renderAboutModal();
+
+      // Refresh filter summary card
+      const total = AppState.allEvents.length;
+      const count = AppState.filteredEvents.length;
+      const summaryEl = document.getElementById('filter-summary-text');
+      if (summaryEl) summaryEl.innerHTML = dict.filter_summary(count, total);
+
+      // Refresh map markers popups & charts
+      refreshMapMarkers();
+      renderTablePage(AppState.tablePage);
+      if (AppState.currentView === 'analytics') {
+        updateCharts();
+      }
+    }
+
+    // Render About Modal in chosen language
+    function renderAboutModal() {
+      const l = AppState.lang;
+      const titleEl = document.getElementById('about-modal-title');
+      const contentEl = document.getElementById('about-modal-content');
+
+      if (l === 'en') {
+        titleEl.textContent = "About the Indonesian Coastal Flood Catalogue (v3c)";
+        contentEl.innerHTML = `
+          <div>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">1. Background & Project Goal</h4>
+            <p>
+              This catalogue is an independent, observational compilation of coastal flood events across the Indonesian Maritime Continent from November 2015 to 2026. The dataset is systematically mined from news reports (Google News RSS & independent media verification), designed to bridge satellite radar altimetry observations, coastal tide gauges, and documented on-the-ground flooding impacts.
+            </p>
+          </div>
+
+          <div class="p-3 bg-cyan-50 border border-cyan-200 rounded-xl">
+            <h4 class="font-bold text-cyan-950 text-xs mb-1"><i class="fa-solid fa-shield-halved text-cyan-700 mr-1"></i> 2. Confidence Tier Classification</h4>
+            <ul class="list-disc pl-4 space-y-1 text-cyan-900 text-[11px]">
+              <li><strong>Confirmed:</strong> Events with measured physical impacts (e.g. resident evacuation, specific inundation water depth in cm, official agency reports, or verified across independent press domains).</li>
+              <li><strong>Probable:</strong> Explicit media reports of tidal flooding (rob) in a coastal settlement causing residential or road inundation.</li>
+              <li><strong>Possible:</strong> News reports of coastal flooding with generic impact wording or limited quantitative depth details.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">3. Key Oceanographic Findings</h4>
+            <p>
+              Physical analysis demonstrates that the <strong>seasonal cycle sets the baseline window</strong> when sea level is already high, whereas <strong>intraseasonal pulses (MJO & coastal trapped Kelvin waves) and spring tides determine the exact days</strong> that develop into coastal flood disasters. The Java Sea shelf experiences an acute flood season peak concentrated in May–July.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">4. Scientific Disclaimer</h4>
+            <p class="text-slate-500">
+              This catalogue is intended for spatial distribution, seasonal cycle, and physical compound extreme attribution studies. <strong>This catalogue MUST NOT be used for long-term multi-decadal sea level trend analysis</strong> (due to temporal variations in online media coverage).
+            </p>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
+            <span>Lead Researcher: <strong>Randi Firdaus</strong> (Tohoku University)</span>
+            <span class="font-mono">Open Science Initiative</span>
+          </div>
+        `;
+      } else {
+        titleEl.textContent = "Tentang Indonesian Coastal Flood Catalogue (v3c)";
+        contentEl.innerHTML = `
+          <div>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">1. Latar Belakang & Tujuan Proyek</h4>
+            <p>
+              Katalog ini merupakan kompilasi independen kejadian banjir rob pesisir di seluruh Indonesia dari periode November 2015 hingga 2026. Data dihimpun melalui penelusuran sistematis artikel berita media daring (Google News RSS & verifikasi independen), dirancang untuk menjembatani observasi satelit altimetri, pengukur pasang surut (tide gauges), dan dampak langsung di pesisir.
+            </p>
+          </div>
+
+          <div class="p-3 bg-cyan-50 border border-cyan-200 rounded-xl">
+            <h4 class="font-bold text-cyan-950 text-xs mb-1"><i class="fa-solid fa-shield-halved text-cyan-700 mr-1"></i> 2. Definisi Tingkat Keyakinan (Confidence Tiers)</h4>
+            <ul class="list-disc pl-4 space-y-1 text-cyan-900 text-[11px]">
+              <li><strong>Confirmed (Terverifikasi):</strong> Kejadian dengan laporan dampak fisik terukur (misal evakuasi/pengungsian, tinggi genangan air spesifik, laporan resmi instansi terkait, atau diliput oleh banyak domain media independen).</li>
+              <li><strong>Probable (Sangat Mungkin):</strong> Berita melaporkan banjir rob secara eksplisit di lokasi pesisir yang relevan dengan dampak genangan jalan/pemukiman.</li>
+              <li><strong>Possible (Potensi/Ringan):</strong> Laporan rob dengan bahasa dampak yang lebih umum atau minim detail kuantitatif.</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">3. Temuan Kunci Sains Oseanografi</h4>
+            <p>
+              Analisis menunjukkan bahwa siklus musiman menetapkan jendela waktu muka laut tinggi, sementara osilasi intraseasonal (seperti MJO dan gelombang Kelvin ekuator/pantai) serta siklus pasang surut (spring tide) menentukan hari terjadinya rob ekstrem. Puncak rob di Pantura Jawa sangat terkonsentrasi pada bulan Mei–Juli.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">4. Penafian Ilmiah (Scientific Disclaimer)</h4>
+            <p class="text-slate-500">
+              Katalog ini ditujukan untuk analisis distribusi spasial, siklus musiman, dan keterkaitan dengan dinamika oseanografi-atmosfer. <strong>Katalog ini TIDAK boleh digunakan untuk menghitung tren jangka panjang</strong> (karena adanya variasi peliputan media massa dari waktu ke waktu).
+            </p>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
+            <span>Pengembang & Peneliti: <strong>Randi Firdaus</strong> (Tohoku University)</span>
+            <span class="font-mono">Open Science Initiative</span>
+          </div>
+        `;
+      }
+    }
 
     // Initialize application when DOM is loaded
     document.addEventListener('DOMContentLoaded', () => {
@@ -728,7 +1024,7 @@
           .then(data => initApp(data))
           .catch(err => {
             console.error("Failed to load events data:", err);
-            alert("Gagal memuat berkas data events.json atau events.js. Pastikan script parser telah dijalankan.");
+            alert("Failed to load events data file. Please ensure export script has been executed.");
           });
       }
     });
@@ -743,8 +1039,11 @@
       populateProvinceOptions(events);
       renderHotspots(events);
 
-      // Initialize Map
+      // Initialize Map with 100% open-source basemaps (No API keys required)
       initMap();
+
+      // Apply language preferences
+      updateLanguageUI();
 
       // Render markers & statistics
       applyFilters();
@@ -764,7 +1063,7 @@
       years.forEach(y => {
         const opt = document.createElement('option');
         opt.value = y;
-        opt.textContent = `Tahun ${y}`;
+        opt.textContent = `${y}`;
         yearSelect.appendChild(opt);
       });
     }
@@ -773,7 +1072,7 @@
     function populateProvinceOptions(events) {
       const provSelect = document.getElementById('filter-province');
       const provinces = Array.from(new Set(events.map(e => e.province).filter(Boolean))).sort();
-      provSelect.innerHTML = `<option value="all">Semua Provinsi (${provinces.length})</option>`;
+      provSelect.innerHTML = `<option value="all">All Provinces (${provinces.length})</option>`;
       provinces.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p;
@@ -795,7 +1094,6 @@
         .slice(0, 7);
 
       container.innerHTML = topPlaces.map(([place, count]) => {
-        // Find sample coord
         const sample = events.find(e => e.place === place);
         return `
           <button onclick="focusMapLocation(${sample.lat}, ${sample.lon}, 11, '${place}')" 
@@ -807,28 +1105,30 @@
       }).join('');
     }
 
-    // Initialize Leaflet Map
+    // Initialize Leaflet Map (Free OpenStreetMap & Esri Ocean / Satellite)
     function initMap() {
-      // Base layers
-      const positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a>, &copy; OpenStreetMap',
+      // 1. OpenStreetMap (Clean, 100% Open-Source, No API Key required!)
+      const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         maxZoom: 19
       });
 
+      // 2. Esri Ocean Basemap (Dedicated physical oceanography bathymetry & coastal marine basemap)
+      const ocean = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri, GEBCO, NOAA, National Geographic',
+        maxZoom: 13
+      });
+
+      // 3. Esri World Imagery (Satellite)
       const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri, Earthstar Geographics',
         maxZoom: 18
       });
 
-      const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://carto.com/">CARTO</a>, &copy; OpenStreetMap',
-        maxZoom: 19
-      });
-
       AppState.basemapLayers = {
-        positron: positron,
-        satellite: satellite,
-        dark: dark
+        osm: osm,
+        ocean: ocean,
+        satellite: satellite
       };
 
       // Create map centered on Indonesia
@@ -836,7 +1136,7 @@
         center: [-2.5, 118.0],
         zoom: 5,
         zoomControl: false,
-        layers: [positron]
+        layers: [osm]
       });
 
       // Custom zoom control in bottom right
@@ -862,7 +1162,7 @@
       AppState.map.addLayer(AppState.basemapLayers[type]);
 
       // Update button styling
-      ['positron', 'satellite', 'dark'].forEach(b => {
+      ['osm', 'ocean', 'satellite'].forEach(b => {
         const btn = document.getElementById(`btn-basemap-${b}`);
         if (b === type) {
           btn.className = "px-2.5 py-1.5 rounded text-left font-medium text-cyan-700 bg-cyan-50 flex items-center gap-2";
@@ -1002,6 +1302,7 @@
       const total = AppState.allEvents.length;
       const count = AppState.filteredEvents.length;
       const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+      const dict = I18N[AppState.lang];
 
       // Header numbers
       document.getElementById('stat-filtered').textContent = count.toLocaleString();
@@ -1020,7 +1321,13 @@
       document.getElementById('active-percentage').textContent = `${pct}%`;
       
       const yr = document.getElementById('filter-year').value;
-      document.getElementById('label-year-active').textContent = yr === 'all' ? 'Semua Tahun' : `Tahun ${yr}`;
+      document.getElementById('label-year-active').textContent = yr === 'all' 
+        ? (AppState.lang === 'en' ? 'All Years' : 'Semua Tahun') 
+        : `${yr}`;
+
+      // Summary text
+      const summaryEl = document.getElementById('filter-summary-text');
+      if (summaryEl) summaryEl.innerHTML = dict.filter_summary(count, total);
 
       // Chart count in Analytics view
       const chartCountEl = document.getElementById('chart-filter-count');
@@ -1034,11 +1341,11 @@
       AppState.markerClusterGroup.clearLayers();
 
       const markers = [];
+      const dict = I18N[AppState.lang];
 
       AppState.filteredEvents.forEach(e => {
         if (!e.lat || !e.lon) return;
 
-        // Determine marker color by tier
         let pinColor = '#2563eb'; // blue
         let badgeClass = 'bg-blue-100 text-blue-800 border-blue-200';
         if (e.tier === 'confirmed') {
@@ -1078,12 +1385,12 @@
               <!-- Date & Location -->
               <div class="grid grid-cols-2 gap-2 text-[11px] pb-2 border-b border-slate-100">
                 <div>
-                  <span class="text-slate-400 block text-[10px]">TANGGAL KEJADIAN</span>
+                  <span class="text-slate-400 block text-[10px]">${dict.popup_date}</span>
                   <span class="font-bold text-slate-900">📅 ${e.date_start}</span>
-                  ${e.days > 1 ? `<span class="text-[10px] text-slate-500">(${e.days} hari)</span>` : ''}
+                  ${e.days > 1 ? `<span class="text-[10px] text-slate-500">(${e.days} ${dict.popup_days})</span>` : ''}
                 </div>
                 <div>
-                  <span class="text-slate-400 block text-[10px]">LOKASI PESISIR</span>
+                  <span class="text-slate-400 block text-[10px]">${dict.popup_loc}</span>
                   <span class="font-bold text-slate-900">📍 ${e.place}</span>
                   <span class="text-[10px] text-slate-500 block">${e.province}</span>
                 </div>
@@ -1092,23 +1399,23 @@
               <!-- Depth Highlight if available -->
               ${e.depth_cm ? `
                 <div class="p-2 bg-cyan-50 border border-cyan-200 rounded-lg flex items-center justify-between">
-                  <span class="text-cyan-900 font-semibold"><i class="fa-solid fa-ruler-vertical text-cyan-600 mr-1"></i> Estimasi Genangan:</span>
+                  <span class="text-cyan-900 font-semibold"><i class="fa-solid fa-ruler-vertical text-cyan-600 mr-1"></i> ${dict.popup_depth}</span>
                   <span class="font-mono font-bold text-cyan-950 text-sm">${e.depth_cm} cm</span>
                 </div>
               ` : ''}
 
               <!-- News Title -->
               <div>
-                <span class="text-slate-400 block text-[10px] mb-0.5">JUDUL BERITA ARSIP:</span>
-                <p class="font-semibold text-slate-800 leading-snug line-clamp-2">"${e.title || 'Laporan Banjir Rob Pesisir'}"</p>
+                <span class="text-slate-400 block text-[10px] mb-0.5">${dict.popup_headline}</span>
+                <p class="font-semibold text-slate-800 leading-snug line-clamp-2">"${e.title || 'Coastal Flood Report'}"</p>
               </div>
 
               <!-- Metadata details -->
               <div class="text-[10px] text-slate-500 space-y-0.5 bg-slate-50 p-2 rounded border border-slate-100">
-                <div><strong>Wilayah:</strong> ${e.region_label}</div>
-                <div><strong>Istilah:</strong> <code class="text-cyan-800">${e.terms || 'banjir rob'}</code></div>
-                ${e.tier_reason ? `<div><strong>Alasan Tier:</strong> ${e.tier_reason}</div>` : ''}
-                <div><strong>Sumber:</strong> ${e.n_articles} artikel (${e.n_domains} domain pers independen)</div>
+                <div><strong>${dict.popup_region}</strong> ${e.region_label}</div>
+                <div><strong>${dict.popup_terms}</strong> <code class="text-cyan-800">${e.terms || 'banjir rob'}</code></div>
+                ${e.tier_reason ? `<div><strong>${dict.popup_reason}</strong> ${e.tier_reason}</div>` : ''}
+                <div><strong>${dict.popup_source}</strong> ${e.n_articles} articles (${e.n_domains} independent domains)</div>
               </div>
 
               <!-- Action Link -->
@@ -1116,7 +1423,7 @@
                 <div class="pt-1">
                   <a href="${e.url}" target="_blank" rel="noopener noreferrer" 
                     class="w-full py-1.5 px-3 bg-cyan-600 hover:bg-cyan-700 text-white text-center rounded-md font-semibold flex items-center justify-center gap-1.5 transition">
-                    <span>Buka Sumber Berita Asli</span>
+                    <span>${dict.popup_btn}</span>
                     <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                   </a>
                 </div>
@@ -1150,7 +1457,6 @@
     function switchView(viewName) {
       AppState.currentView = viewName;
 
-      // Update button classes
       ['map', 'analytics', 'table'].forEach(v => {
         const btn = document.getElementById(`btn-view-${v}`);
         const viewEl = document.getElementById(`view-${v}`);
@@ -1163,7 +1469,6 @@
         }
       });
 
-      // Special handling per view
       if (viewName === 'map') {
         setTimeout(() => {
           AppState.map.invalidateSize();
@@ -1178,17 +1483,9 @@
     // Update Analytics Charts (Chart.js)
     function updateCharts() {
       const events = AppState.filteredEvents;
-
-      // 1. Annual Chart
       renderAnnualChart(events);
-
-      // 2. Monthly Seasonality Chart
       renderMonthlyChart(events);
-
-      // 3. Regional Chart
       renderRegionalChart(events);
-
-      // 4. Top Places Chart
       renderPlacesChart(events);
     }
 
@@ -1252,7 +1549,8 @@
       const ctx = document.getElementById('chart-monthly');
       if (!ctx) return;
 
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      const dict = I18N[AppState.lang];
+      const months = dict.months;
       const monthlyCounts = Array(12).fill(0);
 
       events.forEach(e => {
@@ -1269,7 +1567,7 @@
         data: {
           labels: months,
           datasets: [{
-            label: 'Total Kejadian',
+            label: AppState.lang === 'en' ? 'Total Events' : 'Total Kejadian',
             data: monthlyCounts,
             borderColor: '#0284c7',
             backgroundColor: 'rgba(14, 165, 233, 0.15)',
@@ -1287,7 +1585,7 @@
             legend: { display: false },
             tooltip: {
               callbacks: {
-                label: (ctx) => `Kejadian: ${ctx.raw} peristiwa`
+                label: (ctx) => `${AppState.lang === 'en' ? 'Events' : 'Kejadian'}: ${ctx.raw}`
               }
             }
           },
@@ -1360,7 +1658,7 @@
         data: {
           labels: top10.map(t => t[0]),
           datasets: [{
-            label: 'Jumlah Kejadian',
+            label: AppState.lang === 'en' ? 'Event Count' : 'Jumlah Kejadian',
             data: top10.map(t => t[1]),
             backgroundColor: '#0ea5e9',
             borderRadius: 4
@@ -1388,6 +1686,7 @@
       const startIdx = (page - 1) * AppState.tablePageSize;
       const endIdx = Math.min(startIdx + AppState.tablePageSize, total);
       const pageEvents = AppState.filteredEvents.slice(startIdx, endIdx);
+      const dict = I18N[AppState.lang];
 
       const tbody = document.getElementById('table-body');
       if (pageEvents.length === 0) {
@@ -1395,7 +1694,7 @@
           <tr>
             <td colspan="9" class="text-center py-10 text-slate-400">
               <i class="fa-solid fa-box-open text-2xl mb-2 block"></i>
-              Tidak ada data yang cocok dengan kriteria filter aktif saat ini.
+              ${dict.table_empty}
             </td>
           </tr>
         `;
@@ -1417,15 +1716,15 @@
               </td>
               <td class="py-2 px-3 font-mono font-medium text-cyan-900">${e.depth_cm ? `${e.depth_cm} cm` : '-'}</td>
               <td class="py-2 px-3 max-w-xs truncate" title="${e.title}">
-                <span class="text-slate-800 font-medium">${e.title || 'Laporan Banjir Rob'}</span>
+                <span class="text-slate-800 font-medium">${e.title || 'Coastal Flood Report'}</span>
               </td>
               <td class="py-2 px-3 text-center whitespace-nowrap space-x-1">
-                <button onclick="focusMapLocation(${e.lat}, ${e.lon}, 11, '${e.place}')" title="Tampilkan di Peta" 
+                <button onclick="focusMapLocation(${e.lat}, ${e.lon}, 11, '${e.place}')" title="Zoom to Location" 
                   class="px-2 py-1 bg-slate-100 hover:bg-cyan-50 hover:text-cyan-700 rounded text-slate-600 transition">
                   <i class="fa-solid fa-map-location-dot"></i>
                 </button>
                 ${e.url ? `
-                  <a href="${e.url}" target="_blank" rel="noopener noreferrer" title="Buka Berita Asli" 
+                  <a href="${e.url}" target="_blank" rel="noopener noreferrer" title="Open News Source" 
                     class="inline-block px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                   </a>
@@ -1437,12 +1736,12 @@
       }
 
       // Pagination indicators
-      document.getElementById('table-page-start').textContent = total > 0 ? (startIdx + 1).toLocaleString() : '0';
-      document.getElementById('table-page-end').textContent = endIdx.toLocaleString();
-      document.getElementById('table-total-count').textContent = total.toLocaleString();
+      const startNum = total > 0 ? (startIdx + 1).toLocaleString() : '0';
+      const endNum = endIdx.toLocaleString();
+      document.getElementById('table-pagination-info').innerHTML = dict.table_showing(startNum, endNum, total);
 
       const totalPages = Math.ceil(total / AppState.tablePageSize) || 1;
-      document.getElementById('table-page-indicator').textContent = `Halaman ${page} / ${totalPages}`;
+      document.getElementById('table-page-indicator').textContent = `${AppState.lang === 'en' ? 'Page' : 'Halaman'} ${page} / ${totalPages}`;
 
       document.getElementById('btn-page-prev').disabled = (page <= 1);
       document.getElementById('btn-page-next').disabled = (page >= totalPages);
@@ -1460,7 +1759,7 @@
     function exportData(format) {
       const data = AppState.filteredEvents;
       if (!data || data.length === 0) {
-        alert("Tidak ada data terfilter untuk diunduh.");
+        alert(AppState.lang === 'en' ? "No filtered data available to export." : "Tidak ada data terfilter untuk diunduh.");
         return;
       }
 
@@ -1481,7 +1780,7 @@
         });
 
         const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-        triggerDownload(blob, `katalog_banjir_rob_indonesia_${timestamp}.csv`);
+        triggerDownload(blob, `indonesian_coastal_flood_catalogue_${timestamp}.csv`);
 
       } else if (format === 'geojson') {
         const features = data.map(item => ({
@@ -1512,7 +1811,7 @@
         };
 
         const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/geo+json;charset=utf-8;' });
-        triggerDownload(blob, `katalog_banjir_rob_indonesia_${timestamp}.geojson`);
+        triggerDownload(blob, `indonesian_coastal_flood_catalogue_${timestamp}.geojson`);
       }
     }
 
