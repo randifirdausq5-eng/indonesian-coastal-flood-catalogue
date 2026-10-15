@@ -112,7 +112,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=1093.202610152229"></script>
+  <script src="data/events.js?v=1093.202610152250"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -1628,7 +1628,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=1093.202610152229')
+        fetch('data/events.json?v=1093.202610152250')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -2936,6 +2936,51 @@
         AppState.flaggedEvents = {};
       }
 
+      // Re-align flagged events against current dataset in case IDs shifted
+      if (Array.isArray(events) && AppState.flaggedEvents && Object.keys(AppState.flaggedEvents).length > 0) {
+        const realigned = {};
+        let modified = false;
+
+        Object.keys(AppState.flaggedEvents).forEach(oldId => {
+          const f = AppState.flaggedEvents[oldId];
+          if (!f) return;
+
+          // Check if current event with same ID is an exact match (same date & place)
+          const directMatch = events.find(e => String(e.id) === String(oldId));
+          const isDirectSame = directMatch && 
+            directMatch.date_start === f.date_start && 
+            String(directMatch.place || '').toLowerCase() === String(f.place || '').toLowerCase();
+
+          if (isDirectSame) {
+            // Direct ID match is accurate
+            realigned[oldId] = f;
+          } else {
+            // ID shifted! Search for the actual event by URL or by (date_start + place)
+            const trueMatch = events.find(e => 
+              (e.url && f.url && e.url === f.url) ||
+              (e.date_start === f.date_start && String(e.place || '').toLowerCase() === String(f.place || '').toLowerCase())
+            );
+
+            if (trueMatch) {
+              console.log(`Re-aligned shifted event flag from ${oldId} to ${trueMatch.id} (${f.place} ${f.date_start})`);
+              f.id = trueMatch.id;
+              realigned[trueMatch.id] = f;
+              modified = true;
+            } else {
+              // Event was filtered out / dropped from catalogue. Preserve under original ID with note.
+              realigned[oldId] = f;
+            }
+          }
+        });
+
+        AppState.flaggedEvents = realigned;
+        if (modified) {
+          try {
+            localStorage.setItem(STORAGE_KEY_FLAGGED, JSON.stringify(AppState.flaggedEvents));
+          } catch (e) {}
+        }
+      }
+
       // Merge pre-baked flags if present in dataset (e.g. from rob_flagged_audit.csv)
       if (Array.isArray(events)) {
         events.forEach(e => {
@@ -2946,8 +2991,13 @@
               province: e.province || '',
               region: e.region || '',
               date_start: e.date_start || '',
+              date_end: e.date_end || '',
+              depth_cm: e.depth_cm,
               title: e.title || '',
               url: e.url || '',
+              terms: e.terms || '',
+              tg_station: e.tg ? e.tg.station : '',
+              tg_anom_cm: e.tg && e.tg.anom_cm !== null ? e.tg.anom_cm : '',
               reason: e.flag_reason || 'Pre-flagged inaccurate',
               flagged_at: e.flagged_at || new Date().toISOString()
             };
@@ -3072,12 +3122,17 @@
       if (!AppState.flaggedEvents) AppState.flaggedEvents = {};
       AppState.flaggedEvents[eventId] = {
         id: eventId,
-        place: ev ? ev.place : '',
-        province: ev ? ev.province : '',
-        region: ev ? ev.region : '',
-        date_start: ev ? ev.date_start : '',
-        title: ev ? ev.title : '',
-        url: ev ? ev.url : '',
+        place: ev ? (ev.place || '') : '',
+        province: ev ? (ev.province || '') : '',
+        region: ev ? (ev.region || '') : '',
+        date_start: ev ? (ev.date_start || '') : '',
+        date_end: ev ? (ev.date_end || '') : '',
+        depth_cm: ev ? ev.depth_cm : null,
+        title: ev ? (ev.title || '') : '',
+        url: ev ? (ev.url || '') : '',
+        terms: ev ? (ev.terms || '') : '',
+        tg_station: ev && ev.tg ? (ev.tg.station || '') : '',
+        tg_anom_cm: ev && ev.tg && ev.tg.anom_cm !== null && ev.tg.anom_cm !== undefined ? ev.tg.anom_cm : '',
         reason: reasonText,
         flagged_at: new Date().toISOString()
       };
@@ -3181,18 +3236,18 @@
       }
 
       const rows = ids.map(id => {
-        const f = AppState.flaggedEvents[id];
+        const f = AppState.flaggedEvents[id] || {};
         const ev = AppState.allEvents.find(e => String(e.id) === String(id)) || {};
-        const dateStr = ev.date_start || f.date_start || '-';
-        const placeStr = ev.place || f.place || '-';
-        const provStr = ev.province || f.province || '';
-        const titleStr = ev.title || f.title || 'Laporan Kejadian';
-        const urlStr = ev.url || f.url || '';
+        const dateStr = f.date_start || ev.date_start || '-';
+        const placeStr = f.place || ev.place || '-';
+        const provStr = f.province || ev.province || '';
+        const titleStr = f.title || ev.title || 'Laporan Kejadian';
+        const urlStr = f.url || ev.url || '';
         const reasonStr = f.reason || 'Tidak akurat / bukan rob';
 
         return `
           <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-            <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${id}</td>
+            <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${f.id || id}</td>
             <td class="py-2.5 px-3 whitespace-nowrap text-slate-600">${dateStr}</td>
             <td class="py-2.5 px-3">
               <div class="font-bold text-slate-900">${placeStr}</div>
@@ -3278,24 +3333,24 @@
       ]);
 
       ids.forEach(id => {
-        const f = AppState.flaggedEvents[id];
+        const f = AppState.flaggedEvents[id] || {};
         const e = AppState.allEvents.find(x => String(x.id) === String(id)) || {};
         rows.push([
-          id,
-          `"${(e.place || f.place || '').replace(/"/g, '""')}"`,
-          `"${(e.province || f.province || '').replace(/"/g, '""')}"`,
-          `"${(e.region || f.region || '').replace(/"/g, '""')}"`,
-          e.date_start || f.date_start || '',
-          e.date_end || '',
-          (e.depth_cm !== undefined && e.depth_cm !== null) ? e.depth_cm : '',
-          `"${(e.title || f.title || '').replace(/"/g, '""')}"`,
-          `"${(e.url || f.url || '').replace(/"/g, '""')}"`,
-          `"${(e.terms || '').replace(/"/g, '""')}"`,
-          e.tg ? `"${e.tg.station}"` : '',
-          (e.tg && e.tg.anom_cm !== null) ? e.tg.anom_cm : '',
-          'INACCURATE',
-          `"${(f.reason || '').replace(/"/g, '""')}"`,
-          f.flagged_at || new Date().toISOString()
+          `"${f.id || id}"`,
+          `"${(f.place || e.place || '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
+          `"${(f.province || e.province || '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
+          `"${(f.region || e.region || '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
+          `"${f.date_start || e.date_start || ''}"`,
+          `"${f.date_end || e.date_end || ''}"`,
+          (f.depth_cm !== undefined && f.depth_cm !== null && f.depth_cm !== '') ? f.depth_cm : ((e.depth_cm !== undefined && e.depth_cm !== null) ? e.depth_cm : ''),
+          `"${(f.title || e.title || '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
+          `"${(f.url || e.url || '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
+          `"${(f.terms || e.terms || '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
+          `"${(f.tg_station || (e.tg ? e.tg.station : '') || '').replace(/"/g, '""')}"`,
+          (f.tg_anom_cm !== undefined && f.tg_anom_cm !== '') ? f.tg_anom_cm : ((e.tg && e.tg.anom_cm !== null) ? e.tg.anom_cm : ''),
+          '"INACCURATE"',
+          `"${(f.reason || '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
+          `"${f.flagged_at || new Date().toISOString()}"`
         ]);
       });
 
