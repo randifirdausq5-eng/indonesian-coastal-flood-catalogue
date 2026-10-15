@@ -141,17 +141,17 @@
       <div class="hidden lg:flex items-center gap-6 px-4 py-1.5 bg-slate-800/80 rounded-lg border border-slate-700/60 text-xs">
         <div class="flex items-center gap-2">
           <span class="text-slate-400">Total Kejadian:</span>
-          <span id="stat-total" class="font-bold text-white font-mono text-sm">1,232</span>
+          <span id="stat-total" class="font-bold text-white font-mono text-sm">1,219</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
           <span class="text-slate-400">Aktif Tampil:</span>
-          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-sm">1,232</span>
+          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-sm">1,219</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
           <span class="text-slate-400">Titik Pesisir:</span>
-          <span id="stat-places" class="font-bold text-emerald-400 font-mono text-sm">158</span>
+          <span id="stat-places" class="font-bold text-emerald-400 font-mono text-sm">156</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
@@ -283,23 +283,23 @@
           <div class="grid grid-cols-2 gap-1.5" id="region-chips-container">
             <button onclick="setRegionFilter('all')" data-region="all" class="region-chip active px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-cyan-50 border-cyan-500 text-cyan-800 font-medium">
               <span>Semua Wilayah</span>
-              <span id="badge-all-reg" class="text-[10px] px-1.5 py-0.2 bg-white rounded-full font-mono">1232</span>
+              <span id="badge-all-reg" class="text-[10px] px-1.5 py-0.2 bg-white rounded-full font-mono">1219</span>
             </button>
             <button onclick="setRegionFilter('java_north')" data-region="java_north" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span>Pantura Jawa</span>
-              <span id="badge-javanorth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">845</span>
+              <span id="badge-javanorth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">841</span>
             </button>
             <button onclick="setRegionFilter('sumatra_east')" data-region="sumatra_east" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span>Sumatera Timur</span>
-              <span id="badge-sumatraeast-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">134</span>
+              <span id="badge-sumatraeast-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">130</span>
             </button>
             <button onclick="setRegionFilter('east_indo')" data-region="east_indo" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span>Indonesia Timur</span>
-              <span id="badge-eastindo-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">92</span>
+              <span id="badge-eastindo-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">91</span>
             </button>
             <button onclick="setRegionFilter('kalimantan')" data-region="kalimantan" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span>Kalimantan</span>
-              <span id="badge-kalimantan-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">64</span>
+              <span id="badge-kalimantan-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">62</span>
             </button>
             <button onclick="setRegionFilter('java_south')" data-region="java_south" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span>Jawa Selatan</span>
@@ -307,7 +307,7 @@
             </button>
             <button onclick="setRegionFilter('sumatra_west')" data-region="sumatra_west" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 col-span-2">
               <span>Sumatera Barat</span>
-              <span id="badge-sumatrawest-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">42</span>
+              <span id="badge-sumatrawest-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">40</span>
             </button>
           </div>
 
@@ -341,14 +341,14 @@
                 <input type="checkbox" id="tier-probable" value="probable" checked onchange="applyFilters()" class="rounded text-amber-600 focus:ring-amber-500">
                 <span class="font-medium text-amber-900">Probable (Sangat Mungkin)</span>
               </div>
-              <span id="count-tier-probable" class="font-mono text-[11px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">684</span>
+              <span id="count-tier-probable" class="font-mono text-[11px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">678</span>
             </label>
             <label class="flex items-center justify-between p-2 rounded-md border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer transition">
               <div class="flex items-center gap-2">
                 <input type="checkbox" id="tier-possible" value="possible" checked onchange="applyFilters()" class="rounded text-slate-600 focus:ring-slate-500">
                 <span class="font-medium text-slate-800">Possible (Potensi/Ringan)</span>
               </div>
-              <span id="count-tier-possible" class="font-mono text-[11px] font-bold text-slate-600 bg-slate-200 px-1.5 py-0.2 rounded">465</span>
+              <span id="count-tier-possible" class="font-mono text-[11px] font-bold text-slate-600 bg-slate-200 px-1.5 py-0.2 rounded">458</span>
             </label>
           </div>
         </div>
@@ -388,8 +388,8 @@
             <span id="active-percentage" class="font-mono font-bold">100%</span>
           </div>
           <p class="text-xs text-slate-200">
-            Menampilkan <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,232</span> dari 
-            <span class="font-semibold font-mono">1,232</span> total kejadian dalam katalog.
+            Menampilkan <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,219</span> dari 
+            <span class="font-semibold font-mono">1,219</span> total kejadian terverifikasi.
           </p>
         </div>
 
@@ -493,7 +493,7 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs bg-white px-3 py-1.5 rounded-lg border border-slate-200 font-mono text-slate-600 shadow-sm">
-            Data Terfilter: <strong id="chart-filter-count" class="text-cyan-600 font-bold">1,232</strong> kejadian
+            Data Terfilter: <strong id="chart-filter-count" class="text-cyan-600 font-bold">1,219</strong> kejadian
           </span>
         </div>
       </div>
@@ -607,7 +607,7 @@
       <!-- Table Pagination / Footer -->
       <div class="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-600">
         <div id="table-pagination-info">
-          Menampilkan baris <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> dari <span id="table-total-count" class="font-bold">1,232</span>
+          Menampilkan baris <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> dari <span id="table-total-count" class="font-bold">1,219</span>
         </div>
         <div class="flex items-center gap-2">
           <button id="btn-page-prev" onclick="changeTablePage(-1)" class="px-3 py-1 bg-white border border-slate-300 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
