@@ -444,19 +444,23 @@
         <!-- Quick Region Focus Buttons -->
         <div class="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-slate-200 p-2 text-xs space-y-1 hidden sm:block">
           <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1" data-i18n="focus_corridors">Focus Region:</div>
-          <button onclick="focusRegion([-6.9, 110.2, 8])" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between">
+          <button onclick="setRegionFilter('java_north')" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between transition">
             <span data-i18n="reg_java_north">Java North Coast</span>
             <i class="fa-solid fa-crosshairs text-[10px] text-slate-400"></i>
           </button>
-          <button onclick="focusRegion([0.5, 102.5, 7])" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between">
+          <button onclick="setRegionFilter('sumatra_east')" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between transition">
             <span data-i18n="reg_sumatra_east">East Sumatra</span>
             <i class="fa-solid fa-crosshairs text-[10px] text-slate-400"></i>
           </button>
-          <button onclick="focusRegion([-6.1, 106.8, 10])" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between">
-            <span>Jakarta Bay</span>
+          <button onclick="setRegionFilter('java_south')" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between transition">
+            <span data-i18n="reg_java_south">Java South Coast</span>
             <i class="fa-solid fa-crosshairs text-[10px] text-slate-400"></i>
           </button>
-          <button onclick="focusRegion([-2.5, 118.0, 5])" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-cyan-600 font-semibold flex items-center justify-between">
+          <button onclick="setRegionFilter('sumatra_west')" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between transition">
+            <span data-i18n="reg_sumatra_west">West Sumatra</span>
+            <i class="fa-solid fa-crosshairs text-[10px] text-slate-400"></i>
+          </button>
+          <button onclick="setRegionFilter('all')" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-cyan-600 font-semibold flex items-center justify-between transition">
             <span data-i18n="all_indonesia">All Indonesia</span>
             <i class="fa-solid fa-compress text-[10px]"></i>
           </button>
@@ -892,6 +896,7 @@
       activeRegion: 'all',
       map: null,
       markerClusterGroup: null,
+      regionHighlightLayer: null,
       markersById: {},
       currentBasemap: null,
       basemapLayers: {},
@@ -1202,6 +1207,62 @@
       });
     }
 
+    // Coastal Region Geometries, Bounding Boxes & Clipping Polygons (src/regions.py)
+    const REGION_CONFIG = {
+      all: {
+        center: [-2.5, 118.0],
+        zoom: 5
+      },
+      java_north: {
+        center: [-6.45, 110.2],
+        zoom: 7,
+        bounds: [[-7.6, 105.8], [-5.2, 114.6]],
+        polygon: [
+          [-5.2, 105.8], [-5.2, 114.6], [-7.6, 114.6], [-7.6, 105.8]
+        ]
+      },
+      java_south: {
+        center: [-8.25, 110.1],
+        zoom: 7,
+        bounds: [[-9.2, 105.5], [-7.4, 114.6]],
+        polygon: [
+          [-7.4, 105.5], [-7.4, 114.6], [-9.2, 114.6], [-9.2, 105.5]
+        ]
+      },
+      sumatra_west: {
+        center: [-0.7, 100.8],
+        zoom: 6,
+        bounds: [[-6.4, 94.2], [5.8, 105.2]],
+        polygon: [
+          [5.8, 94.8], [4.5, 96.8], [-1.0, 101.5], [-6.0, 105.2], [-6.4, 103.6], [-0.8, 98.2], [5.2, 94.2]
+        ]
+      },
+      sumatra_east: {
+        center: [0.2, 102.8],
+        zoom: 6,
+        bounds: [[-4.8, 97.2], [5.5, 106.5]],
+        polygon: [
+          [5.5, 97.2], [1.8, 104.8], [-3.8, 106.5], [-4.8, 105.2], [0.5, 101.0], [4.8, 97.5]
+        ]
+      },
+      kalimantan: {
+        center: [-0.2, 113.8],
+        zoom: 6,
+        bounds: [[-4.5, 108.5], [4.2, 118.5]],
+        polygon: [
+          [4.2, 108.5], [4.2, 118.5], [-4.5, 118.5], [-4.5, 108.5]
+        ]
+      },
+      east_indo: {
+        center: [-3.5, 127.5],
+        zoom: 5,
+        bounds: [[-11.5, 114.5], [4.0, 141.0]],
+        polygon: [
+          [4.0, 114.5], [4.0, 141.0], [-11.5, 141.0], [-11.5, 114.5]
+        ]
+      }
+    };
+
     // Set Region Filter
     function setRegionFilter(regionKey) {
       AppState.activeRegion = regionKey;
@@ -1215,7 +1276,60 @@
         }
       });
 
+      // Switch to Map View if not already active
+      if (AppState.currentView !== 'map') {
+        switchView('map');
+      }
+
+      // Apply dataset filtering
       applyFilters();
+
+      // Zoom and draw corridor clipping polygon
+      highlightAndZoomRegion(regionKey);
+    }
+
+    // Highlight and Zoom to Coastal Region
+    function highlightAndZoomRegion(regionKey) {
+      if (!AppState.map) return;
+
+      // Remove existing region polygon layer
+      if (AppState.regionHighlightLayer) {
+        AppState.map.removeLayer(AppState.regionHighlightLayer);
+        AppState.regionHighlightLayer = null;
+      }
+
+      const cfg = REGION_CONFIG[regionKey];
+      if (!cfg) return;
+
+      if (regionKey === 'all') {
+        AppState.map.setView(cfg.center, cfg.zoom, { animate: true });
+        return;
+      }
+
+      // Draw dashed coastal corridor clipping polygon
+      if (cfg.polygon) {
+        const poly = L.polygon(cfg.polygon, {
+          color: '#0891b2',          // Cyan-600
+          weight: 2,
+          dashArray: '6, 6',
+          fillColor: '#06b6d4',      // Cyan-500
+          fillOpacity: 0.08,
+          interactive: false
+        });
+        poly.addTo(AppState.map);
+        AppState.regionHighlightLayer = poly;
+      }
+
+      // Smooth zoom and pan to the region's coastal bounds
+      if (cfg.bounds) {
+        AppState.map.fitBounds(cfg.bounds, {
+          padding: [20, 20],
+          maxZoom: cfg.zoom,
+          animate: true
+        });
+      } else if (cfg.center) {
+        AppState.map.setView(cfg.center, cfg.zoom, { animate: true });
+      }
     }
 
     // Main Filter Engine
@@ -1624,9 +1738,11 @@
 
       AppState.markerClusterGroup.addLayers(markers);
 
-      // Auto-fit map to filtered markers if requested
+      // Auto-fit map to filtered markers if requested (when no specific region is actively managing zoom)
       if (autoFit && AppState.map && markers.length > 0) {
-        if (AppState.filteredEvents.length < AppState.allEvents.length) {
+        if (AppState.activeRegion !== 'all') {
+          // Region zoom and clipping are explicitly managed by highlightAndZoomRegion
+        } else if (AppState.filteredEvents.length < AppState.allEvents.length) {
           const group = L.featureGroup(markers);
           const bounds = group.getBounds();
           if (bounds.isValid()) {
@@ -1637,7 +1753,7 @@
                 focusMapEvent(single.id);
               }, 300);
             } else {
-              AppState.map.fitBounds(bounds.pad(0.12), { maxZoom: 12, animate: true });
+              AppState.map.fitBounds(bounds.pad(0.08), { maxZoom: 12, animate: true });
             }
           }
         }
