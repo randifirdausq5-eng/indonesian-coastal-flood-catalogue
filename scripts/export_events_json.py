@@ -37,18 +37,35 @@ except ImportError:
     print("Notice: src.regions module not found, continuing without custom overrides.")
 
 
-def load_tidegauge_data(repo_root: Path) -> dict:
+def load_id_map(repo_root: Path) -> dict:
+    """Load v3c to v4 event ID mapping."""
+    map_file = repo_root / "data/processed/event_id_map_v4.csv"
+    if map_file.is_file():
+        df_map = pd.read_csv(map_file)
+        valid = df_map[df_map['event_id_v4'].notna() & (df_map['event_id_v4'] != '')]
+        return dict(zip(valid['event_id_v3c'], valid['event_id_v4']))
+    return {}
+
+
+def load_tidegauge_data(repo_root: Path, is_v4: bool = False) -> dict:
     """Load nearest BMKG tide station matches and calculate water level anomalies."""
     tg_match_file = repo_root / "data/processed/rob_tg_match_v3c.csv"
     contrib_file = repo_root / "data/processed/rob_contrib_v3c.csv"
     daily_pct_file = repo_root / "data/raw/tidegauge/restricted/tg_daily_pct_local.parquet"
 
+    v3c_to_v4 = load_id_map(repo_root) if is_v4 else {}
     tg_data = {}
 
     if tg_match_file.is_file():
         df_match = pd.read_csv(tg_match_file)
         for _, r in df_match.iterrows():
-            ev_id = str(r['event_id'])
+            orig_id = str(r['event_id'])
+            if is_v4:
+                if orig_id not in v3c_to_v4:
+                    continue
+                ev_id = v3c_to_v4[orig_id]
+            else:
+                ev_id = orig_id
             tg_data[ev_id] = {
                 'station': str(r['station']),
                 'dist_km': round(float(r['dist_km']), 1),
@@ -60,7 +77,13 @@ def load_tidegauge_data(repo_root: Path) -> dict:
     if contrib_file.is_file():
         df_contrib = pd.read_csv(contrib_file)
         for _, r in df_contrib.iterrows():
-            ev_id = str(r['event_id'])
+            orig_id = str(r['event_id'])
+            if is_v4:
+                if orig_id not in v3c_to_v4:
+                    continue
+                ev_id = v3c_to_v4[orig_id]
+            else:
+                ev_id = orig_id
             if ev_id in tg_data:
                 if pd.notna(r['anom_obs_cm']):
                     tg_data[ev_id]['anom_cm'] = round(float(r['anom_obs_cm']), 1)
@@ -69,6 +92,10 @@ def load_tidegauge_data(repo_root: Path) -> dict:
 
     if daily_pct_file.is_file() and tg_match_file.is_file():
         df_match = pd.read_csv(tg_match_file)
+        if is_v4:
+            df_match['matched_id'] = df_match['event_id'].map(v3c_to_v4)
+        else:
+            df_match['matched_id'] = df_match['event_id']
         df_pct = pd.read_parquet(daily_pct_file)
         df_pct['date'] = pd.to_datetime(df_pct['date'])
         df_pct['doy'] = df_pct['date'].dt.dayofyear
@@ -76,7 +103,7 @@ def load_tidegauge_data(repo_root: Path) -> dict:
         for ev_id, info in tg_data.items():
             if info['anom_cm'] is not None:
                 continue
-            ev_matches = df_match[df_match['event_id'] == ev_id]
+            ev_matches = df_match[df_match['matched_id'] == ev_id]
             if len(ev_matches) == 0:
                 continue
             ev_date = pd.to_datetime(ev_matches['date_start'].iloc[0])
@@ -104,20 +131,27 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Great-circle distance in kilometers."""
     R = 6371.0
     dlat = np.radians(lat2 - lat1)
-    dlon = np.radians(lon2 - lon1)
+    dlon = np.radians(dlon1 := lon2 - lon1)
     a = np.sin(dlat / 2.0)**2 + np.cos(np.radians(lat1)) * np.cos(np.radians(lat2)) * np.sin(dlon / 2.0)**2
     c = 2.0 * np.arcsin(np.sqrt(a))
     return round(float(R * c), 1)
 
 
-def load_satellite_data(repo_root: Path) -> dict:
+def load_satellite_data(repo_root: Path, is_v4: bool = False) -> dict:
     """Load nearest ocean pixel satellite sea level anomaly and decomposed bands."""
     bands_file = repo_root / "data/processed/rob_events_with_bands_v3c.csv"
+    v3c_to_v4 = load_id_map(repo_root) if is_v4 else {}
     sat_data = {}
     if bands_file.is_file():
         df_bands = pd.read_csv(bands_file)
         for _, r in df_bands.iterrows():
-            ev_id = str(r['event_id'])
+            orig_id = str(r['event_id'])
+            if is_v4:
+                if orig_id not in v3c_to_v4:
+                    continue
+                ev_id = v3c_to_v4[orig_id]
+            else:
+                ev_id = orig_id
             sla_cm = round(float(r['detrended_sla_cm']), 1) if pd.notna(r['detrended_sla_cm']) else None
             seas_cm = round(float(r['seasonal_cm']), 1) if pd.notna(r['seasonal_cm']) else None
             intra_cm = round(float(r['intraseasonal_cm']), 1) if pd.notna(r['intraseasonal_cm']) else None
@@ -146,8 +180,26 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
     df_events = pd.read_csv(events_csv)
     raw_count = len(df_events)
 
+    is_v4 = "v4" in events_csv.name
+    v3c_to_v4 = load_id_map(REPO_ROOT) if is_v4 else {}
+
     # Apply scientific overrides & exclusions if available
-    if HAS_REGIONS_MODULE and apply_exclusions:
+    if is_v4:
+        print("[2/5] Processing v4 verified coastal flood events...")
+        # v4 already has false positives cleaned. Apply event place overrides if applicable.
+        ov_file = REPO_ROOT / "data/processed/rob_event_place_overrides.csv"
+        if ov_file.is_file():
+            ov = pd.read_csv(ov_file)
+            ov['event_id_v4'] = ov['event_id'].map(v3c_to_v4)
+            ov = ov.dropna(subset=['event_id_v4']).set_index('event_id_v4')
+            m = df_events['event_id'].isin(ov.index)
+            for c in ('place', 'province', 'region'):
+                if c in df_events.columns:
+                    df_events.loc[m, c] = df_events.loc[m, 'event_id'].map(ov[c]).to_numpy()
+        if HAS_REGIONS_MODULE:
+            df_events = apply_region_overrides(df_events)
+        print(f"      Total {len(df_events)} events retained.")
+    elif HAS_REGIONS_MODULE and apply_exclusions:
         print("[2/5] Applying scientific exclusions & place/region overrides from src.regions...")
         df_events = drop_excluded(df_events)
         print(f"      Filtered {raw_count} raw events down to {len(df_events)} verified coastal flood events.")
@@ -156,12 +208,18 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
 
     print(f"[3/5] Reading places coordinates from {places_csv.name}...")
     df_places = pd.read_csv(places_csv)
-    places_clean = df_places.drop_duplicates(subset=['place', 'province'])
+
+    # Case-insensitive cleaning and matching
+    df_events['place_clean'] = df_events['place'].astype(str).str.strip().str.lower()
+    df_events['prov_clean'] = df_events['province'].astype(str).str.strip().str.lower()
+    df_places['place_clean'] = df_places['place'].astype(str).str.strip().str.lower()
+    df_places['prov_clean'] = df_places['province'].astype(str).str.strip().str.lower()
+    places_clean = df_places.drop_duplicates(subset=['place_clean', 'prov_clean'])
 
     # Merge on place & province
     merged = df_events.merge(
-        places_clean[['place', 'province', 'lat', 'lon', 'regency']],
-        on=['place', 'province'],
+        places_clean[['place_clean', 'prov_clean', 'lat', 'lon', 'regency']],
+        on=['place_clean', 'prov_clean'],
         how='left'
     )
 
@@ -169,14 +227,26 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
     missing = merged['lat'].isna()
     if missing.sum() > 0:
         print(f"      Resolving {missing.sum()} places with province fallback...")
-        places_by_place = df_places.drop_duplicates(subset=['place'])
-        fallback_lookup = places_by_place.set_index('place')[['lat', 'lon', 'regency']]
+        places_by_place = places_clean.drop_duplicates(subset=['place_clean']).set_index('place_clean')
         for idx in merged[missing].index:
-            p = merged.loc[idx, 'place']
-            if p in fallback_lookup.index:
-                merged.loc[idx, 'lat'] = fallback_lookup.loc[p, 'lat']
-                merged.loc[idx, 'lon'] = fallback_lookup.loc[p, 'lon']
-                merged.loc[idx, 'regency'] = fallback_lookup.loc[p, 'regency']
+            p = merged.loc[idx, 'place_clean']
+            if p in places_by_place.index:
+                merged.loc[idx, 'lat'] = places_by_place.loc[p, 'lat']
+                merged.loc[idx, 'lon'] = places_by_place.loc[p, 'lon']
+                merged.loc[idx, 'regency'] = places_by_place.loc[p, 'regency']
+
+    # Fallback for Madura if still unlocated
+    madura_mask = merged['lat'].isna() & (merged['place_clean'] == 'madura')
+    if madura_mask.sum() > 0:
+        merged.loc[madura_mask, 'lat'] = -7.03
+        merged.loc[madura_mask, 'lon'] = 112.75
+        merged.loc[madura_mask, 'regency'] = 'Bangkalan (Madura)'
+
+    gk_mask = merged['lat'].isna() & (merged['place_clean'].isin(['gunungkidul', 'baron', 'tpi baron']))
+    if gk_mask.sum() > 0:
+        merged.loc[gk_mask, 'lat'] = -8.1288
+        merged.loc[gk_mask, 'lon'] = 110.5489
+        merged.loc[gk_mask, 'regency'] = 'Gunungkidul (DI Yogyakarta)'
 
     # Drop any remaining un-geocoded events
     unlocated = merged['lat'].isna().sum()
@@ -186,14 +256,14 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
 
     # Load tide gauge observations
     print("[4/6] Matching nearest BMKG tide gauge water level anomalies...")
-    tg_data = load_tidegauge_data(REPO_ROOT)
+    tg_data = load_tidegauge_data(REPO_ROOT, is_v4=is_v4)
     matched_tg_count = sum(1 for e in merged['event_id'] if e in tg_data)
     with_anom_count = sum(1 for e in merged['event_id'] if e in tg_data and tg_data[e]['anom_cm'] is not None)
     print(f"      Matched {matched_tg_count} events to nearest tide station ({with_anom_count} with active water level anomalies).")
 
     # Load satellite sea level altimetry
     print("[5/6] Matching nearest satellite altimetry sea level anomalies (C3S)...")
-    sat_data = load_satellite_data(REPO_ROOT)
+    sat_data = load_satellite_data(REPO_ROOT, is_v4=is_v4)
     matched_sat_count = sum(1 for e in merged['event_id'] if e in sat_data and sat_data[e]['sla_cm'] is not None)
     print(f"      Matched {matched_sat_count} events to nearest satellite ocean grid pixels.")
 
@@ -222,6 +292,23 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         'high_wave': 'Gelombang Pasang'
     }
 
+    # Load existing manual audit flags if available
+    audit_file = REPO_ROOT / "data/processed/rob_flagged_audit.csv"
+    audit_flags = {}
+    if audit_file.is_file():
+        try:
+            df_audit = pd.read_csv(audit_file)
+            for _, ar in df_audit.iterrows():
+                aid = str(ar['event_id']).strip()
+                audit_flags[aid] = {
+                    'flagged_inaccurate': True,
+                    'flag_reason': str(ar.get('flag_reason', '')).strip() if pd.notna(ar.get('flag_reason')) else '',
+                    'flagged_at': str(ar.get('flagged_at', '')).strip() if pd.notna(ar.get('flagged_at')) else ''
+                }
+            print(f"      Loaded {len(audit_flags)} manual audit flags from {audit_file.name}")
+        except Exception as err:
+            print(f"      Notice: Could not parse {audit_file.name}: {err}")
+
     records = []
     for _, row in merged.iterrows():
         ev_id = str(row['event_id'])
@@ -249,6 +336,8 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
                 'dist_km': dist_sat
             }
 
+        flag_info = audit_flags.get(ev_id, {})
+
         records.append({
             'id': ev_id,
             'hazard': hazard_code,
@@ -274,6 +363,9 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
             'lon': ev_lon,
             'tg': tg_info,
             'sat': sat_info,
+            'flagged_inaccurate': flag_info.get('flagged_inaccurate', False),
+            'flag_reason': flag_info.get('flag_reason', ''),
+            'flagged_at': flag_info.get('flagged_at', ''),
         })
 
     # Summary statistics
@@ -311,7 +403,8 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
 
     js_path = out_dir / "events.js"
     with open(js_path, 'w', encoding='utf-8') as f:
-        f.write("// INA-CoastalFlood: Indonesian Coastal Flood Catalogue Dataset (v3c)\n")
+        version_label = "v4" if is_v4 else "v3c"
+        f.write(f"// INA-CoastalFlood: Indonesian Coastal Flood Catalogue Dataset ({version_label})\n")
         f.write("// Loaded automatically when accessed via file:// without webserver\n")
         f.write("window.ROB_EVENTS = ")
         json.dump(records, f, separators=(',', ':'), ensure_ascii=False)
@@ -327,15 +420,16 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
 
 
 if __name__ == '__main__':
-    default_events = REPO_ROOT / "data/processed/rob_events_v3c.csv"
+    default_events = REPO_ROOT / "data/processed/rob_events_v4.csv"
     default_places = REPO_ROOT / "data/processed/rob_places_latlon.csv"
     default_out = Path(__file__).resolve().parent.parent / "data"
 
-    parser = argparse.ArgumentParser(description="Export v3c rob catalogue with tide gauge anomalies for web dashboard")
-    parser.add_argument('--events', type=Path, default=default_events, help="Path to rob_events_v3c.csv")
+    parser = argparse.ArgumentParser(description="Export v4 rob catalogue with tide gauge anomalies for web dashboard")
+    parser.add_argument('--events', type=Path, default=default_events, help="Path to rob_events_v4.csv")
     parser.add_argument('--places', type=Path, default=default_places, help="Path to rob_places_latlon.csv")
     parser.add_argument('--out', type=Path, default=default_out, help="Output directory for web data")
     parser.add_argument('--no-exclusions', action='store_true', help="Disable scientific exclusions filtering")
 
     args = parser.parse_args()
     export_catalogue(args.events, args.places, args.out, apply_exclusions=not args.no_exclusions)
+

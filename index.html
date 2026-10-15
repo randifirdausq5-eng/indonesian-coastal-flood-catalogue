@@ -209,17 +209,17 @@
       <div class="hidden xl:flex items-center gap-4 px-3 py-1.5 bg-slate-800/80 rounded-lg border border-slate-700/60 text-xs">
         <div class="flex items-center gap-2">
           <span class="text-slate-400" data-i18n="stat_total">Total Events:</span>
-          <span id="stat-total" class="font-bold text-white font-mono text-sm">1,067</span>
+          <span id="stat-total" class="font-bold text-white font-mono text-sm">1,111</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
           <span class="text-slate-400" data-i18n="stat_active">Active Shown:</span>
-          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-sm">1,067</span>
+          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-sm">1,111</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
           <span class="text-slate-400" data-i18n="stat_places">Coastal Places:</span>
-          <span id="stat-places" class="font-bold text-emerald-400 font-mono text-sm">156</span>
+          <span id="stat-places" class="font-bold text-emerald-400 font-mono text-sm">157</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
@@ -258,8 +258,15 @@
           <span id="current-lang-label" class="font-mono text-[10px] sm:text-xs">EN</span>
         </button>
 
+        <!-- Audit QC Modal Button -->
+        <button id="btn-nav-audit" onclick="openAuditModal()" class="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-red-500/15 hover:bg-red-500/25 text-red-300 border border-red-500/40 rounded-lg text-xs font-semibold transition shadow-xs" title="Audit QC: Daftar Berita Tidak Akurat / Bukan Rob">
+          <i class="fa-solid fa-clipboard-check text-red-400 text-xs"></i>
+          <span class="hidden sm:inline" data-i18n="nav_audit">Audit QC</span>
+          <span id="audit-badge-count" class="bg-red-600 text-white font-mono text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
+        </button>
+
         <!-- Report Issue Button (Desktop/Tablet) -->
-        <button onclick="toggleModal('modal-about', true)" class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold transition" title="Report Inaccurate News / Laporkan Berita Keliru">
+        <button onclick="toggleModal('modal-about', true)" class="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold transition" title="Report Inaccurate News / Laporkan Berita Keliru">
           <i class="fa-solid fa-flag text-amber-400 text-xs"></i>
           <span data-i18n="nav_report">Report Issue</span>
         </button>
@@ -379,27 +386,27 @@
           <div class="grid grid-cols-2 gap-1.5" id="region-chips-container">
             <button onclick="setRegionFilter('all')" data-region="all" class="region-chip active px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-cyan-50 border-cyan-500 text-cyan-800 font-medium">
               <span data-i18n="reg_all">All Regions</span>
-              <span id="badge-all-reg" class="text-[10px] px-1.5 py-0.2 bg-white rounded-full font-mono">1067</span>
+              <span id="badge-all-reg" class="text-[10px] px-1.5 py-0.2 bg-white rounded-full font-mono">1111</span>
             </button>
             <button onclick="setRegionFilter('java_north')" data-region="java_north" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_java_north">Java North Coast</span>
-              <span id="badge-javanorth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">732</span>
+              <span id="badge-javanorth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">765</span>
             </button>
             <button onclick="setRegionFilter('sumatra_east')" data-region="sumatra_east" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_sumatra_east">East Sumatra</span>
-              <span id="badge-sumatraeast-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">119</span>
+              <span id="badge-sumatraeast-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">120</span>
             </button>
             <button onclick="setRegionFilter('east_indo')" data-region="east_indo" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_east_indo">Eastern Indonesia</span>
-              <span id="badge-eastindo-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">88</span>
+              <span id="badge-eastindo-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">91</span>
             </button>
             <button onclick="setRegionFilter('kalimantan')" data-region="kalimantan" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_kalimantan">Kalimantan</span>
-              <span id="badge-kalimantan-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">56</span>
+              <span id="badge-kalimantan-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">58</span>
             </button>
             <button onclick="setRegionFilter('java_south')" data-region="java_south" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_java_south">Java South Coast</span>
-              <span id="badge-javasouth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">51</span>
+              <span id="badge-javasouth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">56</span>
             </button>
             <button onclick="setRegionFilter('sumatra_west')" data-region="sumatra_west" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 col-span-2">
               <span data-i18n="reg_sumatra_west">West Sumatra</span>
@@ -430,21 +437,21 @@
                 <input type="checkbox" id="tier-confirmed" value="confirmed" checked onchange="applyFilters()" class="rounded text-emerald-600 focus:ring-emerald-500">
                 <span class="font-medium text-emerald-900" data-i18n="tier_confirmed_desc">Confirmed (Physically verified)</span>
               </div>
-              <span id="count-tier-confirmed" class="font-mono text-[11px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">83</span>
+              <span id="count-tier-confirmed" class="font-mono text-[11px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">78</span>
             </label>
             <label class="flex items-center justify-between p-2 rounded-md border border-amber-200 bg-amber-50/50 hover:bg-amber-50 cursor-pointer transition">
               <div class="flex items-center gap-2">
                 <input type="checkbox" id="tier-probable" value="probable" checked onchange="applyFilters()" class="rounded text-amber-600 focus:ring-amber-500">
                 <span class="font-medium text-amber-900" data-i18n="tier_probable_desc">Probable (Explicit credible report)</span>
               </div>
-              <span id="count-tier-probable" class="font-mono text-[11px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">678</span>
+              <span id="count-tier-probable" class="font-mono text-[11px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">699</span>
             </label>
             <label class="flex items-center justify-between p-2 rounded-md border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer transition">
               <div class="flex items-center gap-2">
                 <input type="checkbox" id="tier-possible" value="possible" checked onchange="applyFilters()" class="rounded text-slate-600 focus:ring-slate-500">
                 <span class="font-medium text-slate-800" data-i18n="tier_possible_desc">Possible (General / minor impact)</span>
               </div>
-              <span id="count-tier-possible" class="font-mono text-[11px] font-bold text-slate-600 bg-slate-200 px-1.5 py-0.2 rounded">458</span>
+              <span id="count-tier-possible" class="font-mono text-[11px] font-bold text-slate-600 bg-slate-200 px-1.5 py-0.2 rounded">334</span>
             </label>
           </div>
         </div>
@@ -475,6 +482,17 @@
               </select>
             </div>
           </div>
+          <!-- Audit QC Filter -->
+          <div class="pt-1">
+            <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1 flex items-center justify-between">
+              <span><i class="fa-solid fa-clipboard-check text-red-500 mr-1"></i> <span data-i18n="audit_filter_label">Audit / QC Filter</span></span>
+            </label>
+            <select id="filter-audit" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700 text-xs">
+              <option value="all" data-i18n="audit_opt_all">All Events (Semua)</option>
+              <option value="unflagged" data-i18n="audit_opt_clean">Clean Only (Sembunyikan Ditandai)</option>
+              <option value="flagged" data-i18n="audit_opt_flagged">Flagged Only (Hanya yang Ditandai)</option>
+            </select>
+          </div>
         </div>
 
         <!-- Bottom Apply Filters Action -->
@@ -491,8 +509,8 @@
             <span id="active-percentage" class="font-mono font-bold">100%</span>
           </div>
           <p class="text-xs text-slate-200" id="filter-summary-text">
-            Showing <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,067</span> of 
-            <span class="font-semibold font-mono">1,067</span> verified events in catalogue.
+            Showing <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,111</span> of 
+            <span class="font-semibold font-mono">1,111</span> verified events in catalogue.
           </p>
         </div>
 
@@ -513,7 +531,11 @@
           <button onclick="toggleModal('modal-about', true); if (window.innerWidth < 768) closeMobileSidebar();" class="flex-1 py-1.5 px-2.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1.5 transition shadow-xs">
             <i class="fa-solid fa-circle-info text-cyan-600"></i> <span data-i18n="btn_about">About INA-CoastalFlood</span>
           </button>
-          <a href="https://github.com/randifirdausq5-eng/indonesian-coastal-flood-catalogue" target="_blank" rel="noopener noreferrer" class="py-1.5 px-2.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition shadow-xs" title="GitHub">
+          <button onclick="openAuditModal(); if (window.innerWidth < 768) closeMobileSidebar();" class="py-1.5 px-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition shadow-xs" title="Audit QC">
+            <i class="fa-solid fa-clipboard-check text-red-600"></i>
+            <span>Audit (<span id="mobile-audit-badge-count">0</span>)</span>
+          </button>
+          <a href="https://github.com/randifirdausq5-eng/indonesian-coastal-flood-catalogue" target="_blank" rel="noopener noreferrer" class="py-1.5 px-2 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition shadow-xs" title="GitHub">
             <i class="fa-brands fa-github text-xs"></i>
           </a>
         </div>
@@ -622,7 +644,7 @@
         <button id="btn-mobile-fab" onclick="toggleMobileSidebar()" class="px-4 py-2 bg-slate-900/90 hover:bg-slate-900 text-white backdrop-blur-md rounded-full border border-slate-700 shadow-2xl text-xs font-bold flex items-center gap-2 active:scale-95 transition">
           <i class="fa-solid fa-sliders text-cyan-400"></i>
           <span data-i18n="filter_title_short">Filters</span>
-          <span id="mobile-fab-count" class="px-1.5 py-0.2 bg-cyan-500 text-slate-950 font-mono text-[10px] font-extrabold rounded-full">1,067</span>
+          <span id="mobile-fab-count" class="px-1.5 py-0.2 bg-cyan-500 text-slate-950 font-mono text-[10px] font-extrabold rounded-full">1,111</span>
         </button>
       </div>
 
@@ -668,7 +690,7 @@
             <i class="fa-solid fa-sliders text-cyan-600"></i> <span data-i18n="filter_title_short">Filters</span>
           </button>
           <span class="text-xs bg-white px-3 py-1.5 rounded-lg border border-slate-200 font-mono text-slate-600 shadow-sm">
-            <span data-i18n="filtered_data">Filtered Data:</span> <strong id="chart-filter-count" class="text-cyan-600 font-bold">1,067</strong> <span data-i18n="events_unit">events</span>
+            <span data-i18n="filtered_data">Filtered Data:</span> <strong id="chart-filter-count" class="text-cyan-600 font-bold">1,111</strong> <span data-i18n="events_unit">events</span>
           </span>
         </div>
       </div>
@@ -789,7 +811,7 @@
       <!-- Table Pagination / Footer -->
       <div class="p-2.5 sm:p-3 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
         <div id="table-pagination-info" class="text-[11px] sm:text-xs">
-          Showing rows <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> of <span id="table-total-count" class="font-bold">1,067</span>
+          Showing rows <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> of <span id="table-total-count" class="font-bold">1,111</span>
         </div>
         <div class="flex items-center gap-1.5 sm:gap-2">
           <button id="btn-page-prev" onclick="changeTablePage(-1)" class="px-2.5 sm:px-3 py-1 bg-white border border-slate-300 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
@@ -834,6 +856,149 @@
       </div>
 
     </div>
+  </div>
+
+  <!-- ================= MODAL: KONFIRMASI TANDAI BERITA TIDAK AKURAT ================= -->
+  <div id="modal-flag-confirm" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between border-b border-red-500/40">
+        <div class="flex items-center gap-2.5">
+          <span class="w-7 h-7 rounded-lg bg-red-600/30 border border-red-500 flex items-center justify-center text-red-400">
+            <i class="fa-solid fa-triangle-exclamation text-xs"></i>
+          </span>
+          <div>
+            <h3 class="font-bold text-sm">Konfirmasi Tandai Berita Tidak Akurat</h3>
+            <p class="text-[10px] text-slate-400">Verifikasi manual berita bukan banjir rob</p>
+          </div>
+        </div>
+        <button onclick="closeFlagConfirmModal()" class="text-slate-400 hover:text-white text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto text-xs space-y-3.5">
+        <!-- Event summary box -->
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-slate-700 space-y-1">
+          <div class="flex items-center justify-between font-mono text-[11px]">
+            <span class="font-bold text-cyan-900" id="flag-modal-event-id">#ID</span>
+            <span class="text-slate-500" id="flag-modal-event-date">📅 Tanggal</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm" id="flag-modal-event-place">📍 Lokasi</div>
+          <p class="text-[11px] text-slate-600 line-clamp-2 italic" id="flag-modal-event-title">"Judul Berita"</p>
+          <div class="pt-1">
+            <a id="flag-modal-event-url" href="#" target="_blank" rel="noopener noreferrer" class="text-cyan-700 hover:underline text-[10px] inline-flex items-center gap-1 font-medium">
+              <span>Periksa tautan berita asli</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Preset Reason Buttons -->
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1.5">Pilih Kategori Alasan (Klik salah satu):</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5" id="flag-preset-buttons">
+            <button type="button" onclick="setFlagPreset('Banjir Hujan / Kali (Bukan Rob)')" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition">
+              🌧️ Banjir Hujan / Luapan Kali
+            </button>
+            <button type="button" onclick="setFlagPreset('Proyek / Tanggul / Pembangunan (Tidak Ada Banjir)')" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition">
+              🏗️ Proyek Tanggul / Bukan Banjir
+            </button>
+            <button type="button" onclick="setFlagPreset('Demo / Protes / Tuntutan Warga')" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition">
+              📢 Demo / Protes Warga
+            </button>
+            <button type="button" onclick="setFlagPreset('Peringatan Dini / Ramalan Cuaca (Belum Terjadi)')" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition">
+              ⚠️ Peringatan Cuaca / Prediksi
+            </button>
+            <button type="button" onclick="setFlagPreset('Lokasi / Daerah Keliru (Bukan Wilayah Pesisir)')" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition">
+              📍 Lokasi / Daerah Keliru
+            </button>
+            <button type="button" onclick="setFlagPreset('Berita Duplikat')" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition">
+              📑 Berita Duplikat
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom Notes Input -->
+        <div>
+          <label for="flag-reason-input" class="block text-[11px] font-bold text-slate-700 mb-1">Catatan / Alasan Tambahan:</label>
+          <textarea id="flag-reason-input" rows="2" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none" placeholder="Tulis alasan atau detail catatan verifikasi di sini..."></textarea>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+        <button type="button" onclick="closeFlagConfirmModal()" class="px-3.5 py-1.5 text-slate-600 hover:text-slate-800 text-xs font-semibold">
+          Batal
+        </button>
+        <button type="button" onclick="submitFlagEvent()" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+          <i class="fa-solid fa-check"></i>
+          <span>Simpan & Tandai Tidak Akurat</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: AUDIT & EKSPOR CSV ================= -->
+  <div id="modal-audit" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+      <!-- Header -->
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-red-600/30 border border-red-500 flex items-center justify-center text-red-400">
+            <i class="fa-solid fa-clipboard-check text-sm"></i>
+          </span>
+          <div>
+            <h3 class="font-bold text-sm sm:text-base">Daftar Audit Berita Tidak Akurat / Bukan Rob</h3>
+            <p class="text-[11px] text-slate-400">Verifikasi manual untuk membersihkan katalog kejadian banjir rob</p>
+          </div>
+        </div>
+        <button onclick="toggleModal('modal-audit', false)" class="text-slate-400 hover:text-white text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="px-6 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="font-semibold text-slate-700">Total Ditandai:</span>
+          <span id="audit-modal-total-count" class="font-mono font-bold text-red-700 bg-red-100 border border-red-200 px-2 py-0.5 rounded-full text-xs">0</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="copyFlaggedIDs()" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs">
+            <i class="fa-regular fa-copy text-slate-500"></i>
+            <span>Salin ID</span>
+          </button>
+          <button onclick="exportFlaggedToCSV()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-file-csv"></i>
+            <span>Unduh CSV Audit</span>
+          </button>
+          <button onclick="clearAllFlags()" class="px-2.5 py-1.5 bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-medium transition" title="Hapus Semua Tanda">
+            <i class="fa-regular fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Table Body -->
+      <div class="p-4 sm:p-6 overflow-y-auto text-xs flex-1" id="audit-modal-table-container">
+        <!-- Dynamic Table injected by renderAuditModalContent() -->
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
+        <span>Tersimpan di browser lokal (localStorage). Ekspor CSV untuk diproses dengan Python.</span>
+        <button onclick="toggleModal('modal-audit', false)" class="px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-700 transition">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Floating Widget -->
+  <div id="toast-notification" class="fixed bottom-6 right-6 z-[9999] px-4 py-2.5 bg-slate-900/95 text-white text-xs font-semibold rounded-xl shadow-2xl border border-slate-700/80 backdrop-blur-md flex items-center gap-2.5 transform transition-all duration-300 opacity-0 pointer-events-none translate-y-3">
+    <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
+    <span id="toast-message">Notifikasi</span>
   </div>
 
   <!-- ================= JAVASCRIPT APP LOGIC ================= -->
@@ -961,6 +1126,11 @@
         popup_btn: "Open Original News Source",
         popup_report_issue: "Report inaccurate / non-flood article",
         table_report_tooltip: "Report inaccurate / non-flood article",
+        nav_audit: "Audit QC",
+        audit_filter_label: "Audit / QC Filter",
+        audit_opt_all: "All Events (Default)",
+        audit_opt_clean: "Clean Only (Hide Flagged)",
+        audit_opt_flagged: "Flagged Only (Inaccurate)",
         months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       },
       id: {
@@ -1079,6 +1249,11 @@
         popup_btn: "Buka Sumber Berita Asli",
         popup_report_issue: "Laporkan berita keliru / bukan rob",
         table_report_tooltip: "Laporkan berita keliru / bukan rob",
+        nav_audit: "Audit QC",
+        audit_filter_label: "Filter Audit / QC",
+        audit_opt_all: "Semua Kejadian (Default)",
+        audit_opt_clean: "Katalog Bersih (Sembunyikan Ditandai)",
+        audit_opt_flagged: "Hanya yang Ditandai Tidak Akurat",
         months: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
       }
     };
@@ -1099,6 +1274,9 @@
       tablePage: 1,
       tablePageSize: 50,
       currentView: 'map',
+      flaggedEvents: {},
+      pendingFlagEventId: null,
+      pendingFlagCheckbox: null,
     };
 
     // Toggle Language between English and Indonesian
@@ -1468,6 +1646,9 @@
       AppState.allEvents = events;
       AppState.filteredEvents = [...events];
 
+      // Initialize flagged events from localStorage / pre-baked flags
+      initFlaggedEvents(events);
+
       // Populate filter dropdowns
       populateYearOptions(events);
       populateProvinceOptions(events);
@@ -1549,6 +1730,15 @@
       setBadge('badge-kalimantan-reg', regCounts['kalimantan'] || 0);
       setBadge('badge-javasouth-reg', regCounts['java_south'] || 0);
       setBadge('badge-sumatrawest-reg', regCounts['sumatra_west'] || 0);
+
+      // Dynamically update Tier counts as well
+      const tierCounts = {};
+      events.forEach(e => {
+        tierCounts[e.tier] = (tierCounts[e.tier] || 0) + 1;
+      });
+      setBadge('count-tier-confirmed', tierCounts['confirmed'] || 0);
+      setBadge('count-tier-probable', tierCounts['probable'] || 0);
+      setBadge('count-tier-possible', tierCounts['possible'] || 0);
     }
 
     // Render Quick Hotspots in sidebar footer
@@ -1875,10 +2065,18 @@
           return false;
         }
 
-        // Free search text (includes Event ID, place, regency, province, headline, terms, reason, tide station)
+        // Audit QC Filter
+        const auditFilterEl = document.getElementById('filter-audit');
+        const auditVal = auditFilterEl ? auditFilterEl.value : 'all';
+        const isFlagged = !!(AppState.flaggedEvents && AppState.flaggedEvents[e.id]);
+        if (auditVal === 'flagged' && !isFlagged) return false;
+        if (auditVal === 'unflagged' && isFlagged) return false;
+
+        // Free search text (includes Event ID, place, regency, province, headline, terms, reason, tide station, audit reason)
         if (searchVal.length > 0) {
           const tgText = e.tg ? `${e.tg.station}` : '';
-          const matchTarget = `${e.id} ${e.place} ${e.regency} ${e.province} ${e.title} ${e.terms} ${e.tier_reason} ${tgText}`.toLowerCase();
+          const flagReason = (AppState.flaggedEvents && AppState.flaggedEvents[e.id]) ? AppState.flaggedEvents[e.id].reason : '';
+          const matchTarget = `${e.id} ${e.place} ${e.regency} ${e.province} ${e.title} ${e.terms} ${e.tier_reason} ${tgText} ${flagReason}`.toLowerCase();
           if (!matchTarget.includes(searchVal)) return false;
         }
 
@@ -2036,198 +2234,25 @@
         if (!e.lat || !e.lon) return;
 
         let pinColor = '#2563eb'; // blue
-        let badgeClass = 'bg-blue-100 text-blue-800 border-blue-200';
-        if (e.tier === 'confirmed') {
-          pinColor = '#059669'; // emerald
-          badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
-        } else if (e.tier === 'probable') {
-          pinColor = '#d97706'; // amber
-          badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
-        }
+        if (e.tier === 'confirmed') pinColor = '#059669'; // emerald
+        else if (e.tier === 'probable') pinColor = '#d97706'; // amber
+
+        const isFlagged = !!(AppState.flaggedEvents && AppState.flaggedEvents[e.id]);
 
         // Custom SVG Circle Marker
         const markerIcon = L.divIcon({
           className: 'custom-flood-pin',
-          html: `<div style="background-color: ${pinColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-          iconSize: [12, 12],
-          iconAnchor: [6, 6]
+          html: isFlagged
+            ? `<div style="background-color: #dc2626; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 8px rgba(220,38,38,0.9); display:flex; align-items:center; justify-content:center; color:white; font-size:9px; font-weight:bold;"><i class="fa-solid fa-xmark"></i></div>`
+            : `<div style="background-color: ${pinColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+          iconSize: [isFlagged ? 14 : 12, isFlagged ? 14 : 12],
+          iconAnchor: [isFlagged ? 7 : 6, isFlagged ? 7 : 6]
         });
 
         const marker = L.marker([e.lat, e.lon], { icon: markerIcon });
         marker.eventId = e.id;
 
-        // Build Tide Station & Water Level Anomaly Box
-        let tgBoxHtml = '';
-        if (e.tg) {
-          if (e.tg.anom_cm !== null && e.tg.anom_cm !== undefined) {
-            const anomSign = e.tg.anom_cm > 0 ? '+' : '';
-            const isHigh = e.tg.anom_cm >= 20;
-            const cardBg = isHigh ? 'bg-amber-50/80 border-amber-200' : 'bg-cyan-50/70 border-cyan-200';
-            const anomTextColor = isHigh ? 'text-amber-800' : 'text-cyan-900';
-
-            tgBoxHtml = `
-              <div class="p-2.5 rounded-lg border ${cardBg} space-y-1">
-                <div class="flex items-center justify-between text-[11px] font-bold text-slate-900">
-                  <span class="flex items-center gap-1.5 text-cyan-950">
-                    <i class="fa-solid fa-tower-broadcast text-cyan-600"></i>
-                    <span>${dict.popup_tg_station}: ${e.tg.station}</span>
-                  </span>
-                  <span class="text-[10px] text-slate-500 font-normal">(${e.tg.dist_km} km)</span>
-                </div>
-                <div class="flex items-center justify-between pt-0.5 text-xs">
-                  <span class="text-slate-600 font-medium">${dict.popup_tg_anom}:</span>
-                  <span class="font-mono font-bold text-sm ${anomTextColor}">${anomSign}${e.tg.anom_cm} cm</span>
-                </div>
-                ${e.tg.wl_m !== null ? `
-                  <div class="text-[10px] text-slate-500 flex justify-between border-t border-slate-200/60 pt-1">
-                    <span>${dict.popup_tg_peak_wl}: <strong class="font-mono text-slate-800">${e.tg.wl_m} m</strong></span>
-                    ${e.tg.pct !== null ? `<span>${dict.popup_tg_pct}: <strong class="font-mono text-slate-800">${e.tg.pct}%</strong></span>` : ''}
-                  </div>
-                ` : ''}
-              </div>
-            `;
-          } else {
-            tgBoxHtml = `
-              <div class="p-2 rounded bg-slate-50 border border-slate-100 text-[10px] text-slate-500 flex items-center justify-between">
-                <span><i class="fa-solid fa-tower-broadcast text-slate-400 mr-1"></i> ${dict.popup_tg_station}: <strong>${e.tg.station}</strong> (${e.tg.dist_km} km)</span>
-                <span class="italic text-slate-400">${dict.popup_tg_inactive}</span>
-              </div>
-            `;
-          }
-        }
-
-        // Build Satellite SLA (C3S Altimetry) Box
-        let satBoxHtml = '';
-        if (e.sat) {
-          if (e.sat.sla_cm !== null && e.sat.sla_cm !== undefined) {
-            const satSign = e.sat.sla_cm > 0 ? '+' : '';
-            const isHighSla = e.sat.sla_cm >= 15;
-            const cardBg = isHighSla ? 'bg-indigo-50/80 border-indigo-200' : 'bg-slate-50 border-slate-200';
-            const slaColor = isHighSla ? 'text-indigo-900' : (e.sat.sla_cm > 0 ? 'text-cyan-800' : 'text-slate-600');
-            satBoxHtml = `
-              <div class="p-2.5 rounded-lg border ${cardBg} space-y-1">
-                <div class="flex items-center justify-between text-[11px] font-bold text-slate-900">
-                  <span class="flex items-center gap-1.5 text-indigo-950">
-                    <i class="fa-solid fa-satellite text-indigo-600"></i>
-                    <span>${dict.popup_sat_title}</span>
-                  </span>
-                  <span class="text-[10px] text-slate-500 font-normal">
-                    ${e.sat.dist_km !== null ? `(${e.sat.dist_km} km ${dict.popup_sat_offshore})` : ''}
-                  </span>
-                </div>
-                <div class="flex items-center justify-between pt-0.5 text-xs">
-                  <span class="text-slate-600 font-medium">${dict.popup_sat_sla}:</span>
-                  <span class="font-mono font-bold text-sm ${slaColor}">${satSign}${e.sat.sla_cm} cm</span>
-                </div>
-              </div>
-            `;
-          } else {
-            satBoxHtml = `
-              <div class="p-2 rounded bg-slate-50 border border-slate-100 text-[10px] text-slate-500 flex items-center justify-between">
-                <span><i class="fa-solid fa-satellite text-slate-400 mr-1"></i> ${dict.popup_sat_title}</span>
-                <span class="italic text-slate-400">${dict.popup_sat_outside}</span>
-              </div>
-            `;
-          }
-        }
-
-        // Multi-event switcher for same coastal coordinates
-        const sameLocEvents = AppState.filteredEvents.filter(ev => ev.lat === e.lat && ev.lon === e.lon);
-        let sameLocSwitcherHtml = '';
-        if (sameLocEvents.length > 1) {
-          sameLocSwitcherHtml = `
-            <div class="px-3 py-1.5 bg-slate-800 border-t border-slate-700 flex items-center gap-1.5 overflow-x-auto text-[10px]">
-              <span class="text-slate-400 whitespace-nowrap font-medium">${AppState.lang === 'en' ? 'Events here:' : 'Kejadian di sini:'}</span>
-              ${sameLocEvents.map(s => {
-                const isCur = s.id === e.id;
-                return `<button onclick="focusMapEvent('${s.id}')" class="px-1.5 py-0.5 rounded font-mono font-semibold transition whitespace-nowrap ${isCur ? 'bg-cyan-500 text-slate-950 font-bold' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}">${s.date_start.substring(5)} (${s.id})</button>`;
-              }).join('')}
-            </div>
-          `;
-        }
-
-        // Popup Content
-        const popupContent = `
-          <div class="w-[280px] sm:w-80 max-w-[85vw] text-xs font-sans">
-            <!-- Popup Header -->
-            <div class="p-3 bg-slate-900 text-white flex items-center justify-between">
-              <div class="flex items-center gap-1.5 font-mono font-bold text-cyan-300">
-                <i class="fa-solid fa-water"></i> ${e.id}
-              </div>
-              <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border ${badgeClass}">
-                ${e.tier_label}
-              </span>
-            </div>
-
-            ${sameLocSwitcherHtml}
-
-            <!-- Popup Body -->
-            <div class="p-3 sm:p-3.5 space-y-2.5 bg-white text-slate-700">
-              
-              <!-- Date & Location -->
-              <div class="grid grid-cols-2 gap-2 text-[11px] pb-2 border-b border-slate-100">
-                <div>
-                  <span class="text-slate-400 block text-[10px]">${dict.popup_date}</span>
-                  <span class="font-bold text-slate-900">📅 ${e.date_start}</span>
-                  ${e.days > 1 ? `<span class="text-[10px] text-slate-500">(${e.days} ${dict.popup_days})</span>` : ''}
-                </div>
-                <div>
-                  <span class="text-slate-400 block text-[10px]">${dict.popup_loc}</span>
-                  <span class="font-bold text-slate-900">📍 ${e.place}</span>
-                  <span class="text-[10px] text-slate-500 block">${e.province}</span>
-                </div>
-              </div>
-
-              <!-- Depth Highlight if available -->
-              ${e.depth_cm ? `
-                <div class="p-2 bg-cyan-50 border border-cyan-200 rounded-lg flex items-center justify-between">
-                  <span class="text-cyan-900 font-semibold"><i class="fa-solid fa-ruler-vertical text-cyan-600 mr-1"></i> ${dict.popup_depth}</span>
-                  <span class="font-mono font-bold text-cyan-950 text-sm">${e.depth_cm} cm</span>
-                </div>
-              ` : ''}
-
-              <!-- Nearest BMKG Tide Station & Water Level Anomaly Box -->
-              ${tgBoxHtml}
-
-              <!-- Nearest Satellite Altimetry Grid Sea Level Anomaly Box -->
-              ${satBoxHtml}
-
-              <!-- News Title -->
-              <div>
-                <span class="text-slate-400 block text-[10px] mb-0.5">${dict.popup_headline}</span>
-                <p class="font-semibold text-slate-800 leading-snug line-clamp-2">"${e.title || 'Coastal Flood Report'}"</p>
-              </div>
-
-              <!-- Metadata details -->
-              <div class="text-[10px] text-slate-500 space-y-0.5 bg-slate-50 p-2 rounded border border-slate-100">
-                <div><strong>${dict.popup_region}</strong> ${e.region_label}</div>
-                <div><strong>${dict.popup_terms}</strong> <code class="text-cyan-800">${e.terms || 'banjir rob'}</code></div>
-                ${e.tier_reason ? `<div><strong>${dict.popup_reason}</strong> ${e.tier_reason}</div>` : ''}
-                <div><strong>${dict.popup_source}</strong> ${e.n_articles} articles (${e.n_domains} independent domains)</div>
-              </div>
-
-              <!-- Action Link & Inaccuracy Report -->
-              <div class="pt-1 space-y-1.5">
-                ${e.url ? `
-                  <a href="${e.url}" target="_blank" rel="noopener noreferrer" 
-                    class="w-full py-1.5 px-3 bg-cyan-600 hover:bg-cyan-700 text-white text-center rounded-md font-semibold flex items-center justify-center gap-1.5 transition">
-                    <span>${dict.popup_btn}</span>
-                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                  </a>
-                ` : ''}
-                <div class="pt-1 border-t border-slate-100 flex items-center justify-between text-[10px]">
-                  <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Laporan%20Kejadian%20${e.id}&body=Event%20ID:%20${e.id}%0ALokasi:%20${encodeURIComponent(e.place)}%0ATanggal:%20${e.date_start}%0AJudul%20Berita:%20${encodeURIComponent(e.title || '')}%0ATautan:%20${encodeURIComponent(e.url || '')}%0A%0ACatatan%20(misal%20bukan%20banjir%20rob,%20berita%20demo,%20atau%20proyek%20tanggul):%20" 
-                    class="text-slate-400 hover:text-amber-700 flex items-center gap-1 transition" title="${dict.popup_report_issue}">
-                    <i class="fa-regular fa-flag text-[9px] text-amber-500"></i>
-                    <span>${dict.popup_report_issue}</span>
-                  </a>
-                  <span class="text-slate-300 font-mono text-[9px]">#${e.id}</span>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        `;
+        const popupContent = buildPopupContent(e);
 
         marker.bindPopup(popupContent, { 
           maxWidth: Math.min(340, window.innerWidth - 32),
@@ -2259,6 +2284,236 @@
           }
         }
       }
+    }
+
+    // Build Popup HTML Content for Event
+    function buildPopupContent(e) {
+      const dict = I18N[AppState.lang];
+      let badgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
+      if (e.tier === 'confirmed') {
+        badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      } else if (e.tier === 'probable') {
+        badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+      }
+
+      // Build Tide Station & Water Level Anomaly Box
+      let tgBoxHtml = '';
+      if (e.tg) {
+        if (e.tg.anom_cm !== null && e.tg.anom_cm !== undefined) {
+          const anomSign = e.tg.anom_cm > 0 ? '+' : '';
+          const isHigh = e.tg.anom_cm >= 20;
+          const cardBg = isHigh ? 'bg-amber-50/80 border-amber-200' : 'bg-cyan-50/70 border-cyan-200';
+          const anomTextColor = isHigh ? 'text-amber-800' : 'text-cyan-900';
+
+          tgBoxHtml = `
+            <div class="p-2.5 rounded-lg border ${cardBg} space-y-1">
+              <div class="flex items-center justify-between text-[11px] font-bold text-slate-900">
+                <span class="flex items-center gap-1.5 text-cyan-950">
+                  <i class="fa-solid fa-tower-broadcast text-cyan-600"></i>
+                  <span>${dict.popup_tg_station}: ${e.tg.station}</span>
+                </span>
+                <span class="text-[10px] text-slate-500 font-normal">(${e.tg.dist_km} km)</span>
+              </div>
+              <div class="flex items-center justify-between pt-0.5 text-xs">
+                <span class="text-slate-600 font-medium">${dict.popup_tg_anom}:</span>
+                <span class="font-mono font-bold text-sm ${anomTextColor}">${anomSign}${e.tg.anom_cm} cm</span>
+              </div>
+              ${e.tg.wl_m !== null ? `
+                <div class="text-[10px] text-slate-500 flex justify-between border-t border-slate-200/60 pt-1">
+                  <span>${dict.popup_tg_peak_wl}: <strong class="font-mono text-slate-800">${e.tg.wl_m} m</strong></span>
+                  ${e.tg.pct !== null ? `<span>${dict.popup_tg_pct}: <strong class="font-mono text-slate-800">${e.tg.pct}%</strong></span>` : ''}
+                </div>
+              ` : ''}
+            </div>
+          `;
+        } else {
+          tgBoxHtml = `
+            <div class="p-2 rounded bg-slate-50 border border-slate-100 text-[10px] text-slate-500 flex items-center justify-between">
+              <span><i class="fa-solid fa-tower-broadcast text-slate-400 mr-1"></i> ${dict.popup_tg_station}: <strong>${e.tg.station}</strong> (${e.tg.dist_km} km)</span>
+              <span class="italic text-slate-400">${dict.popup_tg_inactive}</span>
+            </div>
+          `;
+        }
+      }
+
+      // Build Satellite SLA (C3S Altimetry) Box
+      let satBoxHtml = '';
+      if (e.sat) {
+        if (e.sat.sla_cm !== null && e.sat.sla_cm !== undefined) {
+          const satSign = e.sat.sla_cm > 0 ? '+' : '';
+          const isHighSla = e.sat.sla_cm >= 15;
+          const cardBg = isHighSla ? 'bg-indigo-50/80 border-indigo-200' : 'bg-slate-50 border-slate-200';
+          const slaColor = isHighSla ? 'text-indigo-900' : (e.sat.sla_cm > 0 ? 'text-cyan-800' : 'text-slate-600');
+          satBoxHtml = `
+            <div class="p-2.5 rounded-lg border ${cardBg} space-y-1">
+              <div class="flex items-center justify-between text-[11px] font-bold text-slate-900">
+                <span class="flex items-center gap-1.5 text-indigo-950">
+                  <i class="fa-solid fa-satellite text-indigo-600"></i>
+                  <span>${dict.popup_sat_title}</span>
+                </span>
+                <span class="text-[10px] text-slate-500 font-normal">
+                  ${e.sat.dist_km !== null ? `(${e.sat.dist_km} km ${dict.popup_sat_offshore})` : ''}
+                </span>
+              </div>
+              <div class="flex items-center justify-between pt-0.5 text-xs">
+                <span class="text-slate-600 font-medium">${dict.popup_sat_sla}:</span>
+                <span class="font-mono font-bold text-sm ${slaColor}">${satSign}${e.sat.sla_cm} cm</span>
+              </div>
+            </div>
+          `;
+        } else {
+          satBoxHtml = `
+            <div class="p-2 rounded bg-slate-50 border border-slate-100 text-[10px] text-slate-500 flex items-center justify-between">
+              <span><i class="fa-solid fa-satellite text-slate-400 mr-1"></i> ${dict.popup_sat_title}</span>
+              <span class="italic text-slate-400">${dict.popup_sat_outside}</span>
+            </div>
+          `;
+        }
+      }
+
+      // Multi-event switcher for same coastal coordinates
+      const sameLocEvents = AppState.filteredEvents.filter(ev => ev.lat === e.lat && ev.lon === e.lon);
+      let sameLocSwitcherHtml = '';
+      if (sameLocEvents.length > 1) {
+        sameLocSwitcherHtml = `
+          <div class="px-3 py-1.5 bg-slate-800 border-t border-slate-700 flex items-center gap-1.5 overflow-x-auto text-[10px]">
+            <span class="text-slate-400 whitespace-nowrap font-medium">${AppState.lang === 'en' ? 'Events here:' : 'Kejadian di sini:'}</span>
+            ${sameLocEvents.map(s => {
+              const isCur = s.id === e.id;
+              return `<button onclick="focusMapEvent('${s.id}')" class="px-1.5 py-0.5 rounded font-mono font-semibold transition whitespace-nowrap ${isCur ? 'bg-cyan-500 text-slate-950 font-bold' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}">${s.date_start.substring(5)} (${s.id})</button>`;
+            }).join('')}
+          </div>
+        `;
+      }
+
+      // Flag / Inaccuracy Audit Section
+      const isFlagged = !!(AppState.flaggedEvents && AppState.flaggedEvents[e.id]);
+      const flagData = isFlagged ? AppState.flaggedEvents[e.id] : null;
+
+      const flagSectionHtml = isFlagged ? `
+        <div class="mt-2 pt-2 border-t border-red-200">
+          <div class="p-2.5 rounded-lg bg-red-50 border border-red-200 space-y-1.5 shadow-xs">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-red-800 flex items-center gap-1">
+                <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
+                ${AppState.lang === 'en' ? 'Flagged: Inaccurate Report' : 'Ditandai: Berita Tidak Akurat'}
+              </span>
+              <span class="text-[9px] font-mono font-bold text-red-700 bg-red-100 px-1.5 py-0.5 rounded border border-red-200">AUDIT</span>
+            </div>
+            <p class="text-[10px] text-red-900 bg-white/95 p-1.5 rounded border border-red-100 font-medium leading-relaxed">
+              "${flagData.reason || (AppState.lang === 'en' ? 'Inaccurate / non-flood report' : 'Tidak akurat / bukan banjir rob')}"
+            </p>
+            <div class="flex items-center justify-between text-[10px] pt-0.5">
+              <button onclick="openFlagConfirmModal('${e.id}')" class="text-red-700 hover:text-red-900 font-semibold underline flex items-center gap-1">
+                <i class="fa-solid fa-pen-to-square text-[9px]"></i> ${AppState.lang === 'en' ? 'Edit Reason' : 'Ubah Alasan'}
+              </button>
+              <button onclick="unflagEvent('${e.id}')" class="text-slate-500 hover:text-red-700 font-medium underline flex items-center gap-1">
+                <i class="fa-solid fa-trash-can text-[9px]"></i> ${AppState.lang === 'en' ? 'Remove Flag' : 'Batalkan Tanda'}
+              </button>
+            </div>
+          </div>
+        </div>
+      ` : `
+        <div class="mt-2 pt-2 border-t border-slate-200">
+          <label class="flex items-center gap-2 p-2 rounded-lg bg-amber-50/70 hover:bg-amber-100/70 border border-amber-200/80 cursor-pointer transition select-none">
+            <input type="checkbox" onchange="onPopupCheckboxChange('${e.id}', this)" class="w-4 h-4 text-red-600 rounded border-amber-300 focus:ring-red-500 cursor-pointer">
+            <div class="flex-1">
+              <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1 leading-tight">
+                <i class="fa-regular fa-flag text-amber-600 text-[10px]"></i>
+                ${AppState.lang === 'en' ? 'Flag Inaccurate / Not Rob' : 'Tandai Berita Tidak Akurat / Bukan Rob'}
+              </span>
+              <span class="text-[9px] text-amber-700/90 block mt-0.5">${AppState.lang === 'en' ? 'Click to confirm reason and save to audit list' : 'Klik untuk konfirmasi & simpan ke daftar audit'}</span>
+            </div>
+          </label>
+        </div>
+      `;
+
+      return `
+        <div class="w-[280px] sm:w-80 max-w-[85vw] text-xs font-sans">
+          <!-- Popup Header -->
+          <div class="p-3 bg-slate-900 text-white flex items-center justify-between">
+            <div class="flex items-center gap-1.5 font-mono font-bold text-cyan-300">
+              <i class="fa-solid fa-water"></i> ${e.id}
+            </div>
+            <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border ${badgeClass}">
+              ${e.tier_label}
+            </span>
+          </div>
+
+          ${sameLocSwitcherHtml}
+
+          <!-- Popup Body -->
+          <div class="p-3 sm:p-3.5 space-y-2.5 bg-white text-slate-700">
+            
+            <!-- Date & Location -->
+            <div class="grid grid-cols-2 gap-2 text-[11px] pb-2 border-b border-slate-100">
+              <div>
+                <span class="text-slate-400 block text-[10px]">${dict.popup_date}</span>
+                <span class="font-bold text-slate-900">📅 ${e.date_start}</span>
+                ${e.days > 1 ? `<span class="text-[10px] text-slate-500">(${e.days} ${dict.popup_days})</span>` : ''}
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[10px]">${dict.popup_loc}</span>
+                <span class="font-bold text-slate-900">📍 ${e.place}</span>
+                <span class="text-[10px] text-slate-500 block">${e.province}</span>
+              </div>
+            </div>
+
+            <!-- Depth Highlight if available -->
+            ${e.depth_cm ? `
+              <div class="p-2 bg-cyan-50 border border-cyan-200 rounded-lg flex items-center justify-between">
+                <span class="text-cyan-900 font-semibold"><i class="fa-solid fa-ruler-vertical text-cyan-600 mr-1"></i> ${dict.popup_depth}</span>
+                <span class="font-mono font-bold text-cyan-950 text-sm">${e.depth_cm} cm</span>
+              </div>
+            ` : ''}
+
+            <!-- Nearest BMKG Tide Station & Water Level Anomaly Box -->
+            ${tgBoxHtml}
+
+            <!-- Nearest Satellite Altimetry Grid Sea Level Anomaly Box -->
+            ${satBoxHtml}
+
+            <!-- News Title -->
+            <div>
+              <span class="text-slate-400 block text-[10px] mb-0.5">${dict.popup_headline}</span>
+              <p class="font-semibold text-slate-800 leading-snug line-clamp-2">"${e.title || 'Coastal Flood Report'}"</p>
+            </div>
+
+            <!-- Metadata details -->
+            <div class="text-[10px] text-slate-500 space-y-0.5 bg-slate-50 p-2 rounded border border-slate-100">
+              <div><strong>${dict.popup_region}</strong> ${e.region_label}</div>
+              <div><strong>${dict.popup_terms}</strong> <code class="text-cyan-800">${e.terms || 'banjir rob'}</code></div>
+              ${e.tier_reason ? `<div><strong>${dict.popup_reason}</strong> ${e.tier_reason}</div>` : ''}
+              <div><strong>${dict.popup_source}</strong> ${e.n_articles} articles (${e.n_domains} independent domains)</div>
+            </div>
+
+            <!-- Action Link -->
+            ${e.url ? `
+              <div class="pt-1">
+                <a href="${e.url}" target="_blank" rel="noopener noreferrer" 
+                  class="w-full py-1.5 px-3 bg-cyan-600 hover:bg-cyan-700 text-white text-center rounded-md font-semibold flex items-center justify-center gap-1.5 transition">
+                  <span>${dict.popup_btn}</span>
+                  <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </a>
+              </div>
+            ` : ''}
+
+            <!-- Flag / Audit QC Section -->
+            ${flagSectionHtml}
+
+            <!-- Footer with ID and Email Report Fallback -->
+            <div class="pt-1 border-t border-slate-100 flex items-center justify-between text-[10px]">
+              <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Laporan%20Kejadian%20${e.id}&body=Event%20ID:%20${e.id}%0ALokasi:%20${encodeURIComponent(e.place)}%0ATanggal:%20${e.date_start}%0AJudul%20Berita:%20${encodeURIComponent(e.title || '')}%0ATautan:%20${encodeURIComponent(e.url || '')}%0A%0ACatatan%20(misal%20bukan%20banjir%20rob,%20berita%20demo,%20atau%20proyek%20tanggul):%20" 
+                class="text-slate-400 hover:text-amber-700 flex items-center gap-1 transition" title="${dict.popup_report_issue}">
+                <i class="fa-regular fa-envelope text-[9px] text-amber-500"></i>
+                <span>Email koreksi</span>
+              </a>
+              <span class="text-slate-300 font-mono text-[9px]">#${e.id}</span>
+            </div>
+
+          </div>
+        </div>
+      `;
     }
 
     // Focus Map to specific Event and automatically open its popup
@@ -2583,9 +2838,17 @@
           if (e.tier === 'confirmed') badgeClass = 'bg-emerald-100 text-emerald-800';
           else if (e.tier === 'probable') badgeClass = 'bg-amber-100 text-amber-800';
 
+          const isRowFlagged = !!(AppState.flaggedEvents && AppState.flaggedEvents[e.id]);
+          const flagReasonTooltip = isRowFlagged 
+            ? `Ditandai Tidak Akurat: ${AppState.flaggedEvents[e.id].reason || 'Audit QC'}` 
+            : (AppState.lang === 'en' ? 'Flag as inaccurate / not rob' : 'Tandai berita tidak akurat / bukan rob');
+
           return `
-            <tr class="hover:bg-slate-50 transition">
-              <td class="py-2 px-3 font-mono text-[11px] font-semibold text-slate-800">${e.id}</td>
+            <tr class="hover:bg-slate-50 transition ${isRowFlagged ? 'bg-red-50/40' : ''}">
+              <td class="py-2 px-3 font-mono text-[11px] font-semibold text-slate-800">
+                ${e.id}
+                ${isRowFlagged ? `<span class="ml-1 text-[9px] font-bold text-red-600 bg-red-100 px-1 py-0.2 rounded">FLAG</span>` : ''}
+              </td>
               <td class="py-2 px-3 whitespace-nowrap text-slate-600">${e.date_start}</td>
               <td class="py-2 px-3 font-medium text-slate-900">${e.place}</td>
               <td class="py-2 px-3 text-slate-600">${e.province}</td>
@@ -2620,11 +2883,10 @@
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                   </a>
                 ` : ''}
-                <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Laporan%20Kejadian%20${e.id}&body=Event%20ID:%20${e.id}%0ALokasi:%20${encodeURIComponent(e.place)}%0ATanggal:%20${e.date_start}%0AJudul%20Berita:%20${encodeURIComponent(e.title || '')}%0ATautan:%20${encodeURIComponent(e.url || '')}%0A%0ACatatan%20(misal%20bukan%20banjir%20rob,%20berita%20demo,%20atau%20proyek%20tanggul):%20" 
-                  title="${dict.table_report_tooltip}" 
-                  class="inline-block px-2 py-1 bg-slate-100 hover:bg-amber-50 hover:text-amber-700 text-slate-400 rounded transition">
-                  <i class="fa-regular fa-flag"></i>
-                </a>
+                <button onclick="toggleFlagModalFromTable('${e.id}')" title="${flagReasonTooltip}" 
+                  class="inline-block px-2 py-1 ${isRowFlagged ? 'bg-red-100 text-red-700 border border-red-300 font-bold' : 'bg-slate-100 hover:bg-amber-50 hover:text-amber-700 text-slate-400'} rounded transition">
+                  <i class="${isRowFlagged ? 'fa-solid fa-flag text-red-600' : 'fa-regular fa-flag'}"></i>
+                </button>
               </td>
             </tr>
           `;
@@ -2658,6 +2920,447 @@
         if (show) modal.classList.remove('hidden');
         else modal.classList.add('hidden');
       }
+    }
+
+    // ================= AUDIT / QC INACCURACY REPORTING SYSTEM =================
+    const STORAGE_KEY_FLAGGED = 'INA_FLAGGED_EVENTS';
+
+    function initFlaggedEvents(events) {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY_FLAGGED);
+        if (stored) {
+          AppState.flaggedEvents = JSON.parse(stored) || {};
+        }
+      } catch (err) {
+        console.warn("Could not load flagged events from localStorage:", err);
+        AppState.flaggedEvents = {};
+      }
+
+      // Merge pre-baked flags if present in dataset (e.g. from rob_flagged_audit.csv)
+      if (Array.isArray(events)) {
+        events.forEach(e => {
+          if (e.flagged_inaccurate && !AppState.flaggedEvents[e.id]) {
+            AppState.flaggedEvents[e.id] = {
+              id: e.id,
+              place: e.place || '',
+              province: e.province || '',
+              region: e.region || '',
+              date_start: e.date_start || '',
+              title: e.title || '',
+              url: e.url || '',
+              reason: e.flag_reason || 'Pre-flagged inaccurate',
+              flagged_at: e.flagged_at || new Date().toISOString()
+            };
+          }
+        });
+      }
+
+      updateFlaggedUI();
+    }
+
+    function saveFlaggedEvents() {
+      try {
+        localStorage.setItem(STORAGE_KEY_FLAGGED, JSON.stringify(AppState.flaggedEvents));
+      } catch (err) {
+        console.warn("Could not save flagged events to localStorage:", err);
+      }
+      updateFlaggedUI();
+    }
+
+    function updateFlaggedUI() {
+      const count = Object.keys(AppState.flaggedEvents || {}).length;
+      const badge = document.getElementById('audit-badge-count');
+      if (badge) {
+        badge.textContent = count;
+        if (count > 0) {
+          badge.classList.remove('bg-slate-700', 'text-slate-300');
+          badge.classList.add('bg-red-600', 'text-white');
+        } else {
+          badge.classList.remove('bg-red-600', 'text-white');
+          badge.classList.add('bg-slate-700', 'text-slate-300');
+        }
+      }
+      const mobileBadge = document.getElementById('mobile-audit-badge-count');
+      if (mobileBadge) mobileBadge.textContent = count;
+
+      const modalTotal = document.getElementById('audit-modal-total-count');
+      if (modalTotal) modalTotal.textContent = count;
+    }
+
+    function onPopupCheckboxChange(eventId, chkEl) {
+      if (chkEl && chkEl.checked) {
+        openFlagConfirmModal(eventId, chkEl);
+      } else {
+        unflagEvent(eventId);
+      }
+    }
+
+    function openFlagConfirmModal(eventId, chkEl = null) {
+      AppState.pendingFlagEventId = eventId;
+      AppState.pendingFlagCheckbox = chkEl;
+
+      const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
+      if (!ev) return;
+
+      const existingFlag = AppState.flaggedEvents ? AppState.flaggedEvents[eventId] : null;
+
+      const idEl = document.getElementById('flag-modal-event-id');
+      if (idEl) idEl.textContent = `#${ev.id}`;
+      const dateEl = document.getElementById('flag-modal-event-date');
+      if (dateEl) dateEl.textContent = `📅 ${ev.date_start}${ev.days > 1 ? ` (${ev.days} hr)` : ''}`;
+      const placeEl = document.getElementById('flag-modal-event-place');
+      if (placeEl) placeEl.textContent = `📍 ${ev.place}, ${ev.province}`;
+      const titleEl = document.getElementById('flag-modal-event-title');
+      if (titleEl) titleEl.textContent = `"${ev.title || 'Laporan Kejadian'}"`;
+
+      const urlEl = document.getElementById('flag-modal-event-url');
+      if (urlEl) {
+        if (ev.url) {
+          urlEl.href = ev.url;
+          urlEl.classList.remove('hidden');
+        } else {
+          urlEl.classList.add('hidden');
+        }
+      }
+
+      const reasonInput = document.getElementById('flag-reason-input');
+      if (reasonInput) {
+        reasonInput.value = existingFlag && existingFlag.reason ? existingFlag.reason : '';
+      }
+
+      // Reset preset button styles
+      document.querySelectorAll('#flag-preset-buttons .preset-btn').forEach(btn => {
+        btn.classList.remove('bg-amber-200', 'border-amber-500', 'font-bold');
+      });
+
+      toggleModal('modal-flag-confirm', true);
+    }
+
+    function setFlagPreset(reasonText) {
+      const reasonInput = document.getElementById('flag-reason-input');
+      if (reasonInput) {
+        reasonInput.value = reasonText;
+      }
+      document.querySelectorAll('#flag-preset-buttons .preset-btn').forEach(btn => {
+        if (btn.textContent.includes(reasonText.substring(0, 8))) {
+          btn.classList.add('bg-amber-200', 'border-amber-500', 'font-bold');
+        } else {
+          btn.classList.remove('bg-amber-200', 'border-amber-500', 'font-bold');
+        }
+      });
+    }
+
+    function closeFlagConfirmModal() {
+      if (AppState.pendingFlagCheckbox) {
+        const isStillFlagged = !!(AppState.flaggedEvents && AppState.flaggedEvents[AppState.pendingFlagEventId]);
+        AppState.pendingFlagCheckbox.checked = isStillFlagged;
+        AppState.pendingFlagCheckbox = null;
+      }
+      AppState.pendingFlagEventId = null;
+      toggleModal('modal-flag-confirm', false);
+    }
+
+    function submitFlagEvent() {
+      const eventId = AppState.pendingFlagEventId;
+      if (!eventId) return;
+
+      const reasonInput = document.getElementById('flag-reason-input');
+      const reasonText = (reasonInput ? reasonInput.value : '').trim() || 'Berita tidak akurat / bukan rob';
+
+      const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
+
+      if (!AppState.flaggedEvents) AppState.flaggedEvents = {};
+      AppState.flaggedEvents[eventId] = {
+        id: eventId,
+        place: ev ? ev.place : '',
+        province: ev ? ev.province : '',
+        region: ev ? ev.region : '',
+        date_start: ev ? ev.date_start : '',
+        title: ev ? ev.title : '',
+        url: ev ? ev.url : '',
+        reason: reasonText,
+        flagged_at: new Date().toISOString()
+      };
+
+      saveFlaggedEvents();
+      closeFlagConfirmModal();
+
+      // Update map marker icon and popup in-place
+      updateOpenMarkerPopup(eventId);
+
+      // If in table view, re-render
+      if (AppState.currentView === 'table') {
+        renderTablePage(AppState.tablePage);
+      }
+
+      // If audit modal is open, re-render
+      const auditModal = document.getElementById('modal-audit');
+      if (auditModal && !auditModal.classList.contains('hidden')) {
+        renderAuditModalContent();
+      }
+
+      showToast(AppState.lang === 'en' ? `✓ Event #${eventId} flagged as inaccurate.` : `✓ Kejadian #${eventId} berhasil ditandai tidak akurat.`);
+    }
+
+    function unflagEvent(eventId) {
+      if (AppState.flaggedEvents && AppState.flaggedEvents[eventId]) {
+        delete AppState.flaggedEvents[eventId];
+        saveFlaggedEvents();
+        updateOpenMarkerPopup(eventId);
+        if (AppState.currentView === 'table') {
+          renderTablePage(AppState.tablePage);
+        }
+        renderAuditModalContent();
+        showToast(AppState.lang === 'en' ? `Flag removed from #${eventId}.` : `Tanda pada #${eventId} telah dibatalkan.`);
+      }
+    }
+
+    function toggleFlagModalFromTable(eventId) {
+      openFlagConfirmModal(eventId);
+    }
+
+    function updateOpenMarkerPopup(eventId) {
+      const marker = AppState.markersById ? AppState.markersById[eventId] : null;
+      const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
+      if (!ev) return;
+
+      const isFlagged = !!(AppState.flaggedEvents && AppState.flaggedEvents[eventId]);
+      let pinColor = '#2563eb';
+      if (ev.tier === 'confirmed') pinColor = '#059669';
+      else if (ev.tier === 'probable') pinColor = '#d97706';
+
+      if (marker) {
+        // Update marker icon
+        const markerIcon = L.divIcon({
+          className: 'custom-flood-pin',
+          html: isFlagged
+            ? `<div style="background-color: #dc2626; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 8px rgba(220,38,38,0.9); display:flex; align-items:center; justify-content:center; color:white; font-size:9px; font-weight:bold;"><i class="fa-solid fa-xmark"></i></div>`
+            : `<div style="background-color: ${pinColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+          iconSize: [isFlagged ? 14 : 12, isFlagged ? 14 : 12],
+          iconAnchor: [isFlagged ? 7 : 6, isFlagged ? 7 : 6]
+        });
+        marker.setIcon(markerIcon);
+
+        // Update popup content
+        const newHtml = buildPopupContent(ev);
+        marker.setPopupContent(newHtml);
+        if (marker.isPopupOpen && marker.isPopupOpen()) {
+          const popup = marker.getPopup();
+          if (popup) {
+            popup.setContent(newHtml);
+            if (popup.update) popup.update();
+          }
+        }
+      }
+    }
+
+    function openAuditModal() {
+      renderAuditModalContent();
+      toggleModal('modal-audit', true);
+    }
+
+    function renderAuditModalContent() {
+      const container = document.getElementById('audit-modal-table-container');
+      if (!container) return;
+      const ids = Object.keys(AppState.flaggedEvents || {});
+      updateFlaggedUI();
+
+      if (ids.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-slate-400">
+            <i class="fa-regular fa-circle-check text-4xl text-slate-300 mb-3 block"></i>
+            <p class="font-bold text-slate-700 text-sm">${AppState.lang === 'en' ? 'No events flagged yet.' : 'Belum ada kejadian yang ditandai tidak akurat.'}</p>
+            <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
+              ${AppState.lang === 'en' 
+                ? 'Open any event popup on the map or click the flag icon in the data table to mark non-flood reports, protests, or weather warnings.' 
+                : 'Buka popup kejadian di peta atau klik ikon bendera di tabel data untuk menandai berita bukan rob, berita demo warga, atau berita proyek tanggul.'}
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      const rows = ids.map(id => {
+        const f = AppState.flaggedEvents[id];
+        const ev = AppState.allEvents.find(e => String(e.id) === String(id)) || {};
+        const dateStr = ev.date_start || f.date_start || '-';
+        const placeStr = ev.place || f.place || '-';
+        const provStr = ev.province || f.province || '';
+        const titleStr = ev.title || f.title || 'Laporan Kejadian';
+        const urlStr = ev.url || f.url || '';
+        const reasonStr = f.reason || 'Tidak akurat / bukan rob';
+
+        return `
+          <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+            <td class="py-2.5 px-3 font-mono font-bold text-slate-900">${id}</td>
+            <td class="py-2.5 px-3 whitespace-nowrap text-slate-600">${dateStr}</td>
+            <td class="py-2.5 px-3">
+              <div class="font-bold text-slate-900">${placeStr}</div>
+              <div class="text-[10px] text-slate-500">${provStr}</div>
+            </td>
+            <td class="py-2.5 px-3 max-w-xs">
+              <div class="text-slate-800 font-medium line-clamp-2" title="${titleStr}">"${titleStr}"</div>
+              ${urlStr ? `
+                <a href="${urlStr}" target="_blank" rel="noopener noreferrer" class="text-cyan-700 hover:underline text-[10px] inline-flex items-center gap-1 mt-0.5">
+                  <span>Buka Berita</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                </a>
+              ` : ''}
+            </td>
+            <td class="py-2.5 px-3">
+              <span class="inline-block px-2 py-1 rounded-lg bg-red-50 border border-red-200 text-red-800 text-[11px] font-semibold leading-snug">
+                ⚠️ ${reasonStr}
+              </span>
+            </td>
+            <td class="py-2.5 px-3 whitespace-nowrap text-center space-x-1">
+              <button onclick="focusMapEvent('${id}'); toggleModal('modal-audit', false);" title="Lihat di Peta" 
+                class="px-2 py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 rounded font-semibold transition text-xs">
+                <i class="fa-solid fa-location-dot"></i> Peta
+              </button>
+              <button onclick="openFlagConfirmModal('${id}')" title="Ubah Catatan" 
+                class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition text-xs">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="unflagEvent('${id}')" title="Hapus dari Daftar Audit" 
+                class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded transition text-xs">
+                <i class="fa-regular fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <div class="overflow-x-auto border border-slate-200 rounded-xl">
+          <table class="w-full text-left">
+            <thead class="bg-slate-100 text-slate-700 font-semibold text-[11px] border-b border-slate-200">
+              <tr>
+                <th class="py-2.5 px-3">ID</th>
+                <th class="py-2.5 px-3">Tanggal</th>
+                <th class="py-2.5 px-3">Lokasi</th>
+                <th class="py-2.5 px-3">Berita</th>
+                <th class="py-2.5 px-3">Alasan Tidak Akurat</th>
+                <th class="py-2.5 px-3 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-[11px]">
+              ${rows}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function exportFlaggedToCSV() {
+      const ids = Object.keys(AppState.flaggedEvents || {});
+      if (ids.length === 0) {
+        alert(AppState.lang === 'en' ? 'No flagged events to export.' : 'Belum ada kejadian yang ditandai untuk diekspor.');
+        return;
+      }
+
+      const rows = [];
+      // Header row
+      rows.push([
+        'event_id',
+        'place',
+        'province',
+        'region',
+        'date_start',
+        'date_end',
+        'depth_cm',
+        'title',
+        'url',
+        'terms',
+        'tg_station',
+        'tg_anom_cm',
+        'audit_status',
+        'audit_reason',
+        'flagged_at'
+      ]);
+
+      ids.forEach(id => {
+        const f = AppState.flaggedEvents[id];
+        const e = AppState.allEvents.find(x => String(x.id) === String(id)) || {};
+        rows.push([
+          id,
+          `"${(e.place || f.place || '').replace(/"/g, '""')}"`,
+          `"${(e.province || f.province || '').replace(/"/g, '""')}"`,
+          `"${(e.region || f.region || '').replace(/"/g, '""')}"`,
+          e.date_start || f.date_start || '',
+          e.date_end || '',
+          (e.depth_cm !== undefined && e.depth_cm !== null) ? e.depth_cm : '',
+          `"${(e.title || f.title || '').replace(/"/g, '""')}"`,
+          `"${(e.url || f.url || '').replace(/"/g, '""')}"`,
+          `"${(e.terms || '').replace(/"/g, '""')}"`,
+          e.tg ? `"${e.tg.station}"` : '',
+          (e.tg && e.tg.anom_cm !== null) ? e.tg.anom_cm : '',
+          'INACCURATE',
+          `"${(f.reason || '').replace(/"/g, '""')}"`,
+          f.flagged_at || new Date().toISOString()
+        ]);
+      });
+
+      const csvContent = "\uFEFF" + rows.map(r => r.join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const todayStr = new Date().toISOString().split('T')[0];
+      a.href = url;
+      a.download = `rob_inaccurate_audit_${todayStr}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast(AppState.lang === 'en' ? `Downloaded ${ids.length} audit records to CSV!` : `Berhasil mengunduh ${ids.length} data audit ke CSV!`);
+    }
+
+    function copyFlaggedIDs() {
+      const ids = Object.keys(AppState.flaggedEvents || {});
+      if (ids.length === 0) {
+        showToast(AppState.lang === 'en' ? 'No flagged IDs to copy.' : 'Belum ada ID yang ditandai.');
+        return;
+      }
+      const idStr = ids.join(', ');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(idStr).then(() => {
+          showToast(AppState.lang === 'en' ? `Copied ${ids.length} IDs to clipboard!` : `Menyalin ${ids.length} ID ke clipboard!`);
+        }).catch(() => {
+          prompt(AppState.lang === 'en' ? 'Copy IDs below:' : 'Salin daftar ID di bawah ini:', idStr);
+        });
+      } else {
+        prompt(AppState.lang === 'en' ? 'Copy IDs below:' : 'Salin daftar ID di bawah ini:', idStr);
+      }
+    }
+
+    function clearAllFlags() {
+      const count = Object.keys(AppState.flaggedEvents || {}).length;
+      if (count === 0) return;
+      const confirmMsg = AppState.lang === 'en' 
+        ? `Are you sure you want to clear all ${count} flagged items?` 
+        : `Apakah Anda yakin ingin menghapus semua ${count} tanda audit?`;
+      if (confirm(confirmMsg)) {
+        AppState.flaggedEvents = {};
+        saveFlaggedEvents();
+        renderMarkers(false);
+        if (AppState.currentView === 'table') {
+          renderTablePage(AppState.tablePage);
+        }
+        renderAuditModalContent();
+        showToast(AppState.lang === 'en' ? 'All audit flags cleared.' : 'Semua tanda audit telah dihapus.');
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast-notification');
+      const msgEl = document.getElementById('toast-message');
+      if (!toast || !msgEl) return;
+      msgEl.textContent = msg;
+      toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
+      }, 2500);
     }
 
     // Window Resize Handler for responsive map and mobile drawer reset
