@@ -112,7 +112,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js"></script>
+  <script src="data/events.js?v=4.0.1"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -1450,7 +1450,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json')
+        fetch('data/events.json?v=4.0.1')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -1586,11 +1586,13 @@
 
     // Initialize Leaflet Map (Free OpenStreetMap & Esri Ocean / Satellite)
     function initMap() {
-      // 1. OpenStreetMap (Humanitarian OpenStreetMap / OSM France - fast, unblocked & 100% open-source)
-      const osm = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">HOT</a>',
-        maxZoom: 19,
-        subdomains: 'abc'
+      // 1. OpenStreetMap (Classic OpenStreetMap style)
+      const osmUrl = window.location.protocol === 'file:' 
+        ? 'https://tile.openstreetmap.de/{z}/{x}/{y}.png' 
+        : 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+      const osm = L.tileLayer(osmUrl, {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19
       });
 
       // 2. Esri Ocean Basemap (Dedicated physical oceanography bathymetry & coastal marine basemap)
