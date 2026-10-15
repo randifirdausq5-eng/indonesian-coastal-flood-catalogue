@@ -318,7 +318,7 @@
           <!-- Province Dropdown -->
           <div class="pt-1">
             <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="province_select">Filter Specific Province</label>
-            <select id="filter-province" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
+            <select id="filter-province" onchange="onProvinceFilterChange()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
               <option value="all">All Provinces (34)</option>
             </select>
           </div>
@@ -1092,17 +1092,33 @@
       });
     }
 
-    // Populate Province dropdown options
-    function populateProvinceOptions(events) {
+    // Populate Province dropdown options, dynamically tailored to active coastal region
+    function populateProvinceOptions(events, selectedVal = 'all') {
       const provSelect = document.getElementById('filter-province');
-      const provinces = Array.from(new Set(events.map(e => e.province).filter(Boolean))).sort();
-      provSelect.innerHTML = `<option value="all">All Provinces (${provinces.length})</option>`;
+      if (!provSelect) return;
+
+      let filtered = events;
+      if (AppState.activeRegion !== 'all') {
+        filtered = events.filter(e => e.region === AppState.activeRegion);
+      }
+
+      const provinces = Array.from(new Set(filtered.map(e => e.province).filter(Boolean))).sort();
+      const allText = AppState.activeRegion === 'all' 
+        ? `${AppState.lang === 'en' ? 'All Provinces' : 'Semua Provinsi'} (${provinces.length})`
+        : `${AppState.lang === 'en' ? 'All in this Region' : 'Semua di Wilayah ini'} (${provinces.length})`;
+
+      provSelect.innerHTML = `<option value="all">${allText}</option>`;
       provinces.forEach(p => {
         const opt = document.createElement('option');
         opt.value = p;
         opt.textContent = p;
+        if (p === selectedVal) opt.selected = true;
         provSelect.appendChild(opt);
       });
+
+      if (selectedVal !== 'all' && !provinces.includes(selectedVal)) {
+        provSelect.value = 'all';
+      }
     }
 
     // Render Quick Hotspots in sidebar footer
@@ -1276,16 +1292,47 @@
         }
       });
 
-      // Switch to Map View if not already active
-      if (AppState.currentView !== 'map') {
-        switchView('map');
-      }
+      // Update province options to align with this region
+      const provSelect = document.getElementById('filter-province');
+      const curProvVal = provSelect ? provSelect.value : 'all';
+      populateProvinceOptions(AppState.allEvents, curProvVal);
 
       // Apply dataset filtering
       applyFilters();
 
-      // Zoom and draw corridor clipping polygon
-      highlightAndZoomRegion(regionKey);
+      // If user is currently on map view, zoom and draw corridor clipping polygon
+      if (AppState.currentView === 'map') {
+        highlightAndZoomRegion(regionKey);
+      }
+    }
+
+    // Handle Province Filter Change with smart region auto-alignment
+    function onProvinceFilterChange() {
+      const provSelect = document.getElementById('filter-province');
+      const provVal = provSelect ? provSelect.value : 'all';
+
+      if (provVal !== 'all') {
+        // Find which region this province belongs to
+        const sampleEvent = AppState.allEvents.find(e => e.province === provVal);
+        if (sampleEvent) {
+          // If activeRegion is not compatible with this province, align it
+          if (AppState.activeRegion !== 'all' && AppState.activeRegion !== sampleEvent.region) {
+            AppState.activeRegion = sampleEvent.region;
+            document.querySelectorAll('.region-chip').forEach(btn => {
+              if (btn.getAttribute('data-region') === sampleEvent.region) {
+                btn.className = "region-chip active px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-cyan-50 border-cyan-500 text-cyan-800 font-medium";
+              } else {
+                btn.className = "region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100";
+              }
+            });
+            if (AppState.currentView === 'map') {
+              highlightAndZoomRegion(sampleEvent.region);
+            }
+          }
+        }
+      }
+
+      applyFilters();
     }
 
     // Highlight and Zoom to Coastal Region
@@ -1419,12 +1466,8 @@
         updateCharts();
       }
 
-      // If manual button clicked, switch to map view so user immediately sees filtered markers
+      // Visual feedback on manual button click
       if (isManual) {
-        if (AppState.currentView !== 'map') {
-          switchView('map');
-        }
-
         const dict = I18N[AppState.lang];
         const btnTop = document.getElementById('btn-apply-filters');
         const btnBtm = document.getElementById('btn-apply-filters-bottom');
@@ -1819,6 +1862,9 @@
     // Update Analytics Charts (Chart.js)
     function updateCharts() {
       const events = AppState.filteredEvents;
+      const countEl = document.getElementById('chart-filter-count');
+      if (countEl) countEl.textContent = events.length.toLocaleString();
+
       renderAnnualChart(events);
       renderMonthlyChart(events);
       renderRegionalChart(events);
@@ -1937,15 +1983,50 @@
       const ctx = document.getElementById('chart-regional');
       if (!ctx) return;
 
-      const regMap = {};
-      events.forEach(e => {
-        const r = e.region_label || e.region;
-        regMap[r] = (regMap[r] || 0) + 1;
-      });
+      const titleEl = document.querySelector('[data-i18n="chart_regional_title"]');
+      const subEl = document.querySelector('[data-i18n="chart_regional_sub"]');
 
-      const sorted = Object.entries(regMap).sort((a, b) => b[1] - a[1]);
+      let itemMap = {};
+      const regCount = new Set(events.map(e => e.region)).size;
+      const provCount = new Set(events.map(e => e.province)).size;
+
+      if (regCount > 1 || events.length === 0) {
+        if (titleEl) titleEl.textContent = AppState.lang === 'en' ? 'Regional Coastal Distribution' : 'Distribusi Regional Pesisir';
+        if (subEl) subEl.textContent = AppState.lang === 'en' ? 'Comparison of flood event shares across major Indonesian coastal corridors' : 'Perbandingan porsi kejadian rob antar koridor pesisir utama';
+
+        events.forEach(e => {
+          const r = e.region_label || e.region;
+          itemMap[r] = (itemMap[r] || 0) + 1;
+        });
+      } else if (provCount > 1) {
+        const sampleReg = events[0] ? events[0].region_label : '';
+        if (titleEl) titleEl.textContent = `${AppState.lang === 'en' ? 'Provincial Distribution' : 'Distribusi Provinsi'} (${sampleReg})`;
+        if (subEl) subEl.textContent = AppState.lang === 'en' ? 'Breakdown of flood events by province within this coastal corridor' : 'Sebaran kejadian banjir rob per provinsi di koridor pesisir ini';
+
+        events.forEach(e => {
+          const p = e.province || 'Other';
+          itemMap[p] = (itemMap[p] || 0) + 1;
+        });
+      } else {
+        const sampleProv = events[0] ? events[0].province : '';
+        if (titleEl) titleEl.textContent = `${AppState.lang === 'en' ? 'City / Coastal Location Distribution' : 'Distribusi Kota / Lokasi'} (${sampleProv})`;
+        if (subEl) subEl.textContent = AppState.lang === 'en' ? 'Breakdown of flood events by coastal municipality' : 'Sebaran kejadian banjir rob per kota/kabupaten di provinsi ini';
+
+        events.forEach(e => {
+          const p = e.place || 'Other';
+          itemMap[p] = (itemMap[p] || 0) + 1;
+        });
+      }
+
+      const sorted = Object.entries(itemMap).sort((a, b) => b[1] - a[1]);
 
       if (AppState.charts.regional) AppState.charts.regional.destroy();
+
+      const palette = [
+        '#0284c7', '#0d9488', '#8b5cf6', '#f59e0b', '#ec4899', '#64748b',
+        '#10b981', '#6366f1', '#f97316', '#14b8a6', '#a855f7', '#06b6d4',
+        '#3b82f6', '#84cc16', '#eab308'
+      ];
 
       AppState.charts.regional = new Chart(ctx, {
         type: 'doughnut',
@@ -1953,14 +2034,7 @@
           labels: sorted.map(s => s[0]),
           datasets: [{
             data: sorted.map(s => s[1]),
-            backgroundColor: [
-              '#0284c7', // Pantura
-              '#0d9488', // Sumatera Timur
-              '#8b5cf6', // Indonesia Timur
-              '#f59e0b', // Kalimantan
-              '#ec4899', // Jawa Selatan
-              '#64748b'  // Sumatera Barat
-            ],
+            backgroundColor: palette.slice(0, Math.max(sorted.length, 1)),
             borderWidth: 2,
             borderColor: '#ffffff'
           }]
