@@ -1500,9 +1500,6 @@
             const isHighSla = e.sat.sla_cm >= 15;
             const cardBg = isHighSla ? 'bg-indigo-50/80 border-indigo-200' : 'bg-slate-50 border-slate-200';
             const slaColor = isHighSla ? 'text-indigo-900' : (e.sat.sla_cm > 0 ? 'text-cyan-800' : 'text-slate-600');
-            const seasSign = (e.sat.seasonal_cm && e.sat.seasonal_cm > 0) ? '+' : '';
-            const intraSign = (e.sat.intra_cm && e.sat.intra_cm > 0) ? '+' : '';
-
             satBoxHtml = `
               <div class="p-2.5 rounded-lg border ${cardBg} space-y-1">
                 <div class="flex items-center justify-between text-[11px] font-bold text-slate-900">
@@ -1517,10 +1514,6 @@
                 <div class="flex items-center justify-between pt-0.5 text-xs">
                   <span class="text-slate-600 font-medium">${dict.popup_sat_sla}:</span>
                   <span class="font-mono font-bold text-sm ${slaColor}">${satSign}${e.sat.sla_cm} cm</span>
-                </div>
-                <div class="text-[10px] text-slate-500 flex justify-between border-t border-slate-200/60 pt-1">
-                  <span>${dict.popup_sat_seasonal}: <strong class="font-mono text-slate-800">${seasSign}${e.sat.seasonal_cm ?? '-'} cm</strong></span>
-                  <span>${dict.popup_sat_intra}: <strong class="font-mono text-slate-800">${intraSign}${e.sat.intra_cm ?? '-'} cm</strong></span>
                 </div>
               </div>
             `;
@@ -1951,7 +1944,7 @@
               <td class="py-2 px-3 font-mono">
                 ${e.sat && e.sat.sla_cm !== null 
                   ? `<span class="font-bold text-xs ${e.sat.sla_cm > 0 ? 'text-indigo-700' : 'text-slate-600'}">${e.sat.sla_cm > 0 ? '+' : ''}${e.sat.sla_cm} cm</span>
-                     <span class="block text-[10px] text-slate-500 font-sans font-medium">${e.sat.dist_km !== null ? `${e.sat.dist_km} km` : 'grid'} (seas: ${e.sat.seasonal_cm > 0 ? '+' : ''}${e.sat.seasonal_cm})</span>` 
+                     <span class="block text-[10px] text-slate-500 font-sans font-medium">${e.sat.dist_km !== null ? `${e.sat.dist_km} km` : 'grid'}</span>` 
                   : '<span class="text-slate-400 text-xs">-</span>'}
               </td>
               <td class="py-2 px-3 max-w-xs truncate" title="${e.title}">

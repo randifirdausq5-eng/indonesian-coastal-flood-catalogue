@@ -246,10 +246,6 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
                 dist_sat = haversine_km(ev_lat, ev_lon, sat_raw['pixel_lat'], sat_raw['pixel_lon'])
             sat_info = {
                 'sla_cm': sat_raw['sla_cm'],
-                'seasonal_cm': sat_raw['seasonal_cm'],
-                'intra_cm': sat_raw['intra_cm'],
-                'pixel_lat': sat_raw['pixel_lat'],
-                'pixel_lon': sat_raw['pixel_lon'],
                 'dist_km': dist_sat
             }
 
