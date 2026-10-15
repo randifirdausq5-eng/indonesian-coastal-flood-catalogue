@@ -1,0 +1,58 @@
+{
+  "total_events": 1232,
+  "unique_places": 158,
+  "unique_provinces": [
+    "Aceh",
+    "Bali",
+    "Bangka Belitung",
+    "Banten",
+    "DI Yogyakarta",
+    "DKI Jakarta",
+    "Gorontalo",
+    "Jambi",
+    "Jawa",
+    "Jawa Barat",
+    "Jawa Tengah",
+    "Jawa Timur",
+    "Kalimantan Barat",
+    "Kalimantan Selatan",
+    "Kalimantan Tengah",
+    "Kalimantan Timur",
+    "Kalimantan Utara",
+    "Kepulauan Riau",
+    "Lampung",
+    "Maluku",
+    "Maluku Utara",
+    "Nusa Tenggara Barat",
+    "Nusa Tenggara Timur",
+    "Papua Barat",
+    "Papua Selatan",
+    "Papua Tengah",
+    "Riau",
+    "Sulawesi Barat",
+    "Sulawesi Selatan",
+    "Sulawesi Tengah",
+    "Sulawesi Tenggara",
+    "Sulawesi Utara",
+    "Sumatera Barat",
+    "Sumatera Utara"
+  ],
+  "year_range": [
+    "2015",
+    "2026"
+  ],
+  "tier_counts": {
+    "possible": 465,
+    "probable": 684,
+    "confirmed": 83
+  },
+  "region_counts": {
+    "java_north": 845,
+    "sumatra_east": 134,
+    "java_south": 55,
+    "east_indo": 92,
+    "sumatra_west": 42,
+    "kalimantan": 64
+  },
+  "generated_at": "2026-10-15T14:49:53.291193"
+}

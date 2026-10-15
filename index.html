@@ -1,0 +1,1540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indonesian Coastal Flood Catalogue (v3c) | Dashboard & Tracker</title>
+  <meta name="description" content="Dashboard Web Interaktif dan Pelacak Kejadian Banjir Rob Pesisir Indonesia (2015-2026)">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ocean: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+              950: '#082f49',
+            },
+            pantura: '#2563eb',
+            tierConfirmed: '#059669',
+            tierProbable: '#d97706',
+            tierPossible: '#64748b',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <!-- Leaflet MarkerCluster CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    /* Leaflet popup customization */
+    .leaflet-popup-content-wrapper {
+      padding: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+    .leaflet-popup-content {
+      margin: 0 !important;
+      line-height: 1.4;
+    }
+    /* Cluster custom styling */
+    .marker-cluster-small {
+      background-color: rgba(14, 165, 233, 0.4) !important;
+    }
+    .marker-cluster-small div {
+      background-color: rgba(2, 132, 199, 0.9) !important;
+      color: white !important;
+      font-weight: 700;
+    }
+    .marker-cluster-medium {
+      background-color: rgba(217, 119, 6, 0.4) !important;
+    }
+    .marker-cluster-medium div {
+      background-color: rgba(180, 83, 9, 0.9) !important;
+      color: white !important;
+      font-weight: 700;
+    }
+    .marker-cluster-large {
+      background-color: rgba(220, 38, 38, 0.4) !important;
+    }
+    .marker-cluster-large div {
+      background-color: rgba(185, 28, 28, 0.9) !important;
+      color: white !important;
+      font-weight: 700;
+    }
+  </style>
+
+  <!-- Pre-load data script for zero-CORS local file:// support -->
+  <script src="data/events.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 flex-none z-30 shadow-md">
+    <div class="px-4 py-2.5 flex items-center justify-between gap-4">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-900/30">
+          <i class="fa-solid fa-water text-xl text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
+              INDO-COASTFLOOD
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">v3c Catalogue</span>
+            </h1>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">Katalog & Pelacak Kejadian Banjir Rob Pesisir Indonesia (2015–2026)</p>
+        </div>
+      </div>
+
+      <!-- Quick Stats Banner -->
+      <div class="hidden lg:flex items-center gap-6 px-4 py-1.5 bg-slate-800/80 rounded-lg border border-slate-700/60 text-xs">
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400">Total Kejadian:</span>
+          <span id="stat-total" class="font-bold text-white font-mono text-sm">1,232</span>
+        </div>
+        <div class="h-4 w-px bg-slate-700"></div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400">Aktif Tampil:</span>
+          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-sm">1,232</span>
+        </div>
+        <div class="h-4 w-px bg-slate-700"></div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400">Titik Pesisir:</span>
+          <span id="stat-places" class="font-bold text-emerald-400 font-mono text-sm">158</span>
+        </div>
+        <div class="h-4 w-px bg-slate-700"></div>
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400">Maks. Genangan:</span>
+          <span id="stat-max-depth" class="font-bold text-amber-400 font-mono text-sm">-</span>
+        </div>
+      </div>
+
+      <!-- Actions & Nav Tabs -->
+      <div class="flex items-center gap-2">
+        <!-- View Switcher Tabs -->
+        <div class="bg-slate-800 p-1 rounded-lg border border-slate-700 flex text-xs font-medium">
+          <button id="btn-view-map" onclick="switchView('map')" class="px-3 py-1.5 rounded-md bg-cyan-600 text-white flex items-center gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-map"></i>
+            <span class="hidden md:inline">Peta Spasial</span>
+          </button>
+          <button id="btn-view-analytics" onclick="switchView('analytics')" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span class="hidden md:inline">Analitik</span>
+          </button>
+          <button id="btn-view-table" onclick="switchView('table')" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-table-list"></i>
+            <span class="hidden md:inline">Tabel Data</span>
+          </button>
+        </div>
+
+        <!-- Export Dropdown -->
+        <div class="relative group">
+          <button class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium border border-slate-700 flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-download text-cyan-400"></i>
+            <span class="hidden sm:inline">Ekspor</span>
+            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+          </button>
+          <div class="absolute right-0 mt-1 w-44 bg-white rounded-lg shadow-xl border border-slate-200 py-1 hidden group-hover:block z-50">
+            <button onclick="exportData('csv')" class="w-full px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-100 flex items-center gap-2">
+              <i class="fa-solid fa-file-csv text-emerald-600 text-sm"></i> Unduh CSV Terfilter
+            </button>
+            <button onclick="exportData('geojson')" class="w-full px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-100 flex items-center gap-2">
+              <i class="fa-solid fa-globe text-blue-600 text-sm"></i> Unduh GeoJSON
+            </button>
+          </div>
+        </div>
+
+        <!-- About Modal Button -->
+        <button onclick="toggleModal('modal-about', true)" title="Informasi & Metodologi" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs border border-slate-700 transition">
+          <i class="fa-solid fa-circle-info text-sm"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT WRAPPER ================= -->
+  <div class="flex-1 flex overflow-hidden relative">
+
+    <!-- ================= LEFT FILTER SIDEBAR ================= -->
+    <aside id="sidebar" class="w-80 md:w-88 lg:w-96 bg-white border-r border-slate-200 flex flex-col flex-none z-20 shadow-sm transition-all duration-300">
+      
+      <!-- Search & Quick Reset Header -->
+      <div class="p-4 border-b border-slate-100 space-y-3 bg-slate-50/50">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+            <i class="fa-solid fa-sliders text-cyan-600"></i> Filter & Penelusuran
+          </h2>
+          <button onclick="resetFilters()" class="text-xs text-slate-500 hover:text-red-600 font-medium flex items-center gap-1 transition">
+            <i class="fa-solid fa-rotate-left"></i> Reset
+          </button>
+        </div>
+
+        <!-- Free Text Search Bar -->
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+          <input type="text" id="search-input" oninput="applyFilters()" placeholder="Cari kota, kabupaten, atau berita..." 
+            class="w-full pl-8 pr-8 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition shadow-sm placeholder:text-slate-400">
+          <button id="search-clear-btn" onclick="clearSearch()" class="hidden absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 text-xs">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter Controls (Scrollable) -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-5 text-xs">
+
+        <!-- 1. Rentang Waktu (Tahun & Bulan) -->
+        <div class="space-y-2">
+          <label class="font-semibold text-slate-700 flex items-center justify-between">
+            <span><i class="fa-regular fa-calendar text-cyan-600 mr-1.5"></i> Rentang Waktu</span>
+            <span id="label-year-active" class="text-[11px] font-normal text-slate-500">Semua Tahun</span>
+          </label>
+          
+          <!-- Year Select -->
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Tahun</label>
+              <select id="filter-year" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
+                <option value="all">Semua (2015-2026)</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Bulan</label>
+              <select id="filter-month" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
+                <option value="all">Semua Bulan</option>
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Maret</option>
+                <option value="4">April</option>
+                <option value="5">Mei (Puncak Pantura)</option>
+                <option value="6">Juni (Puncak Pantura)</option>
+                <option value="7">Juli</option>
+                <option value="8">Agustus</option>
+                <option value="9">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="h-px bg-slate-200"></div>
+
+        <!-- 2. Wilayah Pesisir & Provinsi -->
+        <div class="space-y-2.5">
+          <label class="font-semibold text-slate-700 flex items-center justify-between">
+            <span><i class="fa-solid fa-map-location-dot text-cyan-600 mr-1.5"></i> Wilayah Pesisir</span>
+          </label>
+          
+          <!-- Region Chips -->
+          <div class="grid grid-cols-2 gap-1.5" id="region-chips-container">
+            <button onclick="setRegionFilter('all')" data-region="all" class="region-chip active px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-cyan-50 border-cyan-500 text-cyan-800 font-medium">
+              <span>Semua Wilayah</span>
+              <span id="badge-all-reg" class="text-[10px] px-1.5 py-0.2 bg-white rounded-full font-mono">1232</span>
+            </button>
+            <button onclick="setRegionFilter('java_north')" data-region="java_north" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
+              <span>Pantura Jawa</span>
+              <span id="badge-javanorth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">845</span>
+            </button>
+            <button onclick="setRegionFilter('sumatra_east')" data-region="sumatra_east" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
+              <span>Sumatera Timur</span>
+              <span id="badge-sumatraeast-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">134</span>
+            </button>
+            <button onclick="setRegionFilter('east_indo')" data-region="east_indo" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
+              <span>Indonesia Timur</span>
+              <span id="badge-eastindo-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">92</span>
+            </button>
+            <button onclick="setRegionFilter('kalimantan')" data-region="kalimantan" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
+              <span>Kalimantan</span>
+              <span id="badge-kalimantan-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">64</span>
+            </button>
+            <button onclick="setRegionFilter('java_south')" data-region="java_south" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
+              <span>Jawa Selatan</span>
+              <span id="badge-javasouth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">55</span>
+            </button>
+            <button onclick="setRegionFilter('sumatra_west')" data-region="sumatra_west" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 col-span-2">
+              <span>Sumatera Barat</span>
+              <span id="badge-sumatrawest-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">42</span>
+            </button>
+          </div>
+
+          <!-- Province Dropdown -->
+          <div class="pt-1">
+            <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Filter Spesifik Provinsi</label>
+            <select id="filter-province" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
+              <option value="all">Semua Provinsi (34)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="h-px bg-slate-200"></div>
+
+        <!-- 3. Tingkat Keyakinan (Confidence Tier) -->
+        <div class="space-y-2">
+          <label class="font-semibold text-slate-700 flex items-center justify-between">
+            <span><i class="fa-solid fa-shield-halved text-cyan-600 mr-1.5"></i> Tingkat Keyakinan (Tier)</span>
+            <span class="text-[10px] text-slate-400">Klasifikasi Riset</span>
+          </label>
+          <div class="space-y-1.5">
+            <label class="flex items-center justify-between p-2 rounded-md border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50 cursor-pointer transition">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="tier-confirmed" value="confirmed" checked onchange="applyFilters()" class="rounded text-emerald-600 focus:ring-emerald-500">
+                <span class="font-medium text-emerald-900">Confirmed (Terverifikasi)</span>
+              </div>
+              <span id="count-tier-confirmed" class="font-mono text-[11px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">83</span>
+            </label>
+            <label class="flex items-center justify-between p-2 rounded-md border border-amber-200 bg-amber-50/50 hover:bg-amber-50 cursor-pointer transition">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="tier-probable" value="probable" checked onchange="applyFilters()" class="rounded text-amber-600 focus:ring-amber-500">
+                <span class="font-medium text-amber-900">Probable (Sangat Mungkin)</span>
+              </div>
+              <span id="count-tier-probable" class="font-mono text-[11px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">684</span>
+            </label>
+            <label class="flex items-center justify-between p-2 rounded-md border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer transition">
+              <div class="flex items-center gap-2">
+                <input type="checkbox" id="tier-possible" value="possible" checked onchange="applyFilters()" class="rounded text-slate-600 focus:ring-slate-500">
+                <span class="font-medium text-slate-800">Possible (Potensi/Ringan)</span>
+              </div>
+              <span id="count-tier-possible" class="font-mono text-[11px] font-bold text-slate-600 bg-slate-200 px-1.5 py-0.2 rounded">465</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="h-px bg-slate-200"></div>
+
+        <!-- 4. Parameter Tambahan: Bahaya & Tinggi Genangan -->
+        <div class="space-y-2">
+          <label class="font-semibold text-slate-700 flex items-center justify-between">
+            <span><i class="fa-solid fa-ruler-vertical text-cyan-600 mr-1.5"></i> Parameter Khusus</span>
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Jenis Bahaya</label>
+              <select id="filter-hazard" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
+                <option value="all">Semua Bahaya</option>
+                <option value="rob">Banjir Rob Murni</option>
+                <option value="high_wave">Gelombang Pasang</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Tinggi Genangan</label>
+              <select id="filter-depth" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
+                <option value="all">Semua Kejadian</option>
+                <option value="reported">Ada Angka (cm)</option>
+                <option value="50">≥ 50 cm</option>
+                <option value="100">≥ 100 cm (Ekstrem)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Status Card -->
+        <div class="p-3 bg-gradient-to-br from-cyan-900 to-slate-900 text-white rounded-xl shadow-sm space-y-1">
+          <div class="flex items-center justify-between text-[11px] text-cyan-300">
+            <span>Status Filter</span>
+            <span id="active-percentage" class="font-mono font-bold">100%</span>
+          </div>
+          <p class="text-xs text-slate-200">
+            Menampilkan <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,232</span> dari 
+            <span class="font-semibold font-mono">1,232</span> total kejadian dalam katalog.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Quick Hotspots / Top Locations Accordion/Footer -->
+      <div class="p-3 border-t border-slate-200 bg-slate-50 text-xs">
+        <div class="text-[11px] font-semibold text-slate-600 mb-1.5 flex items-center justify-between">
+          <span><i class="fa-solid fa-fire text-amber-500"></i> Hotspot Teratas:</span>
+          <span class="text-[10px] text-slate-400">Klik untuk zoom</span>
+        </div>
+        <div class="flex flex-wrap gap-1.5" id="hotspots-container">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ================= VIEW 1: INTERACTIVE MAP ================= -->
+    <main id="view-map" class="flex-1 relative flex flex-col h-full">
+      
+      <!-- Leaflet Map Container -->
+      <div id="map" class="w-full h-full z-10"></div>
+
+      <!-- Floating Map Controls / Quick Zoom -->
+      <div class="absolute top-4 right-4 z-20 flex flex-col gap-2">
+        
+        <!-- Basemap Switcher -->
+        <div class="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-slate-200 p-1 flex flex-col text-xs">
+          <button onclick="setBasemap('positron')" id="btn-basemap-positron" class="px-2.5 py-1.5 rounded text-left font-medium text-cyan-700 bg-cyan-50 flex items-center gap-2">
+            <i class="fa-solid fa-map"></i> Terang (Positron)
+          </button>
+          <button onclick="setBasemap('satellite')" id="btn-basemap-satellite" class="px-2.5 py-1.5 rounded text-left font-medium text-slate-600 hover:bg-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-satellite"></i> Citra Satelit
+          </button>
+          <button onclick="setBasemap('dark')" id="btn-basemap-dark" class="px-2.5 py-1.5 rounded text-left font-medium text-slate-600 hover:bg-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-moon"></i> Gelap (Dark Matter)
+          </button>
+        </div>
+
+        <!-- Quick Region Focus Buttons -->
+        <div class="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-slate-200 p-2 text-xs space-y-1 hidden sm:block">
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Fokus Kawasan:</div>
+          <button onclick="focusRegion([-6.9, 110.2, 8])" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between">
+            <span>Pantura Jawa</span>
+            <i class="fa-solid fa-crosshairs text-[10px] text-slate-400"></i>
+          </button>
+          <button onclick="focusRegion([0.5, 102.5, 7])" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between">
+            <span>Sumatera Timur</span>
+            <i class="fa-solid fa-crosshairs text-[10px] text-slate-400"></i>
+          </button>
+          <button onclick="focusRegion([-6.1, 106.8, 10])" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-slate-700 font-medium flex items-center justify-between">
+            <span>DKI Jakarta & Teluk</span>
+            <i class="fa-solid fa-crosshairs text-[10px] text-slate-400"></i>
+          </button>
+          <button onclick="focusRegion([-2.5, 118.0, 5])" class="w-full text-left px-2 py-1 hover:bg-slate-100 rounded text-cyan-600 font-semibold flex items-center justify-between">
+            <span>Seluruh Indonesia</span>
+            <i class="fa-solid fa-compress text-[10px]"></i>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Floating Map Legend -->
+      <div class="absolute bottom-6 left-4 z-20 bg-white/95 backdrop-blur-sm p-3 rounded-xl shadow-lg border border-slate-200 text-xs max-w-xs pointer-events-auto">
+        <div class="font-bold text-slate-800 text-[11px] mb-2 flex items-center justify-between">
+          <span>Legenda Tingkat Keyakinan</span>
+          <i class="fa-solid fa-layer-group text-slate-400"></i>
+        </div>
+        <div class="space-y-1.5 text-[11px]">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-600 inline-block shadow-sm"></span>
+            <span class="font-medium text-slate-700">Confirmed (Dampak fisik terverifikasi)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-amber-500 inline-block shadow-sm"></span>
+            <span class="font-medium text-slate-700">Probable (Laporan rob kredibel)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-blue-600 inline-block shadow-sm"></span>
+            <span class="font-medium text-slate-700">Possible (Dampak ringan / indikasi)</span>
+          </div>
+        </div>
+        <div class="mt-2.5 pt-2 border-t border-slate-100 text-[10px] text-slate-400 leading-tight">
+          Ukuran cluster angka menunjukkan kumpulan kejadian pada resolusi zoom tersebut.
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ================= VIEW 2: ANALYTICS DASHBOARD ================= -->
+    <main id="view-analytics" class="flex-1 bg-slate-100 overflow-y-auto p-4 md:p-6 space-y-6 hidden">
+      
+      <!-- Analytics Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+            <i class="fa-solid fa-chart-column text-cyan-600"></i> Dasbor Analitik & Variabilitas Kejadian Rob
+          </h2>
+          <p class="text-xs text-slate-500">Statistik real-time yang secara dinamis mengikuti filter aktif yang dipilih di sidebar.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs bg-white px-3 py-1.5 rounded-lg border border-slate-200 font-mono text-slate-600 shadow-sm">
+            Data Terfilter: <strong id="chart-filter-count" class="text-cyan-600 font-bold">1,232</strong> kejadian
+          </span>
+        </div>
+      </div>
+
+      <!-- 4 Charts Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Chart 1: Kejadian Tahunan -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-sm text-slate-800">Tren Kejadian Rob Tahunan (2015–2026)</h3>
+              <p class="text-[11px] text-slate-500">Distribusi frekuensi laporan banjir rob per tahun</p>
+            </div>
+            <span class="text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Tahunan</span>
+          </div>
+          <div class="relative flex-1 min-h-[260px]">
+            <canvas id="chart-annual"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Siklus Musiman Bulanan -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-sm text-slate-800">Siklus Musiman Bulanan (Klimatologi Jan–Des)</h3>
+              <p class="text-[11px] text-slate-500">Membuktikan puncak rob pesisir (misal Mei-Juli di Pantura Jawa)</p>
+            </div>
+            <span class="text-[10px] font-mono bg-cyan-50 text-cyan-700 px-2 py-0.5 rounded font-bold">Puncak Musiman</span>
+          </div>
+          <div class="relative flex-1 min-h-[260px]">
+            <canvas id="chart-monthly"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 3: Distribusi Wilayah -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-sm text-slate-800">Distribusi Regional Pesisir</h3>
+              <p class="text-[11px] text-slate-500">Perbandingan jumlah kejadian antar koridor pesisir utama</p>
+            </div>
+            <span class="text-[10px] font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded">Spasial</span>
+          </div>
+          <div class="relative flex-1 min-h-[260px]">
+            <canvas id="chart-regional"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 4: Top 10 Lokasi Paling Rawan -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-bold text-sm text-slate-800">Top 10 Lokasi / Kota Paling Rawan Rob</h3>
+              <p class="text-[11px] text-slate-500">Kota dan pesisir dengan frekuensi rob tertinggi</p>
+            </div>
+            <span class="text-[10px] font-mono bg-amber-50 text-amber-700 px-2 py-0.5 rounded font-bold">Hotspot</span>
+          </div>
+          <div class="relative flex-1 min-h-[260px]">
+            <canvas id="chart-places"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- ================= VIEW 3: FULL DATA TABLE ================= -->
+    <main id="view-table" class="flex-1 bg-white flex flex-col overflow-hidden hidden">
+      
+      <!-- Table Header & Controls -->
+      <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50">
+        <div>
+          <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-table-list text-cyan-600"></i> Tabel Data Katalog Banjir Rob
+          </h2>
+          <p class="text-xs text-slate-500">Daftar lengkap record kejadian terverifikasi dengan tautan langsung ke artikel berita.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="exportData('csv')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-file-csv"></i> Unduh CSV
+          </button>
+          <button onclick="exportData('geojson')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-globe"></i> Unduh GeoJSON
+          </button>
+        </div>
+      </div>
+
+      <!-- Table Container -->
+      <div class="flex-1 overflow-auto">
+        <table class="w-full text-left text-xs text-slate-700 border-collapse">
+          <thead class="bg-slate-100 text-slate-600 font-semibold sticky top-0 z-10 border-b border-slate-200">
+            <tr>
+              <th class="py-2.5 px-3">ID</th>
+              <th class="py-2.5 px-3">Tanggal Mulai</th>
+              <th class="py-2.5 px-3">Lokasi (Kota / Tempat)</th>
+              <th class="py-2.5 px-3">Provinsi</th>
+              <th class="py-2.5 px-3">Wilayah</th>
+              <th class="py-2.5 px-3">Tingkat (Tier)</th>
+              <th class="py-2.5 px-3">Genangan</th>
+              <th class="py-2.5 px-3">Judul Berita & Sumber</th>
+              <th class="py-2.5 px-3 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="table-body" class="divide-y divide-slate-100">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Table Pagination / Footer -->
+      <div class="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-600">
+        <div id="table-pagination-info">
+          Menampilkan baris <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> dari <span id="table-total-count" class="font-bold">1,232</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="btn-page-prev" onclick="changeTablePage(-1)" class="px-3 py-1 bg-white border border-slate-300 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
+            <i class="fa-solid fa-chevron-left"></i> Sebelumnya
+          </button>
+          <span class="font-mono text-xs px-2" id="table-page-indicator">Halaman 1</span>
+          <button id="btn-page-next" onclick="changeTablePage(1)" class="px-3 py-1 bg-white border border-slate-300 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
+            Berikutnya <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ================= ABOUT & METHODOLOGY MODAL ================= -->
+  <div id="modal-about" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-solid fa-circle-info text-cyan-400 text-lg"></i>
+          <h3 class="font-bold text-base">Tentang Indonesian Coastal Flood Catalogue (v3c)</h3>
+        </div>
+        <button onclick="toggleModal('modal-about', false)" class="text-slate-400 hover:text-white text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 overflow-y-auto text-xs text-slate-600 space-y-4 leading-relaxed">
+        
+        <div>
+          <h4 class="font-bold text-slate-800 text-sm mb-1">1. Latar Belakang & Tujuan Proyek</h4>
+          <p>
+            Katalog ini merupakan kompilasi independen kejadian banjir rob pesisir di seluruh Indonesia dari periode November 2015 hingga 2026. Data dihimpun melalui penelusuran sistematis ratusan ribu artikel berita media daring (Google News RSS & verifikasi independen), dirancang untuk menjembatani observasi satelit altimetri, pengukur pasang surut (tide gauges), dan dampak langsung di pesisir.
+          </p>
+        </div>
+
+        <div class="p-3 bg-cyan-50 border border-cyan-200 rounded-xl">
+          <h4 class="font-bold text-cyan-950 text-xs mb-1"><i class="fa-solid fa-shield-halved text-cyan-700 mr-1"></i> 2. Definisi Tingkat Keyakinan (Confidence Tiers)</h4>
+          <ul class="list-disc pl-4 space-y-1 text-cyan-900 text-[11px]">
+            <li><strong>Confirmed (Terverifikasi):</strong> Kejadian dengan laporan dampak fisik terukur (misal evakuasi/pengungsian, tinggi genangan air spesifik, laporan resmi instansi terkait, atau diliput oleh banyak domain media independen).</li>
+            <li><strong>Probable (Sangat Mungkin):</strong> Berita melaporkan banjir rob secara eksplisit di lokasi pesisir yang relevan dengan dampak genangan jalan/pemukiman.</li>
+            <li><strong>Possible (Potensi/Ringan):</strong> Laporan rob dengan bahasa dampak yang lebih umum atau minim detail kuantitatif.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-slate-800 text-sm mb-1">3. Temuan Kunci Sains Oseanografi</h4>
+          <p>
+            Analisis menunjukkan bahwa siklus musiman menetapkan jendela waktu muka laut tinggi, sementara osilasi intraseasonal (seperti MJO dan gelombang Kelvin ekuator/pantai) serta siklus pasang surut (spring tide) menentukan hari terjadinya rob ekstrem. Puncak rob di Pantura Jawa sangat terkonsentrasi pada bulan Mei–Juli.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-slate-800 text-sm mb-1">4. Penafian Ilmiah (Scientific Disclaimer)</h4>
+          <p class="text-slate-500">
+            Katalog ini ditujukan untuk analisis distribusi spasial, siklus musiman, dan keterkaitan dengan dinamika oseanografi-atmosfer. <strong>Katalog ini TIDAK boleh digunakan untuk menghitung tren jangka panjang</strong> (karena adanya variasi peliputan media massa dari waktu ke waktu).
+          </p>
+        </div>
+
+        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
+          <span>Pengembang & Peneliti: <strong>Randi Firdaus</strong> (Tohoku University)</span>
+          <span class="font-mono">Open Science Initiative</span>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 flex justify-end">
+        <button onclick="toggleModal('modal-about', false)" class="px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-700 transition">
+          Tutup
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT APP LOGIC ================= -->
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Leaflet MarkerCluster JS -->
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+  <script>
+    // Global Application State
+    const AppState = {
+      allEvents: [],
+      filteredEvents: [],
+      activeRegion: 'all',
+      map: null,
+      markerClusterGroup: null,
+      currentBasemap: null,
+      basemapLayers: {},
+      charts: {},
+      tablePage: 1,
+      tablePageSize: 50,
+      currentView: 'map',
+    };
+
+    // Initialize application when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Check if events were preloaded via data/events.js
+      if (window.ROB_EVENTS && Array.isArray(window.ROB_EVENTS) && window.ROB_EVENTS.length > 0) {
+        console.log(`Loaded ${window.ROB_EVENTS.length} events from pre-bundled events.js`);
+        initApp(window.ROB_EVENTS);
+      } else {
+        // Fallback: Fetch from data/events.json
+        console.log("Fetching events from data/events.json...");
+        fetch('data/events.json')
+          .then(res => {
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return res.json();
+          })
+          .then(data => initApp(data))
+          .catch(err => {
+            console.error("Failed to load events data:", err);
+            alert("Gagal memuat berkas data events.json atau events.js. Pastikan script parser telah dijalankan.");
+          });
+      }
+    });
+
+    // Core Initialization
+    function initApp(events) {
+      AppState.allEvents = events;
+      AppState.filteredEvents = [...events];
+
+      // Populate filter dropdowns
+      populateYearOptions(events);
+      populateProvinceOptions(events);
+      renderHotspots(events);
+
+      // Initialize Map
+      initMap();
+
+      // Render markers & statistics
+      applyFilters();
+
+      // Setup window resize handler for charts
+      window.addEventListener('resize', () => {
+        if (AppState.currentView === 'analytics') {
+          updateCharts();
+        }
+      });
+    }
+
+    // Populate Year dropdown options
+    function populateYearOptions(events) {
+      const yearSelect = document.getElementById('filter-year');
+      const years = Array.from(new Set(events.map(e => e.date_start.substring(0, 4)))).sort().reverse();
+      years.forEach(y => {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = `Tahun ${y}`;
+        yearSelect.appendChild(opt);
+      });
+    }
+
+    // Populate Province dropdown options
+    function populateProvinceOptions(events) {
+      const provSelect = document.getElementById('filter-province');
+      const provinces = Array.from(new Set(events.map(e => e.province).filter(Boolean))).sort();
+      provSelect.innerHTML = `<option value="all">Semua Provinsi (${provinces.length})</option>`;
+      provinces.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        provSelect.appendChild(opt);
+      });
+    }
+
+    // Render Quick Hotspots in sidebar footer
+    function renderHotspots(events) {
+      const container = document.getElementById('hotspots-container');
+      const placeCounts = {};
+      events.forEach(e => {
+        const p = e.place;
+        placeCounts[p] = (placeCounts[p] || 0) + 1;
+      });
+      const topPlaces = Object.entries(placeCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 7);
+
+      container.innerHTML = topPlaces.map(([place, count]) => {
+        // Find sample coord
+        const sample = events.find(e => e.place === place);
+        return `
+          <button onclick="focusMapLocation(${sample.lat}, ${sample.lon}, 11, '${place}')" 
+            class="px-2 py-0.5 rounded bg-white hover:bg-cyan-50 border border-slate-200 hover:border-cyan-400 text-slate-700 hover:text-cyan-800 text-[11px] font-medium flex items-center gap-1 transition shadow-xs">
+            <span>${place}</span>
+            <span class="text-[10px] text-slate-400 font-mono">(${count})</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    // Initialize Leaflet Map
+    function initMap() {
+      // Base layers
+      const positron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a>, &copy; OpenStreetMap',
+        maxZoom: 19
+      });
+
+      const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri, Earthstar Geographics',
+        maxZoom: 18
+      });
+
+      const dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://carto.com/">CARTO</a>, &copy; OpenStreetMap',
+        maxZoom: 19
+      });
+
+      AppState.basemapLayers = {
+        positron: positron,
+        satellite: satellite,
+        dark: dark
+      };
+
+      // Create map centered on Indonesia
+      AppState.map = L.map('map', {
+        center: [-2.5, 118.0],
+        zoom: 5,
+        zoomControl: false,
+        layers: [positron]
+      });
+
+      // Custom zoom control in bottom right
+      L.control.zoom({ position: 'bottomright' }).addTo(AppState.map);
+
+      // Create MarkerClusterGroup
+      AppState.markerClusterGroup = L.markerClusterGroup({
+        showCoverageOnHover: false,
+        maxClusterRadius: 45,
+        spiderfyOnMaxZoom: true,
+      });
+
+      AppState.map.addLayer(AppState.markerClusterGroup);
+    }
+
+    // Basemap Switcher
+    function setBasemap(type) {
+      Object.values(AppState.basemapLayers).forEach(layer => {
+        if (AppState.map.hasLayer(layer)) {
+          AppState.map.removeLayer(layer);
+        }
+      });
+      AppState.map.addLayer(AppState.basemapLayers[type]);
+
+      // Update button styling
+      ['positron', 'satellite', 'dark'].forEach(b => {
+        const btn = document.getElementById(`btn-basemap-${b}`);
+        if (b === type) {
+          btn.className = "px-2.5 py-1.5 rounded text-left font-medium text-cyan-700 bg-cyan-50 flex items-center gap-2";
+        } else {
+          btn.className = "px-2.5 py-1.5 rounded text-left font-medium text-slate-600 hover:bg-slate-100 flex items-center gap-2";
+        }
+      });
+    }
+
+    // Set Region Filter
+    function setRegionFilter(regionKey) {
+      AppState.activeRegion = regionKey;
+      
+      // Update chip active classes
+      document.querySelectorAll('.region-chip').forEach(btn => {
+        if (btn.getAttribute('data-region') === regionKey) {
+          btn.className = "region-chip active px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-cyan-50 border-cyan-500 text-cyan-800 font-medium";
+        } else {
+          btn.className = "region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100";
+        }
+      });
+
+      applyFilters();
+    }
+
+    // Main Filter Engine
+    function applyFilters() {
+      const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
+      const yearVal = document.getElementById('filter-year').value;
+      const monthVal = document.getElementById('filter-month').value;
+      const provVal = document.getElementById('filter-province').value;
+      const hazardVal = document.getElementById('filter-hazard').value;
+      const depthVal = document.getElementById('filter-depth').value;
+
+      // Tier checkboxes
+      const tierConfirmed = document.getElementById('tier-confirmed').checked;
+      const tierProbable = document.getElementById('tier-probable').checked;
+      const tierPossible = document.getElementById('tier-possible').checked;
+
+      // Toggle clear search button
+      const clearBtn = document.getElementById('search-clear-btn');
+      if (searchVal.length > 0) clearBtn.classList.remove('hidden');
+      else clearBtn.classList.add('hidden');
+
+      // Filter events array
+      AppState.filteredEvents = AppState.allEvents.filter(e => {
+        // Region filter
+        if (AppState.activeRegion !== 'all' && e.region !== AppState.activeRegion) {
+          return false;
+        }
+
+        // Year filter
+        if (yearVal !== 'all' && e.date_start.substring(0, 4) !== yearVal) {
+          return false;
+        }
+
+        // Month filter
+        if (monthVal !== 'all') {
+          const m = parseInt(e.date_start.substring(5, 7), 10);
+          if (m !== parseInt(monthVal, 10)) return false;
+        }
+
+        // Province filter
+        if (provVal !== 'all' && e.province !== provVal) {
+          return false;
+        }
+
+        // Confidence Tier filter
+        if (e.tier === 'confirmed' && !tierConfirmed) return false;
+        if (e.tier === 'probable' && !tierProbable) return false;
+        if (e.tier === 'possible' && !tierPossible) return false;
+
+        // Hazard filter
+        if (hazardVal !== 'all' && e.hazard !== hazardVal) {
+          return false;
+        }
+
+        // Depth filter
+        if (depthVal === 'reported' && (e.depth_cm === null || e.depth_cm === undefined)) {
+          return false;
+        }
+        if (depthVal === '50' && (e.depth_cm === null || e.depth_cm < 50)) {
+          return false;
+        }
+        if (depthVal === '100' && (e.depth_cm === null || e.depth_cm < 100)) {
+          return false;
+        }
+
+        // Free search text
+        if (searchVal.length > 0) {
+          const matchTarget = `${e.place} ${e.regency} ${e.province} ${e.title} ${e.terms} ${e.tier_reason}`.toLowerCase();
+          if (!matchTarget.includes(searchVal)) return false;
+        }
+
+        return true;
+      });
+
+      // Update UI Counters & Stats
+      updateHeaderAndSidebarStats();
+
+      // Refresh Map Markers
+      refreshMapMarkers();
+
+      // Refresh Table
+      renderTablePage(1);
+
+      // Refresh Charts if on analytics view
+      if (AppState.currentView === 'analytics') {
+        updateCharts();
+      }
+    }
+
+    // Clear Search Input
+    function clearSearch() {
+      document.getElementById('search-input').value = '';
+      applyFilters();
+    }
+
+    // Reset All Filters to Default
+    function resetFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('filter-year').value = 'all';
+      document.getElementById('filter-month').value = 'all';
+      document.getElementById('filter-province').value = 'all';
+      document.getElementById('filter-hazard').value = 'all';
+      document.getElementById('filter-depth').value = 'all';
+
+      document.getElementById('tier-confirmed').checked = true;
+      document.getElementById('tier-probable').checked = true;
+      document.getElementById('tier-possible').checked = true;
+
+      setRegionFilter('all');
+    }
+
+    // Update Header & Sidebar Statistics
+    function updateHeaderAndSidebarStats() {
+      const total = AppState.allEvents.length;
+      const count = AppState.filteredEvents.length;
+      const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+
+      // Header numbers
+      document.getElementById('stat-filtered').textContent = count.toLocaleString();
+      document.getElementById('stat-total').textContent = total.toLocaleString();
+
+      const uniquePlaces = new Set(AppState.filteredEvents.map(e => e.place)).size;
+      document.getElementById('stat-places').textContent = uniquePlaces.toLocaleString();
+
+      // Max depth
+      const depths = AppState.filteredEvents.map(e => e.depth_cm).filter(d => d !== null && !isNaN(d));
+      const maxDepth = depths.length > 0 ? Math.max(...depths) : null;
+      document.getElementById('stat-max-depth').textContent = maxDepth ? `${maxDepth} cm` : '-';
+
+      // Sidebar counters
+      document.getElementById('label-count-active').textContent = count.toLocaleString();
+      document.getElementById('active-percentage').textContent = `${pct}%`;
+      
+      const yr = document.getElementById('filter-year').value;
+      document.getElementById('label-year-active').textContent = yr === 'all' ? 'Semua Tahun' : `Tahun ${yr}`;
+
+      // Chart count in Analytics view
+      const chartCountEl = document.getElementById('chart-filter-count');
+      if (chartCountEl) chartCountEl.textContent = count.toLocaleString();
+    }
+
+    // Refresh Map Markers with MarkerCluster
+    function refreshMapMarkers() {
+      if (!AppState.markerClusterGroup) return;
+
+      AppState.markerClusterGroup.clearLayers();
+
+      const markers = [];
+
+      AppState.filteredEvents.forEach(e => {
+        if (!e.lat || !e.lon) return;
+
+        // Determine marker color by tier
+        let pinColor = '#2563eb'; // blue
+        let badgeClass = 'bg-blue-100 text-blue-800 border-blue-200';
+        if (e.tier === 'confirmed') {
+          pinColor = '#059669'; // emerald
+          badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        } else if (e.tier === 'probable') {
+          pinColor = '#d97706'; // amber
+          badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+        }
+
+        // Custom SVG Circle Marker
+        const markerIcon = L.divIcon({
+          className: 'custom-flood-pin',
+          html: `<div style="background-color: ${pinColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+          iconSize: [12, 12],
+          iconAnchor: [6, 6]
+        });
+
+        const marker = L.marker([e.lat, e.lon], { icon: markerIcon });
+
+        // Popup Content
+        const popupContent = `
+          <div class="w-80 text-xs font-sans">
+            <!-- Popup Header -->
+            <div class="p-3 bg-slate-900 text-white flex items-center justify-between">
+              <div class="flex items-center gap-1.5 font-mono font-bold text-cyan-300">
+                <i class="fa-solid fa-water"></i> ${e.id}
+              </div>
+              <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border ${badgeClass}">
+                ${e.tier_label}
+              </span>
+            </div>
+
+            <!-- Popup Body -->
+            <div class="p-3.5 space-y-2.5 bg-white text-slate-700">
+              
+              <!-- Date & Location -->
+              <div class="grid grid-cols-2 gap-2 text-[11px] pb-2 border-b border-slate-100">
+                <div>
+                  <span class="text-slate-400 block text-[10px]">TANGGAL KEJADIAN</span>
+                  <span class="font-bold text-slate-900">📅 ${e.date_start}</span>
+                  ${e.days > 1 ? `<span class="text-[10px] text-slate-500">(${e.days} hari)</span>` : ''}
+                </div>
+                <div>
+                  <span class="text-slate-400 block text-[10px]">LOKASI PESISIR</span>
+                  <span class="font-bold text-slate-900">📍 ${e.place}</span>
+                  <span class="text-[10px] text-slate-500 block">${e.province}</span>
+                </div>
+              </div>
+
+              <!-- Depth Highlight if available -->
+              ${e.depth_cm ? `
+                <div class="p-2 bg-cyan-50 border border-cyan-200 rounded-lg flex items-center justify-between">
+                  <span class="text-cyan-900 font-semibold"><i class="fa-solid fa-ruler-vertical text-cyan-600 mr-1"></i> Estimasi Genangan:</span>
+                  <span class="font-mono font-bold text-cyan-950 text-sm">${e.depth_cm} cm</span>
+                </div>
+              ` : ''}
+
+              <!-- News Title -->
+              <div>
+                <span class="text-slate-400 block text-[10px] mb-0.5">JUDUL BERITA ARSIP:</span>
+                <p class="font-semibold text-slate-800 leading-snug line-clamp-2">"${e.title || 'Laporan Banjir Rob Pesisir'}"</p>
+              </div>
+
+              <!-- Metadata details -->
+              <div class="text-[10px] text-slate-500 space-y-0.5 bg-slate-50 p-2 rounded border border-slate-100">
+                <div><strong>Wilayah:</strong> ${e.region_label}</div>
+                <div><strong>Istilah:</strong> <code class="text-cyan-800">${e.terms || 'banjir rob'}</code></div>
+                ${e.tier_reason ? `<div><strong>Alasan Tier:</strong> ${e.tier_reason}</div>` : ''}
+                <div><strong>Sumber:</strong> ${e.n_articles} artikel (${e.n_domains} domain pers independen)</div>
+              </div>
+
+              <!-- Action Link -->
+              ${e.url ? `
+                <div class="pt-1">
+                  <a href="${e.url}" target="_blank" rel="noopener noreferrer" 
+                    class="w-full py-1.5 px-3 bg-cyan-600 hover:bg-cyan-700 text-white text-center rounded-md font-semibold flex items-center justify-center gap-1.5 transition">
+                    <span>Buka Sumber Berita Asli</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                  </a>
+                </div>
+              ` : ''}
+
+            </div>
+          </div>
+        `;
+
+        marker.bindPopup(popupContent, { maxWidth: 340 });
+        markers.push(marker);
+      });
+
+      AppState.markerClusterGroup.addLayers(markers);
+    }
+
+    // Focus Map to Location
+    function focusMapLocation(lat, lon, zoom = 10, placeName = '') {
+      if (AppState.currentView !== 'map') {
+        switchView('map');
+      }
+      AppState.map.setView([lat, lon], zoom, { animate: true });
+    }
+
+    // Focus Map to Region
+    function focusRegion([lat, lon, zoom]) {
+      AppState.map.setView([lat, lon], zoom, { animate: true });
+    }
+
+    // Switch View Tabs (Map / Analytics / Table)
+    function switchView(viewName) {
+      AppState.currentView = viewName;
+
+      // Update button classes
+      ['map', 'analytics', 'table'].forEach(v => {
+        const btn = document.getElementById(`btn-view-${v}`);
+        const viewEl = document.getElementById(`view-${v}`);
+        if (v === viewName) {
+          btn.className = "px-3 py-1.5 rounded-md bg-cyan-600 text-white flex items-center gap-1.5 shadow-sm transition";
+          viewEl.classList.remove('hidden');
+        } else {
+          btn.className = "px-3 py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1.5 transition";
+          viewEl.classList.add('hidden');
+        }
+      });
+
+      // Special handling per view
+      if (viewName === 'map') {
+        setTimeout(() => {
+          AppState.map.invalidateSize();
+        }, 100);
+      } else if (viewName === 'analytics') {
+        updateCharts();
+      } else if (viewName === 'table') {
+        renderTablePage(AppState.tablePage);
+      }
+    }
+
+    // Update Analytics Charts (Chart.js)
+    function updateCharts() {
+      const events = AppState.filteredEvents;
+
+      // 1. Annual Chart
+      renderAnnualChart(events);
+
+      // 2. Monthly Seasonality Chart
+      renderMonthlyChart(events);
+
+      // 3. Regional Chart
+      renderRegionalChart(events);
+
+      // 4. Top Places Chart
+      renderPlacesChart(events);
+    }
+
+    function renderAnnualChart(events) {
+      const ctx = document.getElementById('chart-annual');
+      if (!ctx) return;
+
+      const yearMap = {};
+      const allYears = ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'];
+      allYears.forEach(y => {
+        yearMap[y] = { confirmed: 0, probable: 0, possible: 0 };
+      });
+
+      events.forEach(e => {
+        const y = e.date_start.substring(0, 4);
+        if (yearMap[y]) {
+          yearMap[y][e.tier] = (yearMap[y][e.tier] || 0) + 1;
+        }
+      });
+
+      if (AppState.charts.annual) AppState.charts.annual.destroy();
+
+      AppState.charts.annual = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: allYears,
+          datasets: [
+            {
+              label: 'Confirmed',
+              data: allYears.map(y => yearMap[y].confirmed),
+              backgroundColor: '#059669',
+            },
+            {
+              label: 'Probable',
+              data: allYears.map(y => yearMap[y].probable),
+              backgroundColor: '#d97706',
+            },
+            {
+              label: 'Possible',
+              data: allYears.map(y => yearMap[y].possible),
+              backgroundColor: '#64748b',
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top', labels: { boxWidth: 12, font: { size: 10 } } },
+            tooltip: { mode: 'index', intersect: false }
+          },
+          scales: {
+            x: { stacked: true, grid: { display: false } },
+            y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' } }
+          }
+        }
+      });
+    }
+
+    function renderMonthlyChart(events) {
+      const ctx = document.getElementById('chart-monthly');
+      if (!ctx) return;
+
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      const monthlyCounts = Array(12).fill(0);
+
+      events.forEach(e => {
+        const m = parseInt(e.date_start.substring(5, 7), 10) - 1;
+        if (m >= 0 && m < 12) {
+          monthlyCounts[m]++;
+        }
+      });
+
+      if (AppState.charts.monthly) AppState.charts.monthly.destroy();
+
+      AppState.charts.monthly = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: months,
+          datasets: [{
+            label: 'Total Kejadian',
+            data: monthlyCounts,
+            borderColor: '#0284c7',
+            backgroundColor: 'rgba(14, 165, 233, 0.15)',
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.35,
+            pointBackgroundColor: '#0284c7',
+            pointRadius: 4,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `Kejadian: ${ctx.raw} peristiwa`
+              }
+            }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true, grid: { color: '#f1f5f9' } }
+          }
+        }
+      });
+    }
+
+    function renderRegionalChart(events) {
+      const ctx = document.getElementById('chart-regional');
+      if (!ctx) return;
+
+      const regMap = {};
+      events.forEach(e => {
+        const r = e.region_label || e.region;
+        regMap[r] = (regMap[r] || 0) + 1;
+      });
+
+      const sorted = Object.entries(regMap).sort((a, b) => b[1] - a[1]);
+
+      if (AppState.charts.regional) AppState.charts.regional.destroy();
+
+      AppState.charts.regional = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: sorted.map(s => s[0]),
+          datasets: [{
+            data: sorted.map(s => s[1]),
+            backgroundColor: [
+              '#0284c7', // Pantura
+              '#0d9488', // Sumatera Timur
+              '#8b5cf6', // Indonesia Timur
+              '#f59e0b', // Kalimantan
+              '#ec4899', // Jawa Selatan
+              '#64748b'  // Sumatera Barat
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right', labels: { boxWidth: 12, font: { size: 10 } } }
+          }
+        }
+      });
+    }
+
+    function renderPlacesChart(events) {
+      const ctx = document.getElementById('chart-places');
+      if (!ctx) return;
+
+      const placeMap = {};
+      events.forEach(e => {
+        const p = e.place;
+        placeMap[p] = (placeMap[p] || 0) + 1;
+      });
+
+      const top10 = Object.entries(placeMap).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+      if (AppState.charts.places) AppState.charts.places.destroy();
+
+      AppState.charts.places = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: top10.map(t => t[0]),
+          datasets: [{
+            label: 'Jumlah Kejadian',
+            data: top10.map(t => t[1]),
+            backgroundColor: '#0ea5e9',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+            y: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // Render Table Page
+    function renderTablePage(page) {
+      AppState.tablePage = page;
+      const total = AppState.filteredEvents.length;
+      const startIdx = (page - 1) * AppState.tablePageSize;
+      const endIdx = Math.min(startIdx + AppState.tablePageSize, total);
+      const pageEvents = AppState.filteredEvents.slice(startIdx, endIdx);
+
+      const tbody = document.getElementById('table-body');
+      if (pageEvents.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" class="text-center py-10 text-slate-400">
+              <i class="fa-solid fa-box-open text-2xl mb-2 block"></i>
+              Tidak ada data yang cocok dengan kriteria filter aktif saat ini.
+            </td>
+          </tr>
+        `;
+      } else {
+        tbody.innerHTML = pageEvents.map(e => {
+          let badgeClass = 'bg-blue-100 text-blue-800';
+          if (e.tier === 'confirmed') badgeClass = 'bg-emerald-100 text-emerald-800';
+          else if (e.tier === 'probable') badgeClass = 'bg-amber-100 text-amber-800';
+
+          return `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="py-2 px-3 font-mono text-[11px] font-semibold text-slate-800">${e.id}</td>
+              <td class="py-2 px-3 whitespace-nowrap text-slate-600">${e.date_start}</td>
+              <td class="py-2 px-3 font-medium text-slate-900">${e.place}</td>
+              <td class="py-2 px-3 text-slate-600">${e.province}</td>
+              <td class="py-2 px-3 text-slate-600">${e.region_label}</td>
+              <td class="py-2 px-3">
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeClass}">${e.tier_label}</span>
+              </td>
+              <td class="py-2 px-3 font-mono font-medium text-cyan-900">${e.depth_cm ? `${e.depth_cm} cm` : '-'}</td>
+              <td class="py-2 px-3 max-w-xs truncate" title="${e.title}">
+                <span class="text-slate-800 font-medium">${e.title || 'Laporan Banjir Rob'}</span>
+              </td>
+              <td class="py-2 px-3 text-center whitespace-nowrap space-x-1">
+                <button onclick="focusMapLocation(${e.lat}, ${e.lon}, 11, '${e.place}')" title="Tampilkan di Peta" 
+                  class="px-2 py-1 bg-slate-100 hover:bg-cyan-50 hover:text-cyan-700 rounded text-slate-600 transition">
+                  <i class="fa-solid fa-map-location-dot"></i>
+                </button>
+                ${e.url ? `
+                  <a href="${e.url}" target="_blank" rel="noopener noreferrer" title="Buka Berita Asli" 
+                    class="inline-block px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </a>
+                ` : ''}
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Pagination indicators
+      document.getElementById('table-page-start').textContent = total > 0 ? (startIdx + 1).toLocaleString() : '0';
+      document.getElementById('table-page-end').textContent = endIdx.toLocaleString();
+      document.getElementById('table-total-count').textContent = total.toLocaleString();
+
+      const totalPages = Math.ceil(total / AppState.tablePageSize) || 1;
+      document.getElementById('table-page-indicator').textContent = `Halaman ${page} / ${totalPages}`;
+
+      document.getElementById('btn-page-prev').disabled = (page <= 1);
+      document.getElementById('btn-page-next').disabled = (page >= totalPages);
+    }
+
+    function changeTablePage(delta) {
+      const totalPages = Math.ceil(AppState.filteredEvents.length / AppState.tablePageSize) || 1;
+      const newPage = AppState.tablePage + delta;
+      if (newPage >= 1 && newPage <= totalPages) {
+        renderTablePage(newPage);
+      }
+    }
+
+    // Export Data Engine (CSV & GeoJSON)
+    function exportData(format) {
+      const data = AppState.filteredEvents;
+      if (!data || data.length === 0) {
+        alert("Tidak ada data terfilter untuk diunduh.");
+        return;
+      }
+
+      const timestamp = new Date().toISOString().slice(0, 10);
+
+      if (format === 'csv') {
+        const headers = ['id', 'date_start', 'date_end', 'days', 'place', 'regency', 'province', 'region', 'hazard', 'tier', 'depth_cm', 'lat', 'lon', 'title', 'terms', 'url'];
+        const csvRows = [headers.join(',')];
+
+        data.forEach(item => {
+          const row = headers.map(h => {
+            let val = item[h];
+            if (val === null || val === undefined) val = '';
+            val = String(val).replace(/"/g, '""');
+            return `"${val}"`;
+          });
+          csvRows.push(row.join(','));
+        });
+
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        triggerDownload(blob, `katalog_banjir_rob_indonesia_${timestamp}.csv`);
+
+      } else if (format === 'geojson') {
+        const features = data.map(item => ({
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [item.lon, item.lat]
+          },
+          properties: {
+            id: item.id,
+            date_start: item.date_start,
+            date_end: item.date_end,
+            place: item.place,
+            regency: item.regency,
+            province: item.province,
+            region: item.region,
+            hazard: item.hazard,
+            tier: item.tier,
+            depth_cm: item.depth_cm,
+            title: item.title,
+            url: item.url
+          }
+        }));
+
+        const geojson = {
+          type: 'FeatureCollection',
+          features: features
+        };
+
+        const blob = new Blob([JSON.stringify(geojson, null, 2)], { type: 'application/geo+json;charset=utf-8;' });
+        triggerDownload(blob, `katalog_banjir_rob_indonesia_${timestamp}.geojson`);
+      }
+    }
+
+    function triggerDownload(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Modal Toggle Helper
+    function toggleModal(modalId, show) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        if (show) modal.classList.remove('hidden');
+        else modal.classList.add('hidden');
+      }
+    }
+  </script>
+</body>
+</html>
