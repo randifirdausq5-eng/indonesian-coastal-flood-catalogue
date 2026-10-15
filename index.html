@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>INA-CoastalFlood (v3c) | Indonesian Coastal Flood Catalogue & Tracker</title>
+  <title>INA-CoastalFlood (v4) | Indonesian Coastal Flood Catalogue & Tracker</title>
   <meta name="description" content="Interactive Web Dashboard and Auto-Tracker for Indonesian Coastal Flooding Events (2015-2026) - INA-CoastalFlood">
 
   <!-- Tailwind CSS CDN -->
@@ -116,38 +116,105 @@
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
+  <!-- ================= RESTRICTED ACCESS GATEKEEPER MODAL ================= -->
+  <div id="lockscreen" class="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 transition-opacity duration-200">
+    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 sm:p-8 text-center space-y-6 relative overflow-hidden max-h-[92vh] overflow-y-auto">
+      <!-- Ambient Glow -->
+      <div class="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- Icon & Title -->
+      <div class="space-y-2 relative">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-cyan-500/20 mb-3">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-white tracking-tight">Restricted Access</h1>
+        <p class="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
+          Indonesian Coastal Flood Catalogue & Research Prototype. Please enter authorization password to view dashboard.
+        </p>
+      </div>
+
+      <!-- Password Form -->
+      <form onsubmit="handleUnlock(event)" class="space-y-4 text-left relative">
+        <div>
+          <label for="lock-password" class="block text-[11px] font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
+            Password
+          </label>
+          <div class="relative">
+            <input 
+              type="password" 
+              id="lock-password" 
+              placeholder="Enter password..."
+              autocomplete="current-password"
+              class="w-full px-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition pr-10"
+              required
+            >
+            <button 
+              type="button" 
+              onclick="togglePasswordVisibility()" 
+              class="absolute right-3 top-3 text-slate-400 hover:text-slate-200 text-xs transition cursor-pointer"
+              title="Toggle visibility"
+            >
+              <i id="lock-eye-icon" class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          <p id="lock-error" class="hidden text-xs text-rose-400 mt-2 flex items-center gap-1.5 font-medium">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>Incorrect password. Access denied.</span>
+          </p>
+        </div>
+
+        <button 
+          type="submit" 
+          id="btn-unlock" 
+          class="w-full py-2.5 px-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 active:scale-98 text-white font-semibold rounded-xl text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-600/20 transition cursor-pointer"
+        >
+          <i class="fa-solid fa-key"></i>
+          <span>Unlock Dashboard</span>
+        </button>
+      </form>
+
+      <!-- Attribution Footnote -->
+      <div class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500 flex items-center justify-between">
+        <span>INA-CoastalFlood (v4)</span>
+        <span>PhD Research • Tohoku Univ</span>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= TOP NAVIGATION BAR ================= -->
   <header class="bg-slate-900 text-white border-b border-slate-800 flex-none z-30 shadow-md">
-    <div class="px-4 py-2.5 flex items-center justify-between gap-4">
+    <div class="px-2.5 sm:px-4 py-1.5 sm:py-2.5 flex items-center justify-between gap-1.5 sm:gap-4">
       
       <!-- Brand & Title -->
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-900/30">
-          <i class="fa-solid fa-water text-xl text-white"></i>
+      <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+        <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-900/30">
+          <i class="fa-solid fa-water text-xs sm:text-xl text-white"></i>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-1.5">
-              <span>INA-CoastalFlood</span>
-              <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">v3c Catalogue</span>
+          <div class="flex items-center gap-1 sm:gap-1.5">
+            <h1 class="text-xs sm:text-base font-bold tracking-tight text-white flex items-center gap-1">
+              <span class="sm:hidden">INA-Flood</span>
+              <span class="hidden sm:inline">INA-CoastalFlood</span>
+              <span class="text-[9px] sm:text-xs font-semibold px-1.5 py-0.2 sm:py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 whitespace-nowrap">v4</span>
             </h1>
           </div>
-          <p id="app-tagline" class="text-xs text-slate-400 hidden sm:block">
+          <p id="app-tagline" class="text-xs text-slate-400 hidden md:block">
             Indonesian Coastal Flood Catalogue & Tracker (2015–2026)
           </p>
         </div>
       </div>
 
-      <!-- Quick Stats Banner -->
-      <div class="hidden lg:flex items-center gap-6 px-4 py-1.5 bg-slate-800/80 rounded-lg border border-slate-700/60 text-xs">
+      <!-- Quick Stats Banner (Extra Large Desktop only) -->
+      <div class="hidden xl:flex items-center gap-4 px-3 py-1.5 bg-slate-800/80 rounded-lg border border-slate-700/60 text-xs">
         <div class="flex items-center gap-2">
           <span class="text-slate-400" data-i18n="stat_total">Total Events:</span>
-          <span id="stat-total" class="font-bold text-white font-mono text-sm">1,219</span>
+          <span id="stat-total" class="font-bold text-white font-mono text-sm">1,067</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
           <span class="text-slate-400" data-i18n="stat_active">Active Shown:</span>
-          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-sm">1,219</span>
+          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-sm">1,067</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
@@ -162,39 +229,55 @@
       </div>
 
       <!-- Actions & Nav Tabs -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
         
-        <!-- Language Switcher Button -->
-        <button onclick="toggleLanguage()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition" title="Switch Language / Ganti Bahasa">
-          <i class="fa-solid fa-language text-cyan-400 text-sm"></i>
-          <span id="current-lang-label" class="font-mono">EN</span>
+        <!-- Mobile Filter Drawer Toggle Button (Icon only on mobile) -->
+        <button id="btn-mobile-filter" onclick="toggleMobileSidebar()" class="md:hidden p-1.5 sm:px-2 sm:py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 rounded-lg text-xs font-semibold flex items-center justify-center transition active:scale-95" title="Filters & Search">
+          <i class="fa-solid fa-sliders text-xs"></i>
         </button>
 
         <!-- View Switcher Tabs -->
-        <div class="bg-slate-800 p-1 rounded-lg border border-slate-700 flex text-xs font-medium">
-          <button id="btn-view-map" onclick="switchView('map')" class="px-3 py-1.5 rounded-md bg-cyan-600 text-white flex items-center gap-1.5 shadow-sm transition">
-            <i class="fa-solid fa-map"></i>
+        <div class="bg-slate-800 p-0.5 rounded-lg border border-slate-700 flex text-xs font-medium">
+          <button id="btn-view-map" onclick="switchView('map')" class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md bg-cyan-600 text-white flex items-center gap-1 sm:gap-1.5 shadow-sm transition">
+            <i class="fa-solid fa-map text-xs sm:text-sm"></i>
             <span class="hidden md:inline" data-i18n="view_map">Spatial Map</span>
           </button>
-          <button id="btn-view-analytics" onclick="switchView('analytics')" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1.5 transition">
-            <i class="fa-solid fa-chart-pie"></i>
+          <button id="btn-view-analytics" onclick="switchView('analytics')" class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1 sm:gap-1.5 transition">
+            <i class="fa-solid fa-chart-pie text-xs sm:text-sm"></i>
             <span class="hidden md:inline" data-i18n="view_analytics">Analytics</span>
           </button>
-          <button id="btn-view-table" onclick="switchView('table')" class="px-3 py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1.5 transition">
-            <i class="fa-solid fa-table-list"></i>
+          <button id="btn-view-table" onclick="switchView('table')" class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1 sm:gap-1.5 transition">
+            <i class="fa-solid fa-table-list text-xs sm:text-sm"></i>
             <span class="hidden md:inline" data-i18n="view_table">Data Table</span>
           </button>
         </div>
 
-        <!-- About Modal Button -->
-        <button onclick="toggleModal('modal-about', true)" title="About & Methodology" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs border border-slate-700 transition">
-          <i class="fa-solid fa-circle-info text-sm"></i>
+        <!-- Language Switcher Button -->
+        <button id="btn-lang-toggle" onclick="toggleLanguage()" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold border border-slate-700 flex items-center gap-1 transition" title="Switch Language / Ganti Bahasa">
+          <i class="fa-solid fa-language text-cyan-400 text-xs sm:text-sm"></i>
+          <span id="current-lang-label" class="font-mono text-[10px] sm:text-xs">EN</span>
         </button>
 
-        <!-- GitHub Repo Button -->
-        <a href="https://github.com/randifirdausq5-eng/indonesian-coastal-flood-catalogue" target="_blank" rel="noopener noreferrer" title="View Source on GitHub" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs border border-slate-700 transition">
-          <i class="fa-brands fa-github text-sm"></i>
+        <!-- Report Issue Button (Desktop/Tablet) -->
+        <button onclick="toggleModal('modal-about', true)" class="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold transition" title="Report Inaccurate News / Laporkan Berita Keliru">
+          <i class="fa-solid fa-flag text-amber-400 text-xs"></i>
+          <span data-i18n="nav_report">Report Issue</span>
+        </button>
+
+        <!-- About Modal Button (Desktop/Tablet) -->
+        <button onclick="toggleModal('modal-about', true)" title="About & Methodology" class="hidden sm:flex p-1.5 sm:p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs border border-slate-700 transition">
+          <i class="fa-solid fa-circle-info text-xs sm:text-sm"></i>
+        </button>
+
+        <!-- GitHub Repo Button (Desktop only) -->
+        <a href="https://github.com/randifirdausq5-eng/indonesian-coastal-flood-catalogue" target="_blank" rel="noopener noreferrer" title="View Source on GitHub" class="hidden sm:flex p-1.5 sm:p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs border border-slate-700 transition">
+          <i class="fa-brands fa-github text-xs sm:text-sm"></i>
         </a>
+
+        <!-- Lock Dashboard Button -->
+        <button onclick="lockScreen()" title="Lock Screen / Kunci Akses" class="p-1 sm:p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 rounded-lg text-xs border border-slate-700 transition">
+          <i class="fa-solid fa-lock text-xs sm:text-sm"></i>
+        </button>
       </div>
 
     </div>
@@ -203,18 +286,27 @@
   <!-- ================= MAIN CONTENT WRAPPER ================= -->
   <div class="flex-1 flex overflow-hidden relative">
 
-    <!-- ================= LEFT FILTER SIDEBAR ================= -->
-    <aside id="sidebar" class="w-80 md:w-88 lg:w-96 bg-white border-r border-slate-200 flex flex-col flex-none z-20 shadow-sm transition-all duration-300">
+    <!-- Mobile Drawer Backdrop Overlay -->
+    <div id="sidebar-backdrop" onclick="closeMobileSidebar()" class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-300 opacity-0 pointer-events-none md:hidden"></div>
+
+    <!-- ================= LEFT FILTER SIDEBAR (Off-canvas drawer on mobile, static on md+) ================= -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] bg-white border-r border-slate-200 flex flex-col shadow-2xl transition-transform duration-300 ease-in-out -translate-x-full md:relative md:translate-x-0 md:flex-none md:w-88 lg:w-96 md:shadow-sm md:z-20">
       
       <!-- Search & Quick Reset Header -->
-      <div class="p-4 border-b border-slate-100 space-y-3 bg-slate-50/50">
+      <div class="p-3.5 sm:p-4 border-b border-slate-100 space-y-3 bg-slate-50/50">
         <div class="flex items-center justify-between">
           <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
             <i class="fa-solid fa-sliders text-cyan-600"></i> <span data-i18n="filter_title">Filter & Search</span>
           </h2>
-          <button onclick="resetFilters()" class="text-xs text-slate-500 hover:text-red-600 font-medium flex items-center gap-1 transition">
-            <i class="fa-solid fa-rotate-left"></i> <span data-i18n="reset">Reset</span>
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="resetFilters()" class="text-xs text-slate-500 hover:text-red-600 font-medium flex items-center gap-1 transition">
+              <i class="fa-solid fa-rotate-left"></i> <span data-i18n="reset">Reset</span>
+            </button>
+            <!-- Mobile Close Drawer Button (Visible on mobile only) -->
+            <button onclick="closeMobileSidebar()" class="md:hidden p-1 text-slate-400 hover:text-slate-700 rounded-md hover:bg-slate-200 transition" title="Close Drawer">
+              <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+          </div>
         </div>
 
         <!-- Free Text Search Bar -->
@@ -287,31 +379,31 @@
           <div class="grid grid-cols-2 gap-1.5" id="region-chips-container">
             <button onclick="setRegionFilter('all')" data-region="all" class="region-chip active px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-cyan-50 border-cyan-500 text-cyan-800 font-medium">
               <span data-i18n="reg_all">All Regions</span>
-              <span id="badge-all-reg" class="text-[10px] px-1.5 py-0.2 bg-white rounded-full font-mono">1219</span>
+              <span id="badge-all-reg" class="text-[10px] px-1.5 py-0.2 bg-white rounded-full font-mono">1067</span>
             </button>
             <button onclick="setRegionFilter('java_north')" data-region="java_north" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_java_north">Java North Coast</span>
-              <span id="badge-javanorth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">841</span>
+              <span id="badge-javanorth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">732</span>
             </button>
             <button onclick="setRegionFilter('sumatra_east')" data-region="sumatra_east" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_sumatra_east">East Sumatra</span>
-              <span id="badge-sumatraeast-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">130</span>
+              <span id="badge-sumatraeast-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">119</span>
             </button>
             <button onclick="setRegionFilter('east_indo')" data-region="east_indo" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_east_indo">Eastern Indonesia</span>
-              <span id="badge-eastindo-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">91</span>
+              <span id="badge-eastindo-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">88</span>
             </button>
             <button onclick="setRegionFilter('kalimantan')" data-region="kalimantan" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_kalimantan">Kalimantan</span>
-              <span id="badge-kalimantan-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">62</span>
+              <span id="badge-kalimantan-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">56</span>
             </button>
             <button onclick="setRegionFilter('java_south')" data-region="java_south" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_java_south">Java South Coast</span>
-              <span id="badge-javasouth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">55</span>
+              <span id="badge-javasouth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">51</span>
             </button>
             <button onclick="setRegionFilter('sumatra_west')" data-region="sumatra_west" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 col-span-2">
               <span data-i18n="reg_sumatra_west">West Sumatra</span>
-              <span id="badge-sumatrawest-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">40</span>
+              <span id="badge-sumatrawest-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">21</span>
             </button>
           </div>
 
@@ -399,8 +491,8 @@
             <span id="active-percentage" class="font-mono font-bold">100%</span>
           </div>
           <p class="text-xs text-slate-200" id="filter-summary-text">
-            Showing <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,219</span> of 
-            <span class="font-semibold font-mono">1,219</span> verified events in catalogue.
+            Showing <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,067</span> of 
+            <span class="font-semibold font-mono">1,067</span> verified events in catalogue.
           </p>
         </div>
 
@@ -415,29 +507,58 @@
         <div class="flex flex-wrap gap-1.5" id="hotspots-container">
           <!-- Populated by JS -->
         </div>
+
+        <!-- About & GitHub Links in Sidebar Drawer -->
+        <div class="mt-3 pt-2 border-t border-slate-200 flex items-center gap-2">
+          <button onclick="toggleModal('modal-about', true); if (window.innerWidth < 768) closeMobileSidebar();" class="flex-1 py-1.5 px-2.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1.5 transition shadow-xs">
+            <i class="fa-solid fa-circle-info text-cyan-600"></i> <span data-i18n="btn_about">About INA-CoastalFlood</span>
+          </button>
+          <a href="https://github.com/randifirdausq5-eng/indonesian-coastal-flood-catalogue" target="_blank" rel="noopener noreferrer" class="py-1.5 px-2.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1 transition shadow-xs" title="GitHub">
+            <i class="fa-brands fa-github text-xs"></i>
+          </a>
+        </div>
+
+        <!-- Data Feedback & Report Notice in Sidebar -->
+        <div class="mt-2.5 p-2 bg-amber-50/70 border border-amber-200/70 rounded-lg text-slate-700 space-y-1">
+          <div class="flex items-center gap-1.5 text-amber-900 font-bold text-[10px] uppercase tracking-wide">
+            <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+            <span data-i18n="sidebar_report_title">Report Inaccurate News</span>
+          </div>
+          <p class="text-[10px] text-amber-900/90 leading-tight" data-i18n="sidebar_report_desc">
+            Found an event that isn't tidal flooding (e.g. protests about flooding or seawall plans without actual flood)? Report to:
+          </p>
+          <div class="pt-0.5 flex flex-col gap-0.5 text-[10px] font-mono">
+            <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Data%20Correction" class="text-cyan-800 hover:text-cyan-950 font-semibold hover:underline flex items-center gap-1 truncate">
+              <i class="fa-solid fa-envelope text-[9px] text-cyan-600"></i> randi.firdaus.q5@dc.tohoku.ac.jp
+            </a>
+            <a href="mailto:randi.firdaus@bmkg.go.id?cc=randi.firdaus.q5@dc.tohoku.ac.jp&subject=[INA-CoastalFlood]%20Data%20Correction" class="text-cyan-800 hover:text-cyan-950 font-semibold hover:underline flex items-center gap-1 truncate">
+              <i class="fa-solid fa-envelope text-[9px] text-cyan-600"></i> randi.firdaus@bmkg.go.id
+            </a>
+          </div>
+        </div>
       </div>
 
     </aside>
 
     <!-- ================= VIEW 1: INTERACTIVE MAP ================= -->
-    <main id="view-map" class="flex-1 relative flex flex-col h-full">
+    <main id="view-map" class="flex-1 relative flex flex-col h-full overflow-hidden">
       
       <!-- Leaflet Map Container -->
       <div id="map" class="w-full h-full z-10"></div>
 
       <!-- Floating Map Controls / Quick Zoom -->
-      <div class="absolute top-4 right-4 z-20 flex flex-col gap-2">
+      <div class="absolute top-3 sm:top-4 right-3 sm:right-4 z-20 flex flex-col gap-2">
         
         <!-- Basemap Switcher (100% Open Source / No API Key required!) -->
         <div class="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-slate-200 p-1 flex flex-col text-xs">
-          <button onclick="setBasemap('osm')" id="btn-basemap-osm" class="px-2.5 py-1.5 rounded text-left font-medium text-cyan-700 bg-cyan-50 flex items-center gap-2">
-            <i class="fa-solid fa-map"></i> <span>OpenStreetMap</span>
+          <button onclick="setBasemap('osm')" id="btn-basemap-osm" class="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded text-left font-medium text-cyan-700 bg-cyan-50 flex items-center gap-1.5 sm:gap-2">
+            <i class="fa-solid fa-map text-xs"></i> <span class="hidden sm:inline">OpenStreetMap</span><span class="sm:hidden text-[10px]">OSM</span>
           </button>
-          <button onclick="setBasemap('ocean')" id="btn-basemap-ocean" class="px-2.5 py-1.5 rounded text-left font-medium text-slate-600 hover:bg-slate-100 flex items-center gap-2">
-            <i class="fa-solid fa-water"></i> <span>Esri Ocean Basemap</span>
+          <button onclick="setBasemap('ocean')" id="btn-basemap-ocean" class="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded text-left font-medium text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 sm:gap-2">
+            <i class="fa-solid fa-water text-xs"></i> <span class="hidden sm:inline">Esri Ocean Basemap</span><span class="sm:hidden text-[10px]">Ocean</span>
           </button>
-          <button onclick="setBasemap('satellite')" id="btn-basemap-satellite" class="px-2.5 py-1.5 rounded text-left font-medium text-slate-600 hover:bg-slate-100 flex items-center gap-2">
-            <i class="fa-solid fa-satellite"></i> <span>Esri Satellite</span>
+          <button onclick="setBasemap('satellite')" id="btn-basemap-satellite" class="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded text-left font-medium text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 sm:gap-2">
+            <i class="fa-solid fa-satellite text-xs"></i> <span class="hidden sm:inline">Esri Satellite</span><span class="sm:hidden text-[10px]">Sat</span>
           </button>
         </div>
 
@@ -468,47 +589,86 @@
 
       </div>
 
-      <!-- Floating Map Legend -->
-      <div class="absolute bottom-6 left-4 z-20 bg-white/95 backdrop-blur-sm p-3 rounded-xl shadow-lg border border-slate-200 text-xs max-w-xs pointer-events-auto">
-        <div class="font-bold text-slate-800 text-[11px] mb-2 flex items-center justify-between">
-          <span data-i18n="legend_title">Confidence Tier Legend</span>
-          <i class="fa-solid fa-layer-group text-slate-400"></i>
+      <!-- Floating Map Legend (Collapsible on Mobile) -->
+      <div id="map-legend" class="absolute bottom-18 sm:bottom-6 left-3 sm:left-4 z-20 bg-white/95 backdrop-blur-sm p-2.5 sm:p-3 rounded-xl shadow-lg border border-slate-200 text-xs max-w-[240px] sm:max-w-xs pointer-events-auto transition-all">
+        <div onclick="toggleMobileLegend()" class="font-bold text-slate-800 text-[11px] flex items-center justify-between cursor-pointer sm:cursor-default">
+          <div class="flex items-center gap-1.5">
+            <i class="fa-solid fa-layer-group text-slate-400"></i>
+            <span data-i18n="legend_title">Confidence Tier Legend</span>
+          </div>
+          <i id="legend-collapse-icon" class="fa-solid fa-chevron-down text-slate-400 text-[10px] sm:hidden"></i>
         </div>
-        <div class="space-y-1.5 text-[11px]">
+        <div id="legend-body" class="space-y-1.5 text-[11px] mt-2 hidden sm:block">
           <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-emerald-600 inline-block shadow-sm"></span>
+            <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-600 inline-block shadow-sm flex-none"></span>
             <span class="font-medium text-slate-700" data-i18n="legend_confirmed">Confirmed (Verified physical impact)</span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-amber-500 inline-block shadow-sm"></span>
+            <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-500 inline-block shadow-sm flex-none"></span>
             <span class="font-medium text-slate-700" data-i18n="legend_probable">Probable (Credible flood report)</span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="w-3 h-3 rounded-full bg-blue-600 inline-block shadow-sm"></span>
+            <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-blue-600 inline-block shadow-sm flex-none"></span>
             <span class="font-medium text-slate-700" data-i18n="legend_possible">Possible (Minor / potential impact)</span>
           </div>
+          <div class="pt-1.5 border-t border-slate-100 text-[10px] text-slate-400 leading-tight" data-i18n="cluster_hint">
+            Cluster numbers show aggregate event counts at that spatial zoom level.
+          </div>
         </div>
-        <div class="mt-2.5 pt-2 border-t border-slate-100 text-[10px] text-slate-400 leading-tight" data-i18n="cluster_hint">
-          Cluster numbers show aggregate event counts at that spatial zoom level.
+      </div>
+
+      <!-- Floating Mobile Filter Trigger on Map -->
+      <div class="md:hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
+        <button id="btn-mobile-fab" onclick="toggleMobileSidebar()" class="px-4 py-2 bg-slate-900/90 hover:bg-slate-900 text-white backdrop-blur-md rounded-full border border-slate-700 shadow-2xl text-xs font-bold flex items-center gap-2 active:scale-95 transition">
+          <i class="fa-solid fa-sliders text-cyan-400"></i>
+          <span data-i18n="filter_title_short">Filters</span>
+          <span id="mobile-fab-count" class="px-1.5 py-0.2 bg-cyan-500 text-slate-950 font-mono text-[10px] font-extrabold rounded-full">1,067</span>
+        </button>
+      </div>
+
+      <!-- Floating Report Inaccuracy Notice Card (Bottom Right, directly above Zoom in/out buttons) -->
+      <div id="map-report-card" class="absolute bottom-[92px] sm:bottom-[96px] right-2.5 sm:right-3 z-20 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-amber-200/90 text-xs max-w-[250px] sm:max-w-[270px] pointer-events-auto transition-all">
+        <div onclick="toggleMapReportCard()" class="p-2 sm:p-2.5 font-bold text-slate-800 text-[11px] flex items-center justify-between cursor-pointer hover:bg-amber-50/50 rounded-xl transition select-none">
+          <div class="flex items-center gap-1.5 text-amber-900">
+            <i class="fa-solid fa-triangle-exclamation text-amber-500 text-xs"></i>
+            <span data-i18n="map_report_title">Laporkan Berita Bukan Rob</span>
+          </div>
+          <i id="map-report-icon" class="fa-solid fa-chevron-up text-slate-400 text-[10px] transition-transform duration-200"></i>
+        </div>
+        <div id="map-report-body" class="px-2.5 sm:px-3 pb-2.5 sm:pb-3 space-y-1.5 text-[10.5px] border-t border-amber-100/80 pt-1.5">
+          <p class="text-slate-600 leading-tight" data-i18n="map_report_desc">
+            Menemukan berita yang bukan banjir rob (seperti demo rob atau rencana proyek tanggul)? Tolong laporkan ke:
+          </p>
+          <div class="space-y-1 font-mono text-[10px]">
+            <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Laporan%20Koreksi%20Berita" class="text-cyan-700 hover:text-cyan-900 font-semibold flex items-center gap-1.5 truncate hover:underline">
+              <i class="fa-solid fa-envelope text-amber-500 text-[9px]"></i> randi.firdaus.q5@dc.tohoku.ac.jp
+            </a>
+            <a href="mailto:randi.firdaus@bmkg.go.id?cc=randi.firdaus.q5@dc.tohoku.ac.jp&subject=[INA-CoastalFlood]%20Laporan%20Koreksi%20Berita" class="text-cyan-700 hover:text-cyan-900 font-semibold flex items-center gap-1.5 truncate hover:underline">
+              <i class="fa-solid fa-envelope text-amber-500 text-[9px]"></i> randi.firdaus@bmkg.go.id
+            </a>
+          </div>
         </div>
       </div>
 
     </main>
 
     <!-- ================= VIEW 2: ANALYTICS DASHBOARD ================= -->
-    <main id="view-analytics" class="flex-1 bg-slate-100 overflow-y-auto p-4 md:p-6 space-y-6 hidden">
+    <main id="view-analytics" class="flex-1 bg-slate-100 overflow-y-auto p-3 sm:p-4 md:p-6 space-y-5 sm:space-y-6 hidden">
       
       <!-- Analytics Header -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 class="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
             <i class="fa-solid fa-chart-column text-cyan-600"></i> <span data-i18n="analytics_title">Analytics Dashboard & Seasonal Variability</span>
           </h2>
           <p class="text-xs text-slate-500" data-i18n="analytics_subtitle">Real-time statistics dynamically responding to active filter controls in the sidebar.</p>
         </div>
         <div class="flex items-center gap-2">
+          <button onclick="toggleMobileSidebar()" class="md:hidden px-2.5 py-1.5 bg-white border border-slate-200 text-cyan-700 rounded-lg text-xs font-semibold shadow-sm flex items-center gap-1.5 transition active:scale-95">
+            <i class="fa-solid fa-sliders text-cyan-600"></i> <span data-i18n="filter_title_short">Filters</span>
+          </button>
           <span class="text-xs bg-white px-3 py-1.5 rounded-lg border border-slate-200 font-mono text-slate-600 shadow-sm">
-            <span data-i18n="filtered_data">Filtered Data:</span> <strong id="chart-filter-count" class="text-cyan-600 font-bold">1,219</strong> <span data-i18n="events_unit">events</span>
+            <span data-i18n="filtered_data">Filtered Data:</span> <strong id="chart-filter-count" class="text-cyan-600 font-bold">1,067</strong> <span data-i18n="events_unit">events</span>
           </span>
         </div>
       </div>
@@ -580,13 +740,26 @@
     <main id="view-table" class="flex-1 bg-white flex flex-col overflow-hidden hidden">
       
       <!-- Table Header & Controls -->
-      <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50">
+      <div class="p-3.5 sm:p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 bg-slate-50">
         <div>
           <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
             <i class="fa-solid fa-table-list text-cyan-600"></i> <span data-i18n="table_title">Coastal Flood Catalogue Records</span>
           </h2>
           <p class="text-xs text-slate-500" data-i18n="table_subtitle">Comprehensive event-level records with direct links to verified news sources.</p>
         </div>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleMobileSidebar()" class="md:hidden px-2.5 py-1.5 bg-white border border-slate-200 text-cyan-700 rounded-lg text-xs font-semibold shadow-sm flex items-center gap-1.5 transition active:scale-95">
+            <i class="fa-solid fa-sliders text-cyan-600"></i> <span data-i18n="filter_title_short">Filters</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Horizontal Swipe Hint (Mobile only) -->
+      <div class="md:hidden px-3.5 py-1.5 bg-cyan-50/70 border-b border-cyan-100 text-[11px] text-cyan-800 flex items-center justify-between">
+        <span class="flex items-center gap-1.5 font-medium">
+          <i class="fa-solid fa-arrows-left-right text-cyan-600"></i>
+          <span data-i18n="table_swipe_hint">Swipe horizontally to view full columns →</span>
+        </span>
       </div>
 
       <!-- Table Container -->
@@ -614,16 +787,16 @@
       </div>
 
       <!-- Table Pagination / Footer -->
-      <div class="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-600">
-        <div id="table-pagination-info">
-          Showing rows <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> of <span id="table-total-count" class="font-bold">1,219</span>
+      <div class="p-2.5 sm:p-3 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
+        <div id="table-pagination-info" class="text-[11px] sm:text-xs">
+          Showing rows <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> of <span id="table-total-count" class="font-bold">1,067</span>
         </div>
-        <div class="flex items-center gap-2">
-          <button id="btn-page-prev" onclick="changeTablePage(-1)" class="px-3 py-1 bg-white border border-slate-300 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+          <button id="btn-page-prev" onclick="changeTablePage(-1)" class="px-2.5 sm:px-3 py-1 bg-white border border-slate-300 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
             <i class="fa-solid fa-chevron-left"></i> <span data-i18n="btn_prev">Previous</span>
           </button>
-          <span class="font-mono text-xs px-2" id="table-page-indicator">Page 1</span>
-          <button id="btn-page-next" onclick="changeTablePage(1)" class="px-3 py-1 bg-white border border-slate-300 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
+          <span class="font-mono text-xs px-1 sm:px-2" id="table-page-indicator">Page 1</span>
+          <button id="btn-page-next" onclick="changeTablePage(1)" class="px-2.5 sm:px-3 py-1 bg-white border border-slate-300 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
             <span data-i18n="btn_next">Next</span> <i class="fa-solid fa-chevron-right"></i>
           </button>
         </div>
@@ -641,7 +814,7 @@
       <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <i class="fa-solid fa-circle-info text-cyan-400 text-lg"></i>
-          <h3 class="font-bold text-base" id="about-modal-title">About INA-CoastalFlood (v3c)</h3>
+          <h3 class="font-bold text-base" id="about-modal-title">About INA-CoastalFlood (v4)</h3>
         </div>
         <button onclick="toggleModal('modal-about', false)" class="text-slate-400 hover:text-white text-lg">
           <i class="fa-solid fa-xmark"></i>
@@ -684,6 +857,7 @@
         apply_filters: "Apply Filters",
         filters_applied: "✓ Filters Applied",
         filter_title: "Filter & Search",
+        filter_title_short: "Filters",
         reset: "Reset",
         search_placeholder: "Search city, regency, or headline...",
         time_range: "Time Range",
@@ -720,6 +894,7 @@
         focus_corridors: "Focus Region:",
         all_indonesia: "All Indonesia",
         legend_title: "Confidence Tier Legend",
+        legend_toggle: "Legend",
         legend_confirmed: "Confirmed (Verified physical impact)",
         legend_probable: "Probable (Credible flood report)",
         legend_possible: "Possible (Minor / potential impact)",
@@ -739,8 +914,15 @@
         badge_spatial: "Spatial",
         chart_places_title: "Top 10 Most Flooded Coastal Locations",
         chart_places_sub: "Municipalities and coastal stretches with highest recorded flood frequencies",
+        btn_about: "About INA-CoastalFlood",
+        nav_report: "Report Issue",
+        map_report_title: "Report Inaccurate News",
+        map_report_desc: "Found an archived report that isn't tidal flooding (e.g. protests about flooding or seawall plans without actual flood)? Report to:",
+        sidebar_report_title: "Report Inaccurate News",
+        sidebar_report_desc: "Found an event that isn't tidal flooding (e.g. protests about flooding or seawall plans without actual flood)? Report to:",
         table_title: "Coastal Flood Catalogue Records",
-        table_subtitle: "Comprehensive event-level records with direct links to verified news sources.",
+        table_subtitle: "Comprehensive event-level records with direct links to verified news sources. Notice a non-flood article? Report to author.",
+        table_swipe_hint: "Swipe horizontally to view full columns →",
         th_date: "Start Date",
         th_place: "Location",
         th_province: "Province",
@@ -777,6 +959,8 @@
         popup_reason: "Tier Reason:",
         popup_source: "Sources:",
         popup_btn: "Open Original News Source",
+        popup_report_issue: "Report inaccurate / non-flood article",
+        table_report_tooltip: "Report inaccurate / non-flood article",
         months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       },
       id: {
@@ -791,6 +975,7 @@
         apply_filters: "Terapkan Filter",
         filters_applied: "✓ Filter Diterapkan",
         filter_title: "Filter & Penelusuran",
+        filter_title_short: "Filter",
         reset: "Reset",
         search_placeholder: "Cari kota, kabupaten, atau berita...",
         time_range: "Rentang Waktu",
@@ -827,6 +1012,7 @@
         focus_corridors: "Fokus Kawasan:",
         all_indonesia: "Seluruh Indonesia",
         legend_title: "Legenda Tingkat Keyakinan",
+        legend_toggle: "Legenda",
         legend_confirmed: "Confirmed (Dampak fisik terverifikasi)",
         legend_probable: "Probable (Laporan rob kredibel)",
         legend_possible: "Possible (Dampak ringan / indikasi)",
@@ -846,8 +1032,15 @@
         badge_spatial: "Spasial",
         chart_places_title: "Top 10 Lokasi / Kota Paling Rawan Rob",
         chart_places_sub: "Kota dan pesisir dengan frekuensi rob tertinggi",
+        btn_about: "Tentang INA-CoastalFlood",
+        nav_report: "Laporkan Berita",
+        map_report_title: "Laporkan Berita Bukan Rob",
+        map_report_desc: "Menemukan berita yang bukan banjir rob (seperti demo rob atau rencana proyek tanggul)? Tolong laporkan ke:",
+        sidebar_report_title: "Laporkan Berita Keliru",
+        sidebar_report_desc: "Menemukan berita yang bukan banjir rob (seperti demo rob atau rencana proyek tanggul)? Laporkan ke:",
         table_title: "Tabel Data Katalog Banjir Rob",
-        table_subtitle: "Daftar lengkap record kejadian terverifikasi dengan tautan langsung ke artikel berita.",
+        table_subtitle: "Daftar lengkap record kejadian terverifikasi dengan tautan berita. Menemukan berita bukan rob? Laporkan ke peneliti.",
+        table_swipe_hint: "Geser horizontal untuk melihat rincian tabel →",
         th_date: "Tanggal Mulai",
         th_place: "Lokasi",
         th_province: "Provinsi",
@@ -884,6 +1077,8 @@
         popup_reason: "Alasan Tier:",
         popup_source: "Sumber:",
         popup_btn: "Buka Sumber Berita Asli",
+        popup_report_issue: "Laporkan berita keliru / bukan rob",
+        table_report_tooltip: "Laporkan berita keliru / bukan rob",
         months: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
       }
     };
@@ -946,6 +1141,23 @@
       }
     }
 
+    // Dismiss top announcement banner
+    // Toggle Floating Map Report Card
+    function toggleMapReportCard() {
+      const body = document.getElementById('map-report-body');
+      const icon = document.getElementById('map-report-icon');
+      if (body) {
+        body.classList.toggle('hidden');
+        if (body.classList.contains('hidden')) {
+          icon.classList.remove('fa-chevron-up');
+          icon.classList.add('fa-chevron-down');
+        } else {
+          icon.classList.remove('fa-chevron-down');
+          icon.classList.add('fa-chevron-up');
+        }
+      }
+    }
+
     // Render About Modal in chosen language
     function renderAboutModal() {
       const l = AppState.lang;
@@ -953,7 +1165,7 @@
       const contentEl = document.getElementById('about-modal-content');
 
       if (l === 'en') {
-        titleEl.textContent = "About INA-CoastalFlood (v3c)";
+        titleEl.textContent = "About INA-CoastalFlood (v4)";
         contentEl.innerHTML = `
           <div>
             <h4 class="font-bold text-slate-800 text-sm mb-1">1. Background & Project Goal</h4>
@@ -985,13 +1197,34 @@
             </p>
           </div>
 
+          <div class="p-3.5 bg-amber-50/90 border border-amber-200 rounded-xl space-y-1.5">
+            <h4 class="font-bold text-amber-950 text-xs mb-1 flex items-center gap-1.5">
+              <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+              <span>5. Data Quality & Reporting Inaccurate Articles</span>
+            </h4>
+            <p class="text-amber-900 text-[11px] leading-relaxed">
+              INA-CoastalFlood is curated through automated NLP web-mining. While multi-tiered filters are applied, articles that do not report an actual coastal flood event (such as citizen protests or demonstrations regarding flooding, government policy debates, or seawall/breakwater construction plans without actual flood inundation) may occasionally be captured.
+            </p>
+            <p class="text-amber-900 text-[11px] leading-relaxed">
+              If you identify an archived news report that is inaccurate or not an actual coastal flood event, please help us refine the dataset by reporting the <strong>Event ID</strong> and link to:
+            </p>
+            <div class="pt-1 flex flex-wrap gap-2 text-[11px] font-mono">
+              <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Data%20Correction" class="px-2.5 py-1 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg text-amber-950 font-semibold flex items-center gap-1.5 transition shadow-2xs">
+                <i class="fa-solid fa-envelope text-amber-600"></i> randi.firdaus.q5@dc.tohoku.ac.jp
+              </a>
+              <a href="mailto:randi.firdaus@bmkg.go.id?cc=randi.firdaus.q5@dc.tohoku.ac.jp&subject=[INA-CoastalFlood]%20Data%20Correction" class="px-2.5 py-1 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg text-amber-950 font-semibold flex items-center gap-1.5 transition shadow-2xs">
+                <i class="fa-solid fa-envelope text-amber-600"></i> randi.firdaus@bmkg.go.id
+              </a>
+            </div>
+          </div>
+
           <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
             <span>Lead Researcher: <strong>Randi Firdaus</strong> (Tohoku University)</span>
             <span class="font-mono">Open Science Initiative</span>
           </div>
         `;
       } else {
-        titleEl.textContent = "Tentang INA-CoastalFlood (v3c)";
+        titleEl.textContent = "Tentang INA-CoastalFlood (v4)";
         contentEl.innerHTML = `
           <div>
             <h4 class="font-bold text-slate-800 text-sm mb-1">1. Latar Belakang & Tujuan Proyek</h4>
@@ -1023,6 +1256,27 @@
             </p>
           </div>
 
+          <div class="p-3.5 bg-amber-50/90 border border-amber-200 rounded-xl space-y-1.5">
+            <h4 class="font-bold text-amber-950 text-xs mb-1 flex items-center gap-1.5">
+              <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+              <span>5. Kualitas Data & Pelaporan Berita Tidak Tepat</span>
+            </h4>
+            <p class="text-amber-900 text-[11px] leading-relaxed">
+              Katalog INA-CoastalFlood dikurasi secara semi-otomatis melalui penelusuran web berita dan klasifikasi NLP. Meskipun filter bertingkat telah diterapkan, artikel yang bukan kejadian banjir rob nyata (misalnya berita aksi unjuk rasa/demo warga menuntut penanganan rob, perdebatan kebijakan, atau rencana pembangunan tanggul/proyek infrastruktur tanpa adanya genangan fisik) terkadang dapat lolos.
+            </p>
+            <p class="text-amber-900 text-[11px] leading-relaxed">
+              Jika Anda menemukan artikel atau data yang tidak tepat atau bukan kejadian rob sesungguhnya, mohon bantu laporkan <strong>ID Kejadian</strong> dan tautan beritanya ke:
+            </p>
+            <div class="pt-1 flex flex-wrap gap-2 text-[11px] font-mono">
+              <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Laporan%20Koreksi%20Data" class="px-2.5 py-1 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg text-amber-950 font-semibold flex items-center gap-1.5 transition shadow-2xs">
+                <i class="fa-solid fa-envelope text-amber-600"></i> randi.firdaus.q5@dc.tohoku.ac.jp
+              </a>
+              <a href="mailto:randi.firdaus@bmkg.go.id?cc=randi.firdaus.q5@dc.tohoku.ac.jp&subject=[INA-CoastalFlood]%20Laporan%20Koreksi%20Data" class="px-2.5 py-1 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg text-amber-950 font-semibold flex items-center gap-1.5 transition shadow-2xs">
+                <i class="fa-solid fa-envelope text-amber-600"></i> randi.firdaus@bmkg.go.id
+              </a>
+            </div>
+          </div>
+
           <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
             <span>Pengembang & Peneliti: <strong>Randi Firdaus</strong> (Tohoku University)</span>
             <span class="font-mono">Open Science Initiative</span>
@@ -1031,8 +1285,164 @@
       }
     }
 
+    // ================= RESTRICTED ACCESS GATEKEEPER =================
+    // SHA-256 hash for password 'robindonesia'
+    const AUTH_HASH = "9ed6c7fb4bde887066ed237fb5acdbaa087124b31e342fcb52b960236980af4a";
+
+    async function hashPassword(str) {
+      const msgUint8 = new TextEncoder().encode(str);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function checkAuthStatus() {
+      const lockscreen = document.getElementById('lockscreen');
+      const isAuth = sessionStorage.getItem('ina_coastal_auth') === 'granted';
+      if (isAuth) {
+        if (lockscreen) lockscreen.classList.add('hidden');
+      } else {
+        if (lockscreen) {
+          lockscreen.classList.remove('hidden');
+          const passInput = document.getElementById('lock-password');
+          if (passInput) {
+            passInput.value = '';
+            setTimeout(() => passInput.focus(), 250);
+          }
+        }
+      }
+    }
+
+    async function handleUnlock(event) {
+      if (event) event.preventDefault();
+      const passInput = document.getElementById('lock-password');
+      const errEl = document.getElementById('lock-error');
+      const btnUnlock = document.getElementById('btn-unlock');
+      const enteredPass = passInput ? passInput.value.trim() : '';
+
+      if (btnUnlock) {
+        btnUnlock.disabled = true;
+        btnUnlock.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Verifying...</span>`;
+      }
+
+      try {
+        const computedHash = await hashPassword(enteredPass);
+        if (computedHash === AUTH_HASH) {
+          sessionStorage.setItem('ina_coastal_auth', 'granted');
+          if (errEl) errEl.classList.add('hidden');
+          const lockscreen = document.getElementById('lockscreen');
+          if (lockscreen) {
+            lockscreen.classList.add('opacity-0');
+            setTimeout(() => {
+              lockscreen.classList.add('hidden');
+              lockscreen.classList.remove('opacity-0');
+            }, 250);
+          }
+        } else {
+          if (errEl) errEl.classList.remove('hidden');
+          if (passInput) {
+            passInput.classList.add('ring-2', 'ring-rose-500', 'border-rose-500');
+            passInput.focus();
+            setTimeout(() => {
+              passInput.classList.remove('ring-2', 'ring-rose-500', 'border-rose-500');
+            }, 1000);
+          }
+        }
+      } catch (e) {
+        console.error('Authentication error:', e);
+      } finally {
+        if (btnUnlock) {
+          btnUnlock.disabled = false;
+          btnUnlock.innerHTML = `<i class="fa-solid fa-key"></i> <span>Unlock Dashboard</span>`;
+        }
+      }
+    }
+
+    function lockScreen() {
+      sessionStorage.removeItem('ina_coastal_auth');
+      const lockscreen = document.getElementById('lockscreen');
+      const errEl = document.getElementById('lock-error');
+      if (errEl) errEl.classList.add('hidden');
+      if (lockscreen) {
+        lockscreen.classList.remove('hidden');
+        const passInput = document.getElementById('lock-password');
+        if (passInput) {
+          passInput.value = '';
+          passInput.focus();
+        }
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const passInput = document.getElementById('lock-password');
+      const eyeIcon = document.getElementById('lock-eye-icon');
+      if (!passInput) return;
+      if (passInput.type === 'password') {
+        passInput.type = 'text';
+        if (eyeIcon) {
+          eyeIcon.classList.remove('fa-eye');
+          eyeIcon.classList.add('fa-eye-slash');
+        }
+      } else {
+        passInput.type = 'password';
+        if (eyeIcon) {
+          eyeIcon.classList.remove('fa-eye-slash');
+          eyeIcon.classList.add('fa-eye');
+        }
+      }
+    }
+
+    // ================= MOBILE DRAWER & RESPONSIVE NAVIGATION =================
+    function openMobileSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (!sidebar || !backdrop) return;
+      sidebar.classList.remove('-translate-x-full');
+      sidebar.classList.add('translate-x-0');
+      backdrop.classList.remove('opacity-0', 'pointer-events-none');
+      backdrop.classList.add('opacity-100', 'pointer-events-auto');
+      document.body.classList.add('overflow-hidden');
+    }
+
+    function closeMobileSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (!sidebar || !backdrop) return;
+      sidebar.classList.add('-translate-x-full');
+      sidebar.classList.remove('translate-x-0');
+      backdrop.classList.add('opacity-0', 'pointer-events-none');
+      backdrop.classList.remove('opacity-100', 'pointer-events-auto');
+      document.body.classList.remove('overflow-hidden');
+    }
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      if (!sidebar) return;
+      if (sidebar.classList.contains('-translate-x-full')) {
+        openMobileSidebar();
+      } else {
+        closeMobileSidebar();
+      }
+    }
+
+    function toggleMobileLegend() {
+      const body = document.getElementById('legend-body');
+      const icon = document.getElementById('legend-collapse-icon');
+      if (!body) return;
+      const isHidden = body.classList.contains('hidden');
+      if (isHidden) {
+        body.classList.remove('hidden');
+        if (icon) icon.className = "fa-solid fa-chevron-up text-slate-400 text-[10px] sm:hidden";
+      } else {
+        body.classList.add('hidden');
+        if (icon) icon.className = "fa-solid fa-chevron-down text-slate-400 text-[10px] sm:hidden";
+      }
+    }
+
     // Initialize application when DOM is loaded
     document.addEventListener('DOMContentLoaded', () => {
+      // 0. Verify Access Gatekeeper Authentication
+      checkAuthStatus();
       // 1. Check if events were preloaded via data/events.js
       if (window.ROB_EVENTS && Array.isArray(window.ROB_EVENTS) && window.ROB_EVENTS.length > 0) {
         console.log(`Loaded ${window.ROB_EVENTS.length} events from pre-bundled events.js`);
@@ -1061,6 +1471,7 @@
       // Populate filter dropdowns
       populateYearOptions(events);
       populateProvinceOptions(events);
+      updateRegionBadges(events);
       renderHotspots(events);
 
       // Initialize Map with 100% open-source basemaps (No API keys required)
@@ -1121,6 +1532,25 @@
       }
     }
 
+    // Update Region Badges dynamically from dataset
+    function updateRegionBadges(events) {
+      const regCounts = {};
+      events.forEach(e => {
+        regCounts[e.region] = (regCounts[e.region] || 0) + 1;
+      });
+      const setBadge = (id, count) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = count;
+      };
+      setBadge('badge-all-reg', events.length);
+      setBadge('badge-javanorth-reg', regCounts['java_north'] || 0);
+      setBadge('badge-sumatraeast-reg', regCounts['sumatra_east'] || 0);
+      setBadge('badge-eastindo-reg', regCounts['east_indo'] || 0);
+      setBadge('badge-kalimantan-reg', regCounts['kalimantan'] || 0);
+      setBadge('badge-javasouth-reg', regCounts['java_south'] || 0);
+      setBadge('badge-sumatrawest-reg', regCounts['sumatra_west'] || 0);
+    }
+
     // Render Quick Hotspots in sidebar footer
     function renderHotspots(events) {
       const container = document.getElementById('hotspots-container');
@@ -1156,10 +1586,11 @@
 
     // Initialize Leaflet Map (Free OpenStreetMap & Esri Ocean / Satellite)
     function initMap() {
-      // 1. OpenStreetMap (Clean, 100% Open-Source, No API Key required!)
-      const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
+      // 1. OpenStreetMap (Humanitarian OpenStreetMap / OSM France - fast, unblocked & 100% open-source)
+      const osm = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Tiles style by <a href="https://www.hotosm.org/" target="_blank">HOT</a>',
+        maxZoom: 19,
+        subdomains: 'abc'
       });
 
       // 2. Esri Ocean Basemap (Dedicated physical oceanography bathymetry & coastal marine basemap)
@@ -1481,6 +1912,13 @@
           }
         });
 
+        // Auto-close mobile drawer so user immediately sees results
+        if (window.innerWidth < 768) {
+          setTimeout(() => {
+            closeMobileSidebar();
+          }, 350);
+        }
+
         setTimeout(() => {
           if (btnTop) {
             btnTop.innerHTML = `<i class="fa-solid fa-filter"></i> <span>${dict.apply_filters}</span>`;
@@ -1539,6 +1977,13 @@
       const uniquePlaces = new Set(AppState.filteredEvents.map(e => e.place)).size;
       const elPlaces = document.getElementById('stat-places');
       if (elPlaces) elPlaces.textContent = uniquePlaces.toLocaleString();
+
+      // Mobile Badges
+      const elMobileBadge = document.getElementById('mobile-filter-badge');
+      if (elMobileBadge) elMobileBadge.textContent = count.toLocaleString();
+
+      const elFabCount = document.getElementById('mobile-fab-count');
+      if (elFabCount) elFabCount.textContent = count.toLocaleString();
 
       // Max depth
       const depths = AppState.filteredEvents.map(e => e.depth_cm).filter(d => d !== null && !isNaN(d));
@@ -1701,7 +2146,7 @@
 
         // Popup Content
         const popupContent = `
-          <div class="w-80 text-xs font-sans">
+          <div class="w-[280px] sm:w-80 max-w-[85vw] text-xs font-sans">
             <!-- Popup Header -->
             <div class="p-3 bg-slate-900 text-white flex items-center justify-between">
               <div class="flex items-center gap-1.5 font-mono font-bold text-cyan-300">
@@ -1715,7 +2160,7 @@
             ${sameLocSwitcherHtml}
 
             <!-- Popup Body -->
-            <div class="p-3.5 space-y-2.5 bg-white text-slate-700">
+            <div class="p-3 sm:p-3.5 space-y-2.5 bg-white text-slate-700">
               
               <!-- Date & Location -->
               <div class="grid grid-cols-2 gap-2 text-[11px] pb-2 border-b border-slate-100">
@@ -1759,22 +2204,33 @@
                 <div><strong>${dict.popup_source}</strong> ${e.n_articles} articles (${e.n_domains} independent domains)</div>
               </div>
 
-              <!-- Action Link -->
-              ${e.url ? `
-                <div class="pt-1">
+              <!-- Action Link & Inaccuracy Report -->
+              <div class="pt-1 space-y-1.5">
+                ${e.url ? `
                   <a href="${e.url}" target="_blank" rel="noopener noreferrer" 
                     class="w-full py-1.5 px-3 bg-cyan-600 hover:bg-cyan-700 text-white text-center rounded-md font-semibold flex items-center justify-center gap-1.5 transition">
                     <span>${dict.popup_btn}</span>
                     <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                   </a>
+                ` : ''}
+                <div class="pt-1 border-t border-slate-100 flex items-center justify-between text-[10px]">
+                  <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Laporan%20Kejadian%20${e.id}&body=Event%20ID:%20${e.id}%0ALokasi:%20${encodeURIComponent(e.place)}%0ATanggal:%20${e.date_start}%0AJudul%20Berita:%20${encodeURIComponent(e.title || '')}%0ATautan:%20${encodeURIComponent(e.url || '')}%0A%0ACatatan%20(misal%20bukan%20banjir%20rob,%20berita%20demo,%20atau%20proyek%20tanggul):%20" 
+                    class="text-slate-400 hover:text-amber-700 flex items-center gap-1 transition" title="${dict.popup_report_issue}">
+                    <i class="fa-regular fa-flag text-[9px] text-amber-500"></i>
+                    <span>${dict.popup_report_issue}</span>
+                  </a>
+                  <span class="text-slate-300 font-mono text-[9px]">#${e.id}</span>
                 </div>
-              ` : ''}
+              </div>
 
             </div>
           </div>
         `;
 
-        marker.bindPopup(popupContent, { maxWidth: 340 });
+        marker.bindPopup(popupContent, { 
+          maxWidth: Math.min(340, window.innerWidth - 32),
+          autoPanPadding: [16, 70]
+        });
         markers.push(marker);
         AppState.markersById[e.id] = marker;
       });
@@ -1808,6 +2264,9 @@
       if (AppState.currentView !== 'map') {
         switchView('map');
       }
+      if (window.innerWidth < 768) {
+        closeMobileSidebar();
+      }
       const marker = AppState.markersById ? AppState.markersById[eventId] : null;
       const ev = AppState.allEvents.find(e => e.id === eventId);
       if (marker && AppState.markerClusterGroup) {
@@ -1824,6 +2283,9 @@
       if (AppState.currentView !== 'map') {
         switchView('map');
       }
+      if (window.innerWidth < 768) {
+        closeMobileSidebar();
+      }
       AppState.map.setView([lat, lon], zoom, { animate: true });
     }
 
@@ -1836,14 +2298,19 @@
     function switchView(viewName) {
       AppState.currentView = viewName;
 
+      // Auto-close mobile drawer if open
+      if (window.innerWidth < 768) {
+        closeMobileSidebar();
+      }
+
       ['map', 'analytics', 'table'].forEach(v => {
         const btn = document.getElementById(`btn-view-${v}`);
         const viewEl = document.getElementById(`view-${v}`);
         if (v === viewName) {
-          btn.className = "px-3 py-1.5 rounded-md bg-cyan-600 text-white flex items-center gap-1.5 shadow-sm transition";
+          btn.className = "px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md bg-cyan-600 text-white flex items-center gap-1 sm:gap-1.5 shadow-sm transition";
           viewEl.classList.remove('hidden');
         } else {
-          btn.className = "px-3 py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1.5 transition";
+          btn.className = "px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1 sm:gap-1.5 transition";
           viewEl.classList.add('hidden');
         }
       });
@@ -2151,6 +2618,11 @@
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                   </a>
                 ` : ''}
+                <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Laporan%20Kejadian%20${e.id}&body=Event%20ID:%20${e.id}%0ALokasi:%20${encodeURIComponent(e.place)}%0ATanggal:%20${e.date_start}%0AJudul%20Berita:%20${encodeURIComponent(e.title || '')}%0ATautan:%20${encodeURIComponent(e.url || '')}%0A%0ACatatan%20(misal%20bukan%20banjir%20rob,%20berita%20demo,%20atau%20proyek%20tanggul):%20" 
+                  title="${dict.table_report_tooltip}" 
+                  class="inline-block px-2 py-1 bg-slate-100 hover:bg-amber-50 hover:text-amber-700 text-slate-400 rounded transition">
+                  <i class="fa-regular fa-flag"></i>
+                </a>
               </td>
             </tr>
           `;
@@ -2185,6 +2657,16 @@
         else modal.classList.add('hidden');
       }
     }
+
+    // Window Resize Handler for responsive map and mobile drawer reset
+    window.addEventListener('resize', () => {
+      if (AppState.map && AppState.currentView === 'map') {
+        AppState.map.invalidateSize();
+      }
+      if (window.innerWidth >= 768) {
+        closeMobileSidebar();
+      }
+    });
   </script>
 </body>
 </html>
