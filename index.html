@@ -112,7 +112,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=1044.202610152309"></script>
+  <script src="data/events.js?v=956.202610161548"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -209,12 +209,12 @@
       <div class="hidden xl:flex items-center gap-4 px-3 py-1.5 bg-slate-800/80 rounded-lg border border-slate-700/60 text-xs">
         <div class="flex items-center gap-2">
           <span class="text-slate-400" data-i18n="stat_total">Total Events:</span>
-          <span id="stat-total" class="font-bold text-white font-mono text-sm">1,044</span>
+          <span id="stat-total" class="font-bold text-white font-mono text-sm">956</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
           <span class="text-slate-400" data-i18n="stat_active">Active Shown:</span>
-          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-sm">1,044</span>
+          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-sm">956</span>
         </div>
         <div class="h-4 w-px bg-slate-700"></div>
         <div class="flex items-center gap-2">
@@ -386,7 +386,7 @@
           <div class="grid grid-cols-2 gap-1.5" id="region-chips-container">
             <button onclick="setRegionFilter('all')" data-region="all" class="region-chip active px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-cyan-50 border-cyan-500 text-cyan-800 font-medium">
               <span data-i18n="reg_all">All Regions</span>
-              <span id="badge-all-reg" class="text-[10px] px-1.5 py-0.2 bg-white rounded-full font-mono">1044</span>
+              <span id="badge-all-reg" class="text-[10px] px-1.5 py-0.2 bg-white rounded-full font-mono">956</span>
             </button>
             <button onclick="setRegionFilter('java_north')" data-region="java_north" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_java_north">Java North Coast</span>
@@ -509,8 +509,8 @@
             <span id="active-percentage" class="font-mono font-bold">100%</span>
           </div>
           <p class="text-xs text-slate-200" id="filter-summary-text">
-            Showing <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,044</span> of 
-            <span class="font-semibold font-mono">1,044</span> verified events in catalogue.
+            Showing <span id="label-count-active" class="font-bold text-cyan-300 font-mono">956</span> of 
+            <span class="font-semibold font-mono">956</span> verified events in catalogue.
           </p>
         </div>
 
@@ -644,7 +644,7 @@
         <button id="btn-mobile-fab" onclick="toggleMobileSidebar()" class="px-4 py-2 bg-slate-900/90 hover:bg-slate-900 text-white backdrop-blur-md rounded-full border border-slate-700 shadow-2xl text-xs font-bold flex items-center gap-2 active:scale-95 transition">
           <i class="fa-solid fa-sliders text-cyan-400"></i>
           <span data-i18n="filter_title_short">Filters</span>
-          <span id="mobile-fab-count" class="px-1.5 py-0.2 bg-cyan-500 text-slate-950 font-mono text-[10px] font-extrabold rounded-full">1,044</span>
+          <span id="mobile-fab-count" class="px-1.5 py-0.2 bg-cyan-500 text-slate-950 font-mono text-[10px] font-extrabold rounded-full">956</span>
         </button>
       </div>
 
@@ -690,7 +690,7 @@
             <i class="fa-solid fa-sliders text-cyan-600"></i> <span data-i18n="filter_title_short">Filters</span>
           </button>
           <span class="text-xs bg-white px-3 py-1.5 rounded-lg border border-slate-200 font-mono text-slate-600 shadow-sm">
-            <span data-i18n="filtered_data">Filtered Data:</span> <strong id="chart-filter-count" class="text-cyan-600 font-bold">1,044</strong> <span data-i18n="events_unit">events</span>
+            <span data-i18n="filtered_data">Filtered Data:</span> <strong id="chart-filter-count" class="text-cyan-600 font-bold">956</strong> <span data-i18n="events_unit">events</span>
           </span>
         </div>
       </div>
@@ -811,7 +811,7 @@
       <!-- Table Pagination / Footer -->
       <div class="p-2.5 sm:p-3 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
         <div id="table-pagination-info" class="text-[11px] sm:text-xs">
-          Showing rows <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> of <span id="table-total-count" class="font-bold">1,044</span>
+          Showing rows <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> of <span id="table-total-count" class="font-bold">956</span>
         </div>
         <div class="flex items-center gap-1.5 sm:gap-2">
           <button id="btn-page-prev" onclick="changeTablePage(-1)" class="px-2.5 sm:px-3 py-1 bg-white border border-slate-300 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
@@ -1628,7 +1628,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=1044.202610152309')
+        fetch('data/events.json?v=956.202610161548')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();

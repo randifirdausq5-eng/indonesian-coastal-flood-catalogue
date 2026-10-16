@@ -1,5 +1,5 @@
 {
-  "total_events": 1044,
+  "total_events": 956,
   "unique_places": 155,
   "unique_provinces": [
     "Aceh",
@@ -10,7 +10,6 @@
     "DKI Jakarta",
     "Gorontalo",
     "Jambi",
-    "Jawa",
     "Jawa Barat",
     "Jawa Tengah",
     "Jawa Timur",
@@ -42,20 +41,20 @@
     "2026"
   ],
   "tier_counts": {
-    "probable": 684,
-    "possible": 283,
-    "confirmed": 77
+    "probable": 649,
+    "confirmed": 76,
+    "possible": 231
   },
   "region_counts": {
-    "sumatra_east": 111,
-    "java_north": 711,
-    "java_south": 56,
-    "east_indo": 89,
-    "kalimantan": 56,
-    "sumatra_west": 21
+    "sumatra_east": 100,
+    "java_north": 644,
+    "java_south": 54,
+    "east_indo": 86,
+    "kalimantan": 55,
+    "sumatra_west": 17
   },
-  "tide_gauge_matches": 392,
-  "tide_gauge_anomalies": 191,
-  "satellite_sla_matches": 849,
-  "generated_at": "2026-10-15T23:09:47.907911"
+  "tide_gauge_matches": 347,
+  "tide_gauge_anomalies": 161,
+  "satellite_sla_matches": 771,
+  "generated_at": "2026-10-16T15:48:28.586684"
 }
