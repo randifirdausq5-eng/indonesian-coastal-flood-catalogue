@@ -2,13 +2,15 @@
 """
 export_events_json.py
 ---------------------
-Converts the v3c coastal flood catalogue (with coastal-snapped coordinates,
-scientific regional overrides/exclusions, and matched BMKG tide gauge water
-level anomalies) into optimized JSON and JS payloads for the INA-CoastalFlood
-interactive web dashboard.
+Converts a coastal flood catalogue (rob_events_<cat>.csv, default v4; with
+coastal-snapped coordinates, scientific regional overrides/exclusions, and
+matched BMKG tide gauge water level anomalies) into optimized JSON and JS
+payloads for the INA-CoastalFlood interactive web dashboard.
 
 Features:
-  - Reads data/processed/rob_events_v3c.csv and data/processed/rob_places_latlon.csv
+  - Reads data/processed/rob_events_<cat>.csv and data/processed/rob_places_latlon.csv
+  - Reads station and satellite values from that catalogue's own tables
+    (rob_tg_match_<cat>.csv, rob_contrib_<cat>.csv, rob_events_with_bands_<cat>.csv), keyed by event_id
   - Applies scientific filters from src.regions (drop_excluded, apply_event_overrides, apply_region_overrides)
   - Matches nearest BMKG tide station and computes peak water level anomaly (anom_obs_cm, wl_m, pct)
   - Exports clean, structured data/events.json for web fetch
@@ -29,6 +31,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from src import catalogue
+
 try:
     from src.regions import drop_excluded, apply_event_overrides, apply_region_overrides
     HAS_REGIONS_MODULE = True
@@ -37,36 +41,29 @@ except ImportError:
     print("Notice: src.regions module not found, continuing without custom overrides.")
 
 
-def load_id_map(repo_root: Path) -> dict:
-    """Load v3c to v4 event ID mapping."""
-    map_file = repo_root / "data/processed/event_id_map_v4.csv"
-    if map_file.is_file():
-        df_map = pd.read_csv(map_file)
-        valid = df_map[df_map['event_id_v4'].notna() & (df_map['event_id_v4'] != '')]
-        return dict(zip(valid['event_id_v3c'], valid['event_id_v4']))
-    return {}
+# @@AI@@ 2026-10-16 (Randi): station and satellite values are read from the tables of the catalogue named by the
+# events file (rob_tg_match_<cat>.csv, rob_contrib_<cat>.csv, rob_events_with_bands_<cat>.csv; names as in
+# src/catalogue.py), keyed directly by that catalogue's event_id. The old path read the v3c tables and translated ids
+# through data/processed/event_id_map_v4.csv, which went stale whenever v4 was rebuilt and its ids renumbered.
+def _catalogue_table(template: str, cat: str):
+    """Read data/processed/<template with cat filled in>; None, with a warning, if the table is absent."""
+    path = catalogue.PROC / template.format(cat=cat)
+    if not path.is_file():
+        print(f"      Warning: {path.name} not found; these fields stay empty for catalogue {cat}.")
+        return None
+    return pd.read_csv(path, dtype={'event_id': str})
 
 
-def load_tidegauge_data(repo_root: Path, is_v4: bool = False) -> dict:
+def load_tidegauge_data(repo_root: Path, cat: str) -> dict:
     """Load nearest BMKG tide station matches and calculate water level anomalies."""
-    tg_match_file = repo_root / "data/processed/rob_tg_match_v3c.csv"
-    contrib_file = repo_root / "data/processed/rob_contrib_v3c.csv"
     daily_pct_file = repo_root / "data/raw/tidegauge/restricted/tg_daily_pct_local.parquet"
-
-    v3c_to_v4 = load_id_map(repo_root) if is_v4 else {}
+    df_match = _catalogue_table("rob_tg_match_{cat}.csv", cat)
+    df_contrib = _catalogue_table("rob_contrib_{cat}.csv", cat)
     tg_data = {}
 
-    if tg_match_file.is_file():
-        df_match = pd.read_csv(tg_match_file)
+    if df_match is not None:
         for _, r in df_match.iterrows():
-            orig_id = str(r['event_id'])
-            if is_v4:
-                if orig_id not in v3c_to_v4:
-                    continue
-                ev_id = v3c_to_v4[orig_id]
-            else:
-                ev_id = orig_id
-            tg_data[ev_id] = {
+            tg_data[r['event_id']] = {
                 'station': str(r['station']),
                 'dist_km': round(float(r['dist_km']), 1),
                 'pct': round(float(r['pct_max']), 1) if pd.notna(r['pct_max']) else None,
@@ -74,28 +71,17 @@ def load_tidegauge_data(repo_root: Path, is_v4: bool = False) -> dict:
                 'wl_m': None
             }
 
-    if contrib_file.is_file():
-        df_contrib = pd.read_csv(contrib_file)
+    if df_contrib is not None:
         for _, r in df_contrib.iterrows():
-            orig_id = str(r['event_id'])
-            if is_v4:
-                if orig_id not in v3c_to_v4:
-                    continue
-                ev_id = v3c_to_v4[orig_id]
-            else:
-                ev_id = orig_id
+            ev_id = r['event_id']
             if ev_id in tg_data:
                 if pd.notna(r['anom_obs_cm']):
                     tg_data[ev_id]['anom_cm'] = round(float(r['anom_obs_cm']), 1)
                 if pd.notna(r['wl_obs_m']):
                     tg_data[ev_id]['wl_m'] = round(float(r['wl_obs_m']), 2)
 
-    if daily_pct_file.is_file() and tg_match_file.is_file():
-        df_match = pd.read_csv(tg_match_file)
-        if is_v4:
-            df_match['matched_id'] = df_match['event_id'].map(v3c_to_v4)
-        else:
-            df_match['matched_id'] = df_match['event_id']
+    if daily_pct_file.is_file() and df_match is not None:
+        start_by_id = df_match.set_index('event_id')['date_start']
         df_pct = pd.read_parquet(daily_pct_file)
         df_pct['date'] = pd.to_datetime(df_pct['date'])
         df_pct['doy'] = df_pct['date'].dt.dayofyear
@@ -103,10 +89,7 @@ def load_tidegauge_data(repo_root: Path, is_v4: bool = False) -> dict:
         for ev_id, info in tg_data.items():
             if info['anom_cm'] is not None:
                 continue
-            ev_matches = df_match[df_match['matched_id'] == ev_id]
-            if len(ev_matches) == 0:
-                continue
-            ev_date = pd.to_datetime(ev_matches['date_start'].iloc[0])
+            ev_date = pd.to_datetime(start_by_id[ev_id])
             stn = info['station']
             stn_df = df_pct[df_pct['station'] == stn]
             ev_row = stn_df[stn_df['date'] == ev_date]
@@ -137,21 +120,13 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return round(float(R * c), 1)
 
 
-def load_satellite_data(repo_root: Path, is_v4: bool = False) -> dict:
+def load_satellite_data(repo_root: Path, cat: str) -> dict:
     """Load nearest ocean pixel satellite sea level anomaly and decomposed bands."""
-    bands_file = repo_root / "data/processed/rob_events_with_bands_v3c.csv"
-    v3c_to_v4 = load_id_map(repo_root) if is_v4 else {}
+    df_bands = _catalogue_table("rob_events_with_bands_{cat}.csv", cat)
     sat_data = {}
-    if bands_file.is_file():
-        df_bands = pd.read_csv(bands_file)
+    if df_bands is not None:
         for _, r in df_bands.iterrows():
-            orig_id = str(r['event_id'])
-            if is_v4:
-                if orig_id not in v3c_to_v4:
-                    continue
-                ev_id = v3c_to_v4[orig_id]
-            else:
-                ev_id = orig_id
+            ev_id = r['event_id']
             sla_cm = round(float(r['detrended_sla_cm']), 1) if pd.notna(r['detrended_sla_cm']) else None
             seas_cm = round(float(r['seasonal_cm']), 1) if pd.notna(r['seasonal_cm']) else None
             intra_cm = round(float(r['intraseasonal_cm']), 1) if pd.notna(r['intraseasonal_cm']) else None
@@ -180,26 +155,16 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
     df_events = pd.read_csv(events_csv)
     raw_count = len(df_events)
 
-    is_v4 = "v4" in events_csv.name
-    v3c_to_v4 = load_id_map(REPO_ROOT) if is_v4 else {}
-
-    # Apply scientific overrides & exclusions if available
-    if is_v4:
-        print("[2/5] Processing v4 verified coastal flood events...")
-        # v4 already has false positives cleaned. Apply event place overrides if applicable.
-        ov_file = REPO_ROOT / "data/processed/rob_event_place_overrides.csv"
-        if ov_file.is_file():
-            ov = pd.read_csv(ov_file)
-            ov['event_id_v4'] = ov['event_id'].map(v3c_to_v4)
-            ov = ov.dropna(subset=['event_id_v4']).set_index('event_id_v4')
-            m = df_events['event_id'].isin(ov.index)
-            for c in ('place', 'province', 'region'):
-                if c in df_events.columns:
-                    df_events.loc[m, c] = df_events.loc[m, 'event_id'].map(ov[c]).to_numpy()
-        if HAS_REGIONS_MODULE:
-            df_events = apply_region_overrides(df_events)
-        print(f"      Total {len(df_events)} events retained.")
-    elif HAS_REGIONS_MODULE and apply_exclusions:
+    # @@AI@@ 2026-10-16 (Randi): the same corrections as every Ch5 analysis, for any catalogue. src.regions matches
+    # exclusions and place overrides by article URL to the catalogue named by the events file (rob_events_<cat>.csv),
+    # so the v3c-to-v4 id map is no longer needed here; the v3c exclusions that still apply to v4 events are applied.
+    import os, re as _re
+    _m = _re.match(r"rob_events_(.+)\.csv$", events_csv.name)
+    if _m:
+        os.environ["ROB_CATALOGUE"] = _m.group(1)
+    cat = catalogue.name()
+    print(f"      Catalogue: {cat} (station and satellite values from rob_*_{cat}.csv)")
+    if HAS_REGIONS_MODULE and apply_exclusions:
         print("[2/5] Applying scientific exclusions & place/region overrides from src.regions...")
         df_events = drop_excluded(df_events)
         print(f"      Filtered {raw_count} raw events down to {len(df_events)} verified coastal flood events.")
@@ -256,14 +221,14 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
 
     # Load tide gauge observations
     print("[4/6] Matching nearest BMKG tide gauge water level anomalies...")
-    tg_data = load_tidegauge_data(REPO_ROOT, is_v4=is_v4)
+    tg_data = load_tidegauge_data(REPO_ROOT, cat)
     matched_tg_count = sum(1 for e in merged['event_id'] if e in tg_data)
     with_anom_count = sum(1 for e in merged['event_id'] if e in tg_data and tg_data[e]['anom_cm'] is not None)
     print(f"      Matched {matched_tg_count} events to nearest tide station ({with_anom_count} with active water level anomalies).")
 
     # Load satellite sea level altimetry
     print("[5/6] Matching nearest satellite altimetry sea level anomalies (C3S)...")
-    sat_data = load_satellite_data(REPO_ROOT, is_v4=is_v4)
+    sat_data = load_satellite_data(REPO_ROOT, cat)
     matched_sat_count = sum(1 for e in merged['event_id'] if e in sat_data and sat_data[e]['sla_cm'] is not None)
     print(f"      Matched {matched_sat_count} events to nearest satellite ocean grid pixels.")
 
@@ -403,8 +368,7 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
 
     js_path = out_dir / "events.js"
     with open(js_path, 'w', encoding='utf-8') as f:
-        version_label = "v4" if is_v4 else "v3c"
-        f.write(f"// INA-CoastalFlood: Indonesian Coastal Flood Catalogue Dataset ({version_label})\n")
+        f.write(f"// INA-CoastalFlood: Indonesian Coastal Flood Catalogue Dataset ({cat})\n")
         f.write("// Loaded automatically when accessed via file:// without webserver\n")
         f.write("window.ROB_EVENTS = ")
         json.dump(records, f, separators=(',', ':'), ensure_ascii=False)
