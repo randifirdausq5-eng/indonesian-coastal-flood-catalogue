@@ -124,7 +124,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=951.202610191509"></script>
+  <script src="data/events.js?v=951.202610191913"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -389,7 +389,48 @@
 
         <div class="h-px bg-slate-200"></div>
 
-        <!-- 2. Coastal Region & Province -->
+        <!-- 2. Parameters (Hazard Type, Water Depth & Audit QC) -->
+        <div class="space-y-2">
+          <label class="font-semibold text-slate-700 flex items-center justify-between">
+            <span><i class="fa-solid fa-ruler-vertical text-cyan-600 mr-1.5"></i> <span data-i18n="specific_parameters">Parameters</span></span>
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="hazard_type">Hazard Type</label>
+              <select id="filter-hazard" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
+                <option value="rob" data-i18n="hazard_rob" selected>Tidal Flood (Rob)</option>
+                <option value="all" data-i18n="hazard_all">All Hazards</option>
+                <option value="high_wave" data-i18n="hazard_high_wave">High Wave / Swell</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="depth_filter">Water Depth</label>
+              <select id="filter-depth" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
+                <option value="all" data-i18n="depth_all">All Events</option>
+                <option value="reported" data-i18n="depth_reported">Depth Reported (cm)</option>
+                <option value="50">≥ 50 cm</option>
+                <option value="100">≥ 100 cm (Extreme)</option>
+              </select>
+            </div>
+          </div>
+          <!-- Audit QC Filter -->
+          <div class="pt-1">
+            <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1 flex items-center justify-between">
+              <span><i class="fa-solid fa-clipboard-check text-cyan-600 mr-1"></i> <span data-i18n="audit_filter_label">Audit / QC Filter</span></span>
+            </label>
+            <select id="filter-audit" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700 text-xs">
+              <option value="all">Semua Kejadian (All Events)</option>
+              <option value="unverified">⏳ Belum Ditinjau (Sisa Kurasi)</option>
+              <option value="verified">✅ Sudah Diverifikasi (Confirmed/Probable/Possible)</option>
+              <option value="flagged">🚫 Ditandai Bukan Rob / Inaccurate</option>
+              <option value="unflagged">🌊 Rob Bersih (Sembunyikan Bukan Rob)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="h-px bg-slate-200"></div>
+
+        <!-- 3. Coastal Region & Province -->
         <div class="space-y-2.5">
           <label class="font-semibold text-slate-700 flex items-center justify-between">
             <span><i class="fa-solid fa-map-location-dot text-cyan-600 mr-1.5"></i> <span data-i18n="coastal_region">Coastal Region</span></span>
@@ -437,7 +478,7 @@
 
         <div class="h-px bg-slate-200"></div>
 
-        <!-- 3. Confidence Tier -->
+        <!-- 4. Confidence Tier -->
         <div class="space-y-2">
           <label class="font-semibold text-slate-700 flex items-center justify-between">
             <span><i class="fa-solid fa-shield-halved text-cyan-600 mr-1.5"></i> <span data-i18n="confidence_tier">Confidence Tier</span></span>
@@ -465,47 +506,6 @@
               </div>
               <span id="count-tier-possible" class="font-mono text-[11px] font-bold text-slate-600 bg-slate-200 px-1.5 py-0.2 rounded">334</span>
             </label>
-          </div>
-        </div>
-
-        <div class="h-px bg-slate-200"></div>
-
-        <!-- 4. Hazard & Inundation Depth Filter -->
-        <div class="space-y-2">
-          <label class="font-semibold text-slate-700 flex items-center justify-between">
-            <span><i class="fa-solid fa-ruler-vertical text-cyan-600 mr-1.5"></i> <span data-i18n="specific_parameters">Parameters</span></span>
-          </label>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="hazard_type">Hazard Type</label>
-              <select id="filter-hazard" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
-                <option value="rob" data-i18n="hazard_rob" selected>Tidal Flood (Rob)</option>
-                <option value="all" data-i18n="hazard_all">All Hazards</option>
-                <option value="high_wave" data-i18n="hazard_high_wave">High Wave / Swell</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="depth_filter">Water Depth</label>
-              <select id="filter-depth" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
-                <option value="all" data-i18n="depth_all">All Events</option>
-                <option value="reported" data-i18n="depth_reported">Depth Reported (cm)</option>
-                <option value="50">≥ 50 cm</option>
-                <option value="100">≥ 100 cm (Extreme)</option>
-              </select>
-            </div>
-          </div>
-          <!-- Audit QC Filter -->
-          <div class="pt-1">
-            <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1 flex items-center justify-between">
-              <span><i class="fa-solid fa-clipboard-check text-cyan-600 mr-1"></i> <span data-i18n="audit_filter_label">Audit / QC Filter</span></span>
-            </label>
-            <select id="filter-audit" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700 text-xs">
-              <option value="all">Semua Kejadian (All Events)</option>
-              <option value="unverified">⏳ Belum Ditinjau (Sisa Kurasi)</option>
-              <option value="verified">✅ Sudah Diverifikasi (Confirmed/Probable/Possible)</option>
-              <option value="flagged">🚫 Ditandai Bukan Rob / Inaccurate</option>
-              <option value="unflagged">🌊 Rob Bersih (Sembunyikan Bukan Rob)</option>
-            </select>
           </div>
         </div>
 
@@ -617,7 +617,7 @@
       </div>
 
       <!-- Floating Report Inaccuracy Notice Card (Bottom Right, directly above Zoom in/out buttons) -->
-      <div id="map-report-card" class="absolute bottom-[92px] sm:bottom-[96px] right-2.5 sm:right-3 z-20 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-amber-200/90 text-xs max-w-[250px] sm:max-w-[270px] pointer-events-auto transition-all">
+      <div id="map-report-card" class="absolute bottom-[92px] sm:bottom-[96px] right-2.5 sm:right-3 z-20 bg-white/95 backdrop-blur-md rounded-xl shadow-xl border border-amber-200/90 text-xs max-w-[260px] sm:max-w-[285px] pointer-events-auto transition-all">
         <div onclick="toggleMapReportCard()" class="p-2 sm:p-2.5 font-bold text-slate-800 text-[11px] flex items-center justify-between cursor-pointer hover:bg-amber-50/50 rounded-xl transition select-none">
           <div class="flex items-center gap-1.5 text-amber-900">
             <i class="fa-solid fa-triangle-exclamation text-amber-500 text-xs"></i>
@@ -627,7 +627,7 @@
         </div>
         <div id="map-report-body" class="px-2.5 sm:px-3 pb-2.5 sm:pb-3 space-y-1.5 text-[10.5px] border-t border-amber-100/80 pt-1.5">
           <p class="text-slate-600 leading-tight" data-i18n="map_report_desc">
-            Menemukan berita yang bukan banjir rob (seperti demo rob atau rencana proyek tanggul)? Tolong laporkan ke:
+            Menemukan berita yang tidak akurat / bukan banjir rob (seperti demo rob atau rencana proyek tanggul)? Silakan tandai langsung (please mark) pada menu popup kejadian di peta, atau kirim email ke:
           </p>
           <div class="space-y-1 font-mono text-[10px]">
             <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Laporan%20Koreksi%20Berita" class="text-cyan-700 hover:text-cyan-900 font-semibold flex items-center gap-1.5 truncate hover:underline">
@@ -1093,11 +1093,11 @@
         btn_about: "About INA-CoastalFlood",
         nav_report: "Report Issue",
         map_report_title: "Report Inaccurate News",
-        map_report_desc: "Found an archived report that isn't tidal flooding (e.g. protests about flooding or seawall plans without actual flood)? Report to:",
+        map_report_desc: "Found an inaccurate or non-flood report (such as protests about flooding or seawall plans)? Please mark it directly in the event popup menu on the map, or send an email to:",
         sidebar_report_title: "Report Inaccurate News",
-        sidebar_report_desc: "Found an event that isn't tidal flooding (e.g. protests about flooding or seawall plans without actual flood)? Report to:",
+        sidebar_report_desc: "Found an inaccurate or non-flood event? Please mark it directly in the popup menu or send an email to:",
         table_title: "Coastal Flood Catalogue Records",
-        table_subtitle: "Comprehensive event-level records with direct links to verified news sources. Notice a non-flood article? Report to author.",
+        table_subtitle: "Comprehensive event-level records with direct links to verified news sources. Notice an inaccurate article? Mark it directly on the map or report via email.",
         table_swipe_hint: "Swipe horizontally to view full columns →",
         th_date: "Start Date",
         th_place: "Location",
@@ -1219,11 +1219,11 @@
         btn_about: "Tentang INA-CoastalFlood",
         nav_report: "Laporkan Berita",
         map_report_title: "Laporkan Berita Bukan Rob",
-        map_report_desc: "Menemukan berita yang bukan banjir rob (seperti demo rob atau rencana proyek tanggul)? Tolong laporkan ke:",
+        map_report_desc: "Menemukan berita yang tidak akurat / bukan banjir rob (seperti demo rob atau rencana proyek tanggul)? Silakan tandai langsung (please mark) pada menu popup kejadian di peta, atau kirim email ke:",
         sidebar_report_title: "Laporkan Berita Keliru",
-        sidebar_report_desc: "Menemukan berita yang bukan banjir rob (seperti demo rob atau rencana proyek tanggul)? Laporkan ke:",
+        sidebar_report_desc: "Menemukan berita keliru atau bukan rob? Silakan tandai langsung di menu popup kejadian di peta, atau kirim email ke:",
         table_title: "Tabel Data Katalog Banjir Rob",
-        table_subtitle: "Daftar lengkap record kejadian terverifikasi dengan tautan berita. Menemukan berita bukan rob? Laporkan ke peneliti.",
+        table_subtitle: "Daftar lengkap record kejadian terverifikasi dengan tautan berita. Menemukan berita bukan rob? Tandai langsung di peta atau laporkan via email.",
         table_swipe_hint: "Geser horizontal untuk melihat rincian tabel →",
         th_date: "Tanggal Mulai",
         th_place: "Lokasi",
@@ -1395,7 +1395,7 @@
               INA-CoastalFlood is curated through automated NLP web-mining. While multi-tiered filters are applied, articles that do not report an actual coastal flood event (such as citizen protests or demonstrations regarding flooding, government policy debates, or seawall/breakwater construction plans without actual flood inundation) may occasionally be captured.
             </p>
             <p class="text-amber-900 text-[11px] leading-relaxed">
-              If you identify an archived news report that is inaccurate or not an actual coastal flood event, please help us refine the dataset by reporting the <strong>Event ID</strong> and link to:
+              If you identify an archived news report that is inaccurate or not an actual coastal flood event, please mark it directly in the event popup menu on the map (click any event marker and use the <strong>Bukan Rob</strong> button), or report the <strong>Event ID</strong> and link via email to:
             </p>
             <div class="pt-1 flex flex-wrap gap-2 text-[11px] font-mono">
               <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Data%20Correction" class="px-2.5 py-1 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg text-amber-950 font-semibold flex items-center gap-1.5 transition shadow-2xs">
@@ -1454,7 +1454,7 @@
               Katalog INA-CoastalFlood dikurasi secara semi-otomatis melalui penelusuran web berita dan klasifikasi NLP. Meskipun filter bertingkat telah diterapkan, artikel yang bukan kejadian banjir rob nyata (misalnya berita aksi unjuk rasa/demo warga menuntut penanganan rob, perdebatan kebijakan, atau rencana pembangunan tanggul/proyek infrastruktur tanpa adanya genangan fisik) terkadang dapat lolos.
             </p>
             <p class="text-amber-900 text-[11px] leading-relaxed">
-              Jika Anda menemukan artikel atau data yang tidak tepat atau bukan kejadian rob sesungguhnya, mohon bantu laporkan <strong>ID Kejadian</strong> dan tautan beritanya ke:
+              Jika Anda menemukan artikel atau data yang tidak tepat atau bukan kejadian rob sesungguhnya, silakan tandai langsung (please mark) pada menu popup kejadian di peta (klik titik kejadian lalu pilih tombol <strong>Bukan Rob</strong>), atau laporkan <strong>ID Kejadian</strong> dan tautannya via email ke:
             </p>
             <div class="pt-1 flex flex-wrap gap-2 text-[11px] font-mono">
               <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Laporan%20Koreksi%20Data" class="px-2.5 py-1 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg text-amber-950 font-semibold flex items-center gap-1.5 transition shadow-2xs">
@@ -1639,7 +1639,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=951.202610191509')
+        fetch('data/events.json?v=951.202610191913')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
