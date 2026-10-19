@@ -166,7 +166,7 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
     print(f"      Catalogue: {cat} (station and satellite values from rob_*_{cat}.csv)")
     if HAS_REGIONS_MODULE and apply_exclusions:
         print("[2/5] Applying scientific exclusions & place/region overrides from src.regions...")
-        df_events = drop_excluded(df_events)
+        df_events = drop_excluded(df_events, all_hazards=True)   # @@AI@@ 2026-10-19: web shows every hazard
         print(f"      Filtered {raw_count} raw events down to {len(df_events)} verified coastal flood events.")
     elif HAS_REGIONS_MODULE:
         df_events = apply_region_overrides(apply_event_overrides(df_events))
@@ -480,6 +480,10 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
     for r in records:
         region_counts[r['region']] = region_counts.get(r['region'], 0) + 1
 
+    hazard_counts = {}
+    for r in records:
+        hazard_counts[r.get('hazard', 'rob')] = hazard_counts.get(r.get('hazard', 'rob'), 0) + 1
+
     summary = {
         'total_events': total_events,
         'unique_places': unique_places,
@@ -487,6 +491,7 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         'year_range': [unique_years[0], unique_years[-1]] if unique_years else [],
         'tier_counts': tier_counts,
         'region_counts': region_counts,
+        'hazard_counts': hazard_counts,
         'tide_gauge_matches': matched_tg_count,
         'tide_gauge_anomalies': with_anom_count,
         'satellite_sla_matches': matched_sat_count,
@@ -514,39 +519,42 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
     print(f"      Wrote summary metadata to {summary_path}")
 
     # [7/7] Update index.html static placeholders & cache-buster tags if present
+    rob_events = hazard_counts.get('rob', total_events)
     for candidate_index in [out_dir.parent / "index.html", Path("/Users/randifirdaus/Documents/indonesian-coastal-flood-catalogue/index.html")]:
         if candidate_index.is_file():
             try:
-                update_index_html(candidate_index, total_events)
+                update_index_html(candidate_index, total_events, rob_events)
             except Exception as e:
                 print(f"      Notice: Could not update {candidate_index.name}: {e}")
 
     return records, summary
 
 
-def update_index_html(index_path: Path, total_events: int):
+def update_index_html(index_path: Path, total_events: int, rob_events: int = None):
     """Automatically update index.html static placeholder counts and cache-busting version params."""
     import re
     content = index_path.read_text(encoding='utf-8')
     v_tag = f"{total_events}.{pd.Timestamp.now().strftime('%Y%m%d%H%M')}"
     total_fmt = f"{total_events:,}"
+    default_events = rob_events if rob_events is not None else total_events
+    default_fmt = f"{default_events:,}"
 
     # Update cache-busting params for events.js and events.json
     content = re.sub(r'data/events\.js\?v=[^"\'\s>]+', f'data/events.js?v={v_tag}', content)
     content = re.sub(r'data/events\.json\?v=[^"\'\s>]+', f'data/events.json?v={v_tag}', content)
 
-    # Update static badge/stat placeholders
-    content = re.sub(r'(id="stat-total"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_fmt}\g<2>', content)
-    content = re.sub(r'(id="stat-filtered"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_fmt}\g<2>', content)
-    content = re.sub(r'(id="badge-all-reg"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_events}\g<2>', content)
-    content = re.sub(r'(id="label-count-active"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_fmt}\g<2>', content)
-    content = re.sub(r'(id="mobile-fab-count"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_fmt}\g<2>', content)
-    content = re.sub(r'(id="chart-filter-count"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_fmt}\g<2>', content)
-    content = re.sub(r'(id="table-total-count"[^>]*>)[0-9,]+(<)', rf'\g<1>{total_fmt}\g<2>', content)
-    content = re.sub(r'(<span class="font-semibold font-mono">)[0-9,]+(</span> verified events)', rf'\g<1>{total_fmt}\g<2>', content)
+    # Update static badge/stat placeholders (defaulting to rob count for initial load)
+    content = re.sub(r'(id="stat-total"[^>]*>)[0-9,]+(<)', rf'\g<1>{default_fmt}\g<2>', content)
+    content = re.sub(r'(id="stat-filtered"[^>]*>)[0-9,]+(<)', rf'\g<1>{default_fmt}\g<2>', content)
+    content = re.sub(r'(id="badge-all-reg"[^>]*>)[0-9,]+(<)', rf'\g<1>{default_events}\g<2>', content)
+    content = re.sub(r'(id="label-count-active"[^>]*>)[0-9,]+(<)', rf'\g<1>{default_fmt}\g<2>', content)
+    content = re.sub(r'(id="mobile-fab-count"[^>]*>)[0-9,]+(<)', rf'\g<1>{default_fmt}\g<2>', content)
+    content = re.sub(r'(id="chart-filter-count"[^>]*>)[0-9,]+(<)', rf'\g<1>{default_fmt}\g<2>', content)
+    content = re.sub(r'(id="table-total-count"[^>]*>)[0-9,]+(<)', rf'\g<1>{default_fmt}\g<2>', content)
+    content = re.sub(r'(<span class="font-semibold font-mono">)[0-9,]+(</span> verified events)', rf'\g<1>{default_fmt}\g<2>', content)
 
     index_path.write_text(content, encoding='utf-8')
-    print(f"      Updated {index_path.name} with total={total_fmt} and v={v_tag}")
+    print(f"      Updated {index_path.name} with default={default_fmt} (total={total_fmt}) and v={v_tag}")
 
 
 

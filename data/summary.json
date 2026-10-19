@@ -53,8 +53,12 @@
     "kalimantan": 54,
     "sumatra_west": 17
   },
-  "tide_gauge_matches": 372,
-  "tide_gauge_anomalies": 176,
-  "satellite_sla_matches": 821,
-  "generated_at": "2026-10-19T14:41:23.045491"
+  "hazard_counts": {
+    "rob": 909,
+    "high_wave": 42
+  },
+  "tide_gauge_matches": 359,
+  "tide_gauge_anomalies": 171,
+  "satellite_sla_matches": 788,
+  "generated_at": "2026-10-19T15:09:15.561237"
 }
