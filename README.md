@@ -10,7 +10,7 @@
 Aplikasi web ini menyajikan visualisasi spasial interaktif, penelusuran, dan dasbor analitik kejadian banjir rob pesisir (*coastal flooding*) di seluruh kepulauan Indonesia dari periode November 2015 hingga 2026.
 
 Proyek ini terisolasi di dalam folder `tools/web_catalogue/` untuk:
-1. Membaca langsung data katalog beku disertasi (`data/processed/rob_events_v3c.csv`) dan koordinat pesisir (`data/processed/rob_places_latlon.csv`).
+1. Membaca langsung data katalog yang ditentukan di `config.yaml` (`rob.catalogue`, saat ini v4: `data/processed/rob_events_<cat>.csv`) dan koordinat pesisir (`data/processed/rob_places_latlon.csv`).
 2. Memanfaatkan modul ilmiah `src.regions` untuk menyaring false-positives (`drop_excluded`), koreksi penamaan tempat (`rob_event_place_overrides.csv`), dan batasan regional pesisir (*Pantura Jawa, Jawa Selatan, Sumatera Timur, Sumatera Barat, Kalimantan, Indonesia Timur*).
 3. Menjadi basis kode mandiri yang dapat di-push ke repositori GitHub terpisah untuk hosting **GitHub Pages** dan otomatisasi **GitHub Actions**.
 
@@ -19,7 +19,7 @@ Proyek ini terisolasi di dalam folder `tools/web_catalogue/` untuk:
 ## 🚀 2. Fitur Utama
 
 - **🗺️ Interactive National Map (Leaflet.js & MarkerCluster)**:
-  - Sebaran 1,219 titik kejadian banjir rob pesisir terverifikasi.
+  - Sebaran titik kejadian banjir rob pesisir terverifikasi dari katalog aktif.
   - Marker clustering dinamis dengan pin berwarna sesuai *Confidence Tier* (Confirmed = Hijau Zamrud, Probable = Kuning Amber, Possible = Biru Slate).
   - Popup kaya informasi: Tanggal, durasi hari, nama lokasi pesisir, kabupaten, provinsi, wilayah oseanografi, estimasi tinggi genangan (cm), kutipan judul berita, jumlah media sumber, dan tombol langsung **"Buka Sumber Berita Asli ↗"**.
   - Pilihan basemap: *CartoDB Positron* (Terang), *Esri World Imagery* (Citra Satelit), dan *CartoDB Dark Matter* (Gelap).
@@ -61,7 +61,7 @@ tools/web_catalogue/
 │   ├── events.js                  # Dataset JavaScript bundle (window.ROB_EVENTS)
 │   └── summary.json               # Metadata ringkasan dan statistik agregat
 └── scripts/
-    └── export_events_json.py      # Skrip konversi dari data/processed/rob_events_v3c.csv
+    └── export_events_json.py      # Skrip konversi dari katalog aktif (config.yaml rob.catalogue, saat ini v4)
 ```
 
 ---
@@ -84,7 +84,7 @@ Lalu buka peramban ke:
 
 ---
 
-## 🔄 5. Memperbarui Data dari Katalog v3c
+## 🔄 5. Memperbarui Data dari Katalog Riset (config.yaml rob.catalogue)
 
 Untuk mengenerate ulang `events.json` dan `events.js` dari katalog riset:
 ```bash

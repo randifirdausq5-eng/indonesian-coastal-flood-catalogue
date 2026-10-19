@@ -257,24 +257,124 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         'high_wave': 'Gelombang Pasang'
     }
 
-    # Load existing manual audit flags if available
-    audit_file = REPO_ROOT / "data/processed/rob_flagged_audit.csv"
+    # Load screened article table for rich per-event article list
+    print("[6/7] Loading screened article table for full headline and source mapping...")
+    art_path = catalogue.articles_path()
+    articles_by_url = {}
+    if art_path.is_file():
+        df_art = pd.read_csv(art_path, usecols=['link', 'title', 'published_date', 'domain']).drop_duplicates(subset=['link'])
+        for _, ar in df_art.iterrows():
+            u = str(ar['link']).strip()
+            articles_by_url[u] = {
+                'title': str(ar['title']).strip('"\' ') if pd.notna(ar['title']) else '',
+                'url': u,
+                'date': str(ar['published_date']).strip() if pd.notna(ar['published_date']) else '',
+                'domain': str(ar['domain']).strip() if pd.notna(ar['domain']) else ''
+            }
+        print(f"      Loaded {len(articles_by_url)} unique article records from {art_path.name}")
+    else:
+        print(f"      Warning: Articles file not found at {art_path}")
+
+    # Load manual audit flags & QC verified tiers from data/processed/dashboard_audit_*.csv
+    print("[7/7] Loading manual audit review flags from data/processed/dashboard_audit_*.csv...")
+    audit_files = sorted(list((REPO_ROOT / "data/processed").glob("dashboard_audit_*.csv")) +
+                         list((REPO_ROOT / "data/processed").glob("rob_inaccurate_audit_*.csv")))
+    # Deduplicate while preserving order
+    seen_files = set()
+    dedup_audit_files = []
+    for f in audit_files:
+        if f.name not in seen_files:
+            seen_files.add(f.name)
+            dedup_audit_files.append(f)
+    audit_files = dedup_audit_files
+
+    # Build event lookups: url -> ev_id and (date_start, place_clean) -> ev_id
+    url_to_ev_id = {}
+    dp_to_ev_id = {}
+    for _, ev in merged.iterrows():
+        eid = str(ev['event_id'])
+        u_list = str(ev['urls']).split() if pd.notna(ev['urls']) else []
+        for u in u_list:
+            url_to_ev_id[u] = eid
+        pl_key = (str(ev['date_start']).strip(), str(ev['place']).strip().lower())
+        dp_to_ev_id[pl_key] = eid
+
     audit_flags = {}
-    if audit_file.is_file():
+    matched_by_url = 0
+    matched_by_dp = 0
+    unmatched_audit_rows = []
+
+    for af in audit_files:
         try:
-            df_audit = pd.read_csv(audit_file)
-            for _, ar in df_audit.iterrows():
-                aid = str(ar['event_id']).strip()
-                audit_flags[aid] = {
-                    'flagged_inaccurate': True,
-                    'flag_reason': str(ar.get('flag_reason', '')).strip() if pd.notna(ar.get('flag_reason')) else '',
-                    'flagged_at': str(ar.get('flagged_at', '')).strip() if pd.notna(ar.get('flagged_at')) else ''
+            df_a = pd.read_csv(af)
+            for _, ar in df_a.iterrows():
+                u = str(ar.get('url', '')).strip() if pd.notna(ar.get('url')) else ''
+                dt = str(ar.get('date_start', '')).strip() if pd.notna(ar.get('date_start')) else ''
+                pl = str(ar.get('place', '')).strip().lower() if pd.notna(ar.get('place')) else ''
+                orig_eid = str(ar.get('event_id', '')).strip() if pd.notna(ar.get('event_id')) else ''
+
+                ev_id = None
+                match_type = None
+
+                if u and u in url_to_ev_id:
+                    ev_id = url_to_ev_id[u]
+                    match_type = 'url'
+                elif (dt, pl) in dp_to_ev_id:
+                    ev_id = dp_to_ev_id[(dt, pl)]
+                    match_type = 'date_place'
+
+                if not ev_id:
+                    unmatched_audit_rows.append((orig_eid, pl, dt, u, af.name))
+                    continue
+
+                if match_type == 'url':
+                    matched_by_url += 1
+                else:
+                    matched_by_dp += 1
+
+                # Parse verified tier & audit reason
+                raw_v_tier = str(ar.get('verified_tier', '')).strip().lower() if pd.notna(ar.get('verified_tier')) else ''
+                raw_status = str(ar.get('audit_status', '')).strip().upper() if pd.notna(ar.get('audit_status')) else ''
+                raw_reason = str(ar.get('audit_reason') if pd.notna(ar.get('audit_reason')) else (ar.get('flag_reason') if pd.notna(ar.get('flag_reason')) else (ar.get('reason') if pd.notna(ar.get('reason')) else ''))).strip()
+                flagged_at = str(ar.get('flagged_at', '')).strip() if pd.notna(ar.get('flagged_at')) else ''
+
+                if raw_v_tier in ['confirmed', 'probable', 'possible', 'not_rob']:
+                    v_tier = raw_v_tier
+                elif raw_status == 'INACCURATE':
+                    v_tier = 'not_rob'
+                elif raw_status.lower() in ['confirmed', 'probable', 'possible']:
+                    v_tier = raw_status.lower()
+                else:
+                    v_tier = 'not_rob'
+
+                # If already flagged, newest flagged_at wins
+                if ev_id in audit_flags:
+                    prev_at = audit_flags[ev_id].get('flagged_at', '')
+                    if flagged_at and flagged_at < prev_at:
+                        continue
+
+                audit_flags[ev_id] = {
+                    'flagged_inaccurate': (v_tier == 'not_rob'),
+                    'verified_tier': v_tier,
+                    'flag_reason': raw_reason,
+                    'flagged_at': flagged_at,
                 }
-            print(f"      Loaded {len(audit_flags)} manual audit flags from {audit_file.name}")
         except Exception as err:
-            print(f"      Notice: Could not parse {audit_file.name}: {err}")
+            print(f"      Notice: Could not parse {af.name}: {err}")
+
+    print(f"      [Audit Matching] Loaded {len(audit_files)} audit file(s).")
+    print(f"      Matched by URL: {matched_by_url} row(s)")
+    print(f"      Matched by date+place: {matched_by_dp} row(s)")
+    print(f"      Events currently flagged/curated in catalogue: {len(audit_flags)}")
+    print(f"      Unmatched audit rows: {len(unmatched_audit_rows)}")
+    for ur in unmatched_audit_rows:
+        preview_u = (ur[3][:60] + '...') if len(ur[3]) > 60 else ur[3]
+        print(f"        - Unmatched: [{ur[4]}] ID:{ur[0]} {ur[1]} ({ur[2]}) URL:{preview_u}")
 
     records = []
+    events_with_diff_n_articles = []
+    missing_urls_in_articles = []
+
     for _, row in merged.iterrows():
         ev_id = str(row['event_id'])
         title = str(row['first_title']).strip('"\' ') if pd.notna(row['first_title']) else ''
@@ -301,6 +401,37 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
                 'dist_km': dist_sat
             }
 
+        # Multi-article resolution
+        urls_raw = str(row['urls']) if pd.notna(row['urls']) else ''
+        url_list = urls_raw.split()
+        n_articles_val = int(row['n_articles']) if pd.notna(row['n_articles']) else len(url_list)
+
+        if len(url_list) != n_articles_val:
+            events_with_diff_n_articles.append((ev_id, n_articles_val, len(url_list)))
+            print(f"      Warning: Event {ev_id} has {len(url_list)} URLs but n_articles={n_articles_val}")
+
+        articles = []
+        for u in url_list:
+            if u in articles_by_url:
+                articles.append(dict(articles_by_url[u]))
+            else:
+                missing_urls_in_articles.append((ev_id, u))
+                print(f"      Warning: Event {ev_id} URL not found in articles table: {u}")
+                articles.append({
+                    'title': title or 'Laporan Banjir Rob',
+                    'url': u,
+                    'date': str(row['date_start']),
+                    'domain': ''
+                })
+
+        # Sort articles in chronological order
+        articles.sort(key=lambda a: a.get('date') or '')
+
+        # Primary url is the first article's url
+        first_url = url_list[0] if url_list else ''
+        if not title and articles:
+            title = articles[0]['title']
+
         flag_info = audit_flags.get(ev_id, {})
 
         records.append({
@@ -321,7 +452,8 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
             'depth_cm': depth,
             'title': title,
             'terms': terms,
-            'url': str(row['urls']) if pd.notna(row['urls']) else '',
+            'url': first_url,
+            'articles': articles,
             'n_articles': int(row['n_articles']) if pd.notna(row['n_articles']) else 1,
             'n_domains': int(row['n_domains_indep']) if pd.notna(row['n_domains_indep']) else 1,
             'lat': ev_lat,
@@ -331,6 +463,7 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
             'flagged_inaccurate': flag_info.get('flagged_inaccurate', False),
             'flag_reason': flag_info.get('flag_reason', ''),
             'flagged_at': flag_info.get('flagged_at', ''),
+            'verified_tier': flag_info.get('verified_tier', None),
         })
 
     # Summary statistics
