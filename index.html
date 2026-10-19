@@ -112,7 +112,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=951.202610190044"></script>
+  <script src="data/events.js?v=951.202610191347"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -878,33 +878,57 @@
 
         <!-- Preset Reason Buttons -->
         <div>
-          <label class="block text-[11px] font-bold text-slate-700 mb-1.5">Pilih Kategori Alasan (Klik salah satu):</label>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-[11px] font-bold text-slate-700">Pilih Kategori Alasan (Klik salah satu):</label>
+            <label class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 cursor-pointer select-none" title="Jika dicentang, klik tombol kategori akan langsung menyimpan tanpa perlu klik tombol Simpan lagi">
+              <input type="checkbox" id="flag-oneclick-toggle" onchange="toggleOneClickFlagMode(this.checked)" class="w-3 h-3 text-red-600 rounded border-amber-300 focus:ring-red-500 cursor-pointer">
+              <span>⚡ Klik Langsung Simpan</span>
+            </label>
+          </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5" id="flag-preset-buttons">
-            <button type="button" onclick="setFlagPreset('Banjir Hujan / Kali (Bukan Rob)')" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition">
-              🌧️ Banjir Hujan / Luapan Kali
+            <button type="button" data-reason="Proyek / Tanggul / Pembangunan (Tidak Ada Banjir)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
+              <span>🏗️</span> <span class="truncate">Proyek / Tanggul / Infrastruktur</span>
             </button>
-            <button type="button" onclick="setFlagPreset('Proyek / Tanggul / Pembangunan (Tidak Ada Banjir)')" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition">
-              🏗️ Proyek Tanggul / Bukan Banjir
+            <button type="button" data-reason="Langkah Preventif / Mitigasi / Siaga Operasional" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
+              <span>🛡️</span> <span class="truncate">Preventif / Mitigasi / Siaga Pompa</span>
             </button>
-            <button type="button" onclick="setFlagPreset('Demo / Protes / Tuntutan Warga')" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition">
-              📢 Demo / Protes Warga
+            <button type="button" data-reason="Edukasi / Kajian Pakar / Opini (Bukan Kejadian)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
+              <span>🎓</span> <span class="truncate">Edukasi / Kajian Pakar / Riset</span>
             </button>
-            <button type="button" onclick="setFlagPreset('Peringatan Dini / Ramalan Cuaca (Belum Terjadi)')" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition">
-              ⚠️ Peringatan Cuaca / Prediksi
+            <button type="button" data-reason="Dokumentasi Jurnalistik / Profil Kronis Menahun" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
+              <span>📸</span> <span class="truncate">Dokumentasi / Kronis Menahun</span>
             </button>
-            <button type="button" onclick="setFlagPreset('Lokasi / Daerah Keliru (Bukan Wilayah Pesisir)')" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition">
-              📍 Lokasi / Daerah Keliru
+            <button type="button" data-reason="Pernyataan Pejabat / Kebijakan / Program Pemerintah" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
+              <span>👔</span> <span class="truncate">Pernyataan Pejabat / Kebijakan</span>
             </button>
-            <button type="button" onclick="setFlagPreset('Berita Duplikat')" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition">
-              📑 Berita Duplikat
+            <button type="button" data-reason="Bantuan Sosial / Sembako / CSR Pasca-Banjir" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
+              <span>📦</span> <span class="truncate">Baksos / Sembako / CSR</span>
+            </button>
+            <button type="button" data-reason="Peringatan Dini / Prediksi BMKG (Belum Terjadi)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
+              <span>⚠️</span> <span class="truncate">Peringatan / Prediksi BMKG</span>
+            </button>
+            <button type="button" data-reason="Banjir Hujan / Luapan Kali / Abrasi (Bukan Rob)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
+              <span>🌧️</span> <span class="truncate">Banjir Hujan / Sungai / Abrasi</span>
+            </button>
+            <button type="button" data-reason="Demo / Protes / Tuntutan Warga" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
+              <span>📢</span> <span class="truncate">Demo / Protes / Keluhan Warga</span>
+            </button>
+            <button type="button" data-reason="Berita Tidak Bisa Diakses / Link Mati" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
+              <span>🔗</span> <span class="truncate">Berita Gak Bisa Diakses / 404</span>
+            </button>
+            <button type="button" data-reason="Lokasi / Tanggal Kejadian Tidak Tepat" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
+              <span>📍</span> <span class="truncate">Lokasi / Tanggal Keliru</span>
+            </button>
+            <button type="button" data-reason="Pokoknya Bukan Banjir Rob (Perlu Analisis Lanjut)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-red-50 hover:bg-red-100 border border-red-200 hover:border-red-400 rounded-lg text-[11px] text-red-800 font-semibold hover:text-red-950 transition flex items-center gap-1.5">
+              <span>❌</span> <span class="truncate">Pokoknya Bukan Rob (Lainnya)</span>
             </button>
           </div>
         </div>
 
         <!-- Custom Notes Input -->
         <div>
-          <label for="flag-reason-input" class="block text-[11px] font-bold text-slate-700 mb-1">Catatan / Alasan Tambahan:</label>
-          <textarea id="flag-reason-input" rows="2" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none" placeholder="Tulis alasan atau detail catatan verifikasi di sini..."></textarea>
+          <label for="flag-reason-input" class="block text-[11px] font-bold text-slate-700 mb-1">Alasan Terpilih / Catatan Tambahan (Opsional):</label>
+          <textarea id="flag-reason-input" rows="2" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none" placeholder="Klik kategori di atas atau ketik catatan tambahan bila perlu..."></textarea>
         </div>
       </div>
 
@@ -1609,7 +1633,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=951.202610190044')
+        fetch('data/events.json?v=951.202610191347')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -3054,31 +3078,61 @@
         }
       }
 
+      const currentReason = existingFlag && existingFlag.reason ? existingFlag.reason : '';
       const reasonInput = document.getElementById('flag-reason-input');
       if (reasonInput) {
-        reasonInput.value = existingFlag && existingFlag.reason ? existingFlag.reason : '';
+        reasonInput.value = currentReason;
       }
 
-      // Reset preset button styles
+      // Restore 1-click mode toggle state
+      const oneClickChk = document.getElementById('flag-oneclick-toggle');
+      if (oneClickChk) {
+        try {
+          oneClickChk.checked = localStorage.getItem('INA_ONECLICK_FLAG') === 'true';
+        } catch (e) {}
+      }
+
+      // Reset and highlight matching preset button style
       document.querySelectorAll('#flag-preset-buttons .preset-btn').forEach(btn => {
-        btn.classList.remove('bg-amber-200', 'border-amber-500', 'font-bold');
+        const btnReason = btn.getAttribute('data-reason') || '';
+        if (currentReason && btnReason === currentReason) {
+          btn.classList.add('bg-amber-200', 'border-amber-500', 'font-bold', 'ring-1', 'ring-amber-400');
+        } else {
+          btn.classList.remove('bg-amber-200', 'border-amber-500', 'font-bold', 'ring-1', 'ring-amber-400');
+        }
       });
 
       toggleModal('modal-flag-confirm', true);
     }
 
-    function setFlagPreset(reasonText) {
+    function toggleOneClickFlagMode(enabled) {
+      try {
+        localStorage.setItem('INA_ONECLICK_FLAG', enabled ? 'true' : 'false');
+      } catch (e) {}
+    }
+
+    function setFlagPreset(btnOrText) {
+      const isEl = typeof btnOrText === 'object' && btnOrText !== null;
+      const reasonText = isEl ? (btnOrText.getAttribute('data-reason') || btnOrText.textContent.trim()) : String(btnOrText);
+
       const reasonInput = document.getElementById('flag-reason-input');
       if (reasonInput) {
         reasonInput.value = reasonText;
       }
+
       document.querySelectorAll('#flag-preset-buttons .preset-btn').forEach(btn => {
-        if (btn.textContent.includes(reasonText.substring(0, 8))) {
-          btn.classList.add('bg-amber-200', 'border-amber-500', 'font-bold');
+        const btnReason = btn.getAttribute('data-reason') || '';
+        if ((isEl && btn === btnOrText) || (!isEl && btnReason === reasonText)) {
+          btn.classList.add('bg-amber-200', 'border-amber-500', 'font-bold', 'ring-1', 'ring-amber-400');
         } else {
-          btn.classList.remove('bg-amber-200', 'border-amber-500', 'font-bold');
+          btn.classList.remove('bg-amber-200', 'border-amber-500', 'font-bold', 'ring-1', 'ring-amber-400');
         }
       });
+
+      const oneClickChk = document.getElementById('flag-oneclick-toggle');
+      if (oneClickChk && oneClickChk.checked) {
+        submitFlagEvent();
+      }
     }
 
     function closeFlagConfirmModal() {
