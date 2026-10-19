@@ -279,6 +279,10 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
     print("[7/7] Loading manual audit review flags from data/processed/dashboard_audit_*.csv...")
     audit_files = sorted(list((REPO_ROOT / "data/processed").glob("dashboard_audit_*.csv")) +
                          list((REPO_ROOT / "data/processed").glob("rob_inaccurate_audit_*.csv")))
+    target_data_dir = Path("/Users/randifirdaus/Documents/indonesian-coastal-flood-catalogue/data")
+    if target_data_dir.is_dir():
+        audit_files += list(target_data_dir.glob("dashboard_audit_*.csv"))
+
     # Deduplicate while preserving order
     seen_files = set()
     dedup_audit_files = []
@@ -308,7 +312,7 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         try:
             df_a = pd.read_csv(af)
             for _, ar in df_a.iterrows():
-                u = str(ar.get('url', '')).strip() if pd.notna(ar.get('url')) else ''
+                u_raw = str(ar.get('url', '')).strip() if pd.notna(ar.get('url')) else ''
                 dt = str(ar.get('date_start', '')).strip() if pd.notna(ar.get('date_start')) else ''
                 pl = str(ar.get('place', '')).strip().lower() if pd.notna(ar.get('place')) else ''
                 orig_eid = str(ar.get('event_id', '')).strip() if pd.notna(ar.get('event_id')) else ''
@@ -316,15 +320,20 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
                 ev_id = None
                 match_type = None
 
-                if u and u in url_to_ev_id:
-                    ev_id = url_to_ev_id[u]
-                    match_type = 'url'
-                elif (dt, pl) in dp_to_ev_id:
+                # Check URL tokens (including cases where audit row joined URLs with spaces)
+                u_tokens = u_raw.split() if u_raw else []
+                for u in u_tokens:
+                    if u in url_to_ev_id:
+                        ev_id = url_to_ev_id[u]
+                        match_type = 'url'
+                        break
+
+                if not ev_id and (dt, pl) in dp_to_ev_id:
                     ev_id = dp_to_ev_id[(dt, pl)]
                     match_type = 'date_place'
 
                 if not ev_id:
-                    unmatched_audit_rows.append((orig_eid, pl, dt, u, af.name))
+                    unmatched_audit_rows.append((orig_eid, pl, dt, u_raw, af.name))
                     continue
 
                 if match_type == 'url':

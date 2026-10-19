@@ -124,7 +124,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=951.202610191913"></script>
+  <script src="data/events.js?v=951.202610191930"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -189,7 +189,7 @@
       <!-- Attribution Footnote -->
       <div class="pt-2 border-t border-slate-800/80 text-[11px] text-slate-500 flex items-center justify-between">
         <span>INA-CoastalFlood (v4)</span>
-        <span>PhD Research • Tohoku Univ</span>
+        <span>Tohoku University</span>
       </div>
     </div>
   </div>
@@ -228,11 +228,7 @@
           <span id="label-stat-filtered" class="text-slate-400" data-i18n="stat_active">Active Shown:</span>
           <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-sm">909</span>
         </div>
-        <div class="hidden xl:block h-4 w-px bg-slate-700"></div>
-        <div class="hidden xl:flex items-center gap-2">
-          <span class="text-slate-400" data-i18n="stat_places">Coastal Places:</span>
-          <span id="stat-places" class="font-bold text-emerald-400 font-mono text-sm">157</span>
-        </div>
+
         <div class="hidden 2xl:block h-4 w-px bg-slate-700"></div>
         <div class="hidden 2xl:flex items-center gap-2">
           <span class="text-slate-400" data-i18n="stat_max_depth">Max Inundation:</span>
@@ -974,15 +970,24 @@
 
         <!-- Export & Action Buttons -->
         <div class="flex items-center gap-2">
-          <button onclick="copyFlaggedIDs()" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs">
+          <label class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs cursor-pointer" title="Impor file CSV audit/QC">
+            <i class="fa-solid fa-file-arrow-up text-cyan-600"></i>
+            <span>Impor CSV</span>
+            <input type="file" id="audit-csv-file-input" accept=".csv" class="hidden" onchange="handleImportAuditCSV(event)" />
+          </label>
+          <button onclick="resetFlagsFromCatalogue()" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs" title="Muat Ulang Tanda dari Katalog Bawaan">
+            <i class="fa-solid fa-arrows-rotate text-slate-500"></i>
+            <span>Muat dari Katalog</span>
+          </button>
+          <button onclick="copyFlaggedIDs()" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs">
             <i class="fa-regular fa-copy text-slate-500"></i>
             <span>Salin ID</span>
           </button>
-          <button onclick="exportFlaggedToCSV()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+          <button onclick="exportFlaggedToCSV()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
             <i class="fa-solid fa-file-csv"></i>
             <span>Unduh CSV Data Training</span>
           </button>
-          <button onclick="clearAllFlags()" class="px-2.5 py-1.5 bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-medium transition" title="Hapus Semua Tanda">
+          <button onclick="clearAllFlags()" class="px-2 py-1.5 bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-medium transition" title="Hapus Semua Tanda">
             <i class="fa-regular fa-trash-can"></i>
           </button>
         </div>
@@ -1357,9 +1362,9 @@
         titleEl.textContent = "About INA-CoastalFlood (v4)";
         contentEl.innerHTML = `
           <div>
-            <h4 class="font-bold text-slate-800 text-sm mb-1">1. Background & Project Goal</h4>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">1. Background & Overview</h4>
             <p>
-              This catalogue is an independent, observational compilation of coastal flood events across the Indonesian Maritime Continent from November 2015 to 2026. The dataset is systematically mined from news reports (Google News RSS & independent media verification), designed to bridge satellite radar altimetry observations, coastal tide gauges, and documented on-the-ground flooding impacts.
+              This catalogue is an independent observational compilation of reported coastal flood events across the Indonesian Maritime Continent from November 2015 to 2026. The dataset is systematically mined from news reports (Google News RSS & independent media verification).
             </p>
           </div>
 
@@ -1373,14 +1378,7 @@
           </div>
 
           <div>
-            <h4 class="font-bold text-slate-800 text-sm mb-1">3. Key Oceanographic Findings</h4>
-            <p>
-              Physical analysis demonstrates that the <strong>seasonal cycle sets the baseline window</strong> when sea level is already high, whereas <strong>intraseasonal pulses (MJO & coastal trapped Kelvin waves) and spring tides determine the exact days</strong> that develop into coastal flood disasters. The Java Sea shelf experiences an acute flood season peak concentrated in May–July.
-            </p>
-          </div>
-
-          <div>
-            <h4 class="font-bold text-slate-800 text-sm mb-1">4. Scientific Disclaimer</h4>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">3. Scientific Disclaimer</h4>
             <p class="text-slate-500">
               This catalogue is intended for spatial distribution, seasonal cycle, and physical compound extreme attribution studies. <strong>This catalogue MUST NOT be used for long-term multi-decadal sea level trend analysis</strong> (due to temporal variations in online media coverage).
             </p>
@@ -1389,7 +1387,7 @@
           <div class="p-3.5 bg-amber-50/90 border border-amber-200 rounded-xl space-y-1.5">
             <h4 class="font-bold text-amber-950 text-xs mb-1 flex items-center gap-1.5">
               <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
-              <span>5. Data Quality & Reporting Inaccurate Articles</span>
+              <span>4. Data Quality & Reporting Inaccurate Articles</span>
             </h4>
             <p class="text-amber-900 text-[11px] leading-relaxed">
               INA-CoastalFlood is curated through automated NLP web-mining. While multi-tiered filters are applied, articles that do not report an actual coastal flood event (such as citizen protests or demonstrations regarding flooding, government policy debates, or seawall/breakwater construction plans without actual flood inundation) may occasionally be captured.
@@ -1408,7 +1406,7 @@
           </div>
 
           <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
-            <span>Lead Researcher: <strong>Randi Firdaus</strong> (Tohoku University)</span>
+            <span>Lead Maintainer: <strong>Randi Firdaus</strong> (Tohoku University)</span>
             <span class="font-mono">Open Science Initiative</span>
           </div>
         `;
@@ -1416,9 +1414,9 @@
         titleEl.textContent = "Tentang INA-CoastalFlood (v4)";
         contentEl.innerHTML = `
           <div>
-            <h4 class="font-bold text-slate-800 text-sm mb-1">1. Latar Belakang & Tujuan Proyek</h4>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">1. Tentang Katalog</h4>
             <p>
-              Katalog ini merupakan kompilasi independen kejadian banjir rob pesisir di seluruh Indonesia dari periode November 2015 hingga 2026. Data dihimpun melalui penelusuran sistematis artikel berita media daring (Google News RSS & verifikasi independen), dirancang untuk menjembatani observasi satelit altimetri, pengukur pasang surut (tide gauges), dan dampak langsung di pesisir.
+              Katalog ini merupakan kompilasi observasi kejadian banjir rob pesisir di seluruh Indonesia dari periode November 2015 hingga 2026. Data dihimpun melalui penelusuran sistematis artikel berita media daring (Google News RSS & verifikasi independen).
             </p>
           </div>
 
@@ -1432,23 +1430,16 @@
           </div>
 
           <div>
-            <h4 class="font-bold text-slate-800 text-sm mb-1">3. Temuan Kunci Sains Oseanografi</h4>
-            <p>
-              Analisis menunjukkan bahwa siklus musiman menetapkan jendela waktu muka laut tinggi, sementara osilasi intraseasonal (seperti MJO dan gelombang Kelvin ekuator/pantai) serta siklus pasang surut (spring tide) menentukan hari terjadinya rob ekstrem. Puncak rob di Pantura Jawa sangat terkonsentrasi pada bulan Mei–Juli.
-            </p>
-          </div>
-
-          <div>
-            <h4 class="font-bold text-slate-800 text-sm mb-1">4. Penafian Ilmiah (Scientific Disclaimer)</h4>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">3. Penafian Ilmiah (Scientific Disclaimer)</h4>
             <p class="text-slate-500">
-              Katalog ini ditujukan untuk analisis distribusi spasial, siklus musiman, dan keterkaitan dengan dinamika oseanografi-atmosfer. <strong>Katalog ini TIDAK boleh digunakan untuk menghitung tren jangka panjang</strong> (karena adanya variasi peliputan media massa dari waktu ke waktu).
+              Katalog ini ditujukan untuk analisis distribusi spasial, siklus musiman, dan keterkaitan dengan dinamika pesisir. <strong>Katalog ini TIDAK boleh digunakan untuk menghitung tren jangka panjang</strong> (karena adanya variasi peliputan media massa dari waktu ke waktu).
             </p>
           </div>
 
           <div class="p-3.5 bg-amber-50/90 border border-amber-200 rounded-xl space-y-1.5">
             <h4 class="font-bold text-amber-950 text-xs mb-1 flex items-center gap-1.5">
               <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
-              <span>5. Kualitas Data & Pelaporan Berita Tidak Tepat</span>
+              <span>4. Kualitas Data & Pelaporan Berita Tidak Tepat</span>
             </h4>
             <p class="text-amber-900 text-[11px] leading-relaxed">
               Katalog INA-CoastalFlood dikurasi secara semi-otomatis melalui penelusuran web berita dan klasifikasi NLP. Meskipun filter bertingkat telah diterapkan, artikel yang bukan kejadian banjir rob nyata (misalnya berita aksi unjuk rasa/demo warga menuntut penanganan rob, perdebatan kebijakan, atau rencana pembangunan tanggul/proyek infrastruktur tanpa adanya genangan fisik) terkadang dapat lolos.
@@ -1467,7 +1458,7 @@
           </div>
 
           <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
-            <span>Pengembang & Peneliti: <strong>Randi Firdaus</strong> (Tohoku University)</span>
+            <span>Pengembang: <strong>Randi Firdaus</strong> (Tohoku University)</span>
             <span class="font-mono">Open Science Initiative</span>
           </div>
         `;
@@ -1639,7 +1630,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=951.202610191913')
+        fetch('data/events.json?v=951.202610191930')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -2211,9 +2202,6 @@
       const elTotal = document.getElementById('stat-total');
       if (elTotal) elTotal.textContent = total.toLocaleString();
 
-      const uniquePlaces = new Set(AppState.filteredEvents.map(e => e.place)).size;
-      const elPlaces = document.getElementById('stat-places');
-      if (elPlaces) elPlaces.textContent = uniquePlaces.toLocaleString();
 
       // Mobile Badges
       const elMobileBadge = document.getElementById('mobile-filter-badge');
@@ -3236,29 +3224,33 @@
       // Merge pre-baked flags if present in dataset (e.g. from dashboard_audit_*.csv)
       if (Array.isArray(events)) {
         events.forEach(e => {
-          if ((e.flagged_inaccurate || e.verified_tier) && !AppState.flaggedEvents[e.id]) {
-            const vTier = e.verified_tier || (e.flagged_inaccurate ? 'not_rob' : null);
-            if (!vTier) return;
-            AppState.flaggedEvents[e.id] = {
-              id: e.id,
-              place: e.place || '',
-              province: e.province || '',
-              region: e.region || '',
-              date_start: e.date_start || '',
-              date_end: e.date_end || '',
-              depth_cm: e.depth_cm,
-              title: e.title || '',
-              url: e.url || '',
-              terms: e.terms || '',
-              tg_station: e.tg ? e.tg.station : '',
-              tg_anom_cm: e.tg && e.tg.anom_cm !== null ? e.tg.anom_cm : '',
-              original_tier: e.tier || 'unknown',
-              verified_tier: vTier,
-              audit_status: (vTier === 'not_rob') ? 'INACCURATE' : vTier.toUpperCase(),
-              reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
-              audit_reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
-              flagged_at: e.flagged_at || new Date().toISOString()
-            };
+          if (e.flagged_inaccurate || e.verified_tier) {
+            const cur = AppState.flaggedEvents[e.id];
+            const isMismatched = cur && (cur.date_start !== e.date_start || String(cur.place || '').toLowerCase() !== String(e.place || '').toLowerCase());
+            if (!cur || isMismatched) {
+              const vTier = e.verified_tier || (e.flagged_inaccurate ? 'not_rob' : null);
+              if (!vTier) return;
+              AppState.flaggedEvents[e.id] = {
+                id: e.id,
+                place: e.place || '',
+                province: e.province || '',
+                region: e.region || '',
+                date_start: e.date_start || '',
+                date_end: e.date_end || '',
+                depth_cm: e.depth_cm,
+                title: e.title || '',
+                url: e.url || '',
+                terms: e.terms || '',
+                tg_station: e.tg ? e.tg.station : '',
+                tg_anom_cm: e.tg && e.tg.anom_cm !== null ? e.tg.anom_cm : '',
+                original_tier: e.tier || 'unknown',
+                verified_tier: vTier,
+                audit_status: (vTier === 'not_rob') ? 'INACCURATE' : vTier.toUpperCase(),
+                reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
+                audit_reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
+                flagged_at: e.flagged_at || new Date().toISOString()
+              };
+            }
           }
         });
       }
@@ -3853,6 +3845,198 @@
       } else {
         prompt(AppState.lang === 'en' ? 'Copy IDs below:' : 'Salin daftar ID di bawah ini:', idStr);
       }
+    }
+
+    function resetFlagsFromCatalogue() {
+      const confirmMsg = AppState.lang === 'en' 
+        ? 'Reload all curated flags from default catalogue data?' 
+        : 'Muat ulang semua tanda kurasi & audit dari data bawaan katalog?';
+      if (!confirm(confirmMsg)) return;
+
+      AppState.flaggedEvents = {};
+      if (Array.isArray(AppState.allEvents)) {
+        AppState.allEvents.forEach(e => {
+          if (e.flagged_inaccurate || e.verified_tier) {
+            const vTier = e.verified_tier || (e.flagged_inaccurate ? 'not_rob' : null);
+            if (!vTier) return;
+            AppState.flaggedEvents[e.id] = {
+              id: e.id,
+              place: e.place || '',
+              province: e.province || '',
+              region: e.region || '',
+              date_start: e.date_start || '',
+              date_end: e.date_end || '',
+              depth_cm: e.depth_cm,
+              title: e.title || '',
+              url: e.url || '',
+              terms: e.terms || '',
+              tg_station: e.tg ? e.tg.station : '',
+              tg_anom_cm: e.tg && e.tg.anom_cm !== null ? e.tg.anom_cm : '',
+              original_tier: e.tier || 'unknown',
+              verified_tier: vTier,
+              audit_status: (vTier === 'not_rob') ? 'INACCURATE' : vTier.toUpperCase(),
+              reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
+              audit_reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
+              flagged_at: e.flagged_at || new Date().toISOString()
+            };
+          }
+        });
+      }
+      saveFlaggedEvents();
+      refreshMapMarkers(false);
+      if (AppState.currentView === 'table') {
+        renderTablePage(AppState.tablePage);
+      }
+      renderAuditModalContent();
+      const count = Object.keys(AppState.flaggedEvents).length;
+      showToast(AppState.lang === 'en' ? `Loaded ${count} flags from catalogue.` : `Berhasil memuat ${count} tanda audit dari katalog.`);
+    }
+
+    function parseCSV(text) {
+      const lines = [];
+      let row = [];
+      let inQuotes = false;
+      let curr = '';
+
+      for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        const next = text[i + 1];
+
+        if (c === '"') {
+          if (inQuotes && next === '"') {
+            curr += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (c === ',' && !inQuotes) {
+          row.push(curr);
+          curr = '';
+        } else if ((c === '\r' || c === '\n') && !inQuotes) {
+          if (c === '\r' && next === '\n') i++;
+          row.push(curr);
+          if (row.some(field => field.trim() !== '')) {
+            lines.push(row);
+          }
+          row = [];
+          curr = '';
+        } else {
+          curr += c;
+        }
+      }
+      if (curr.length > 0 || row.length > 0) {
+        row.push(curr);
+        if (row.some(field => field.trim() !== '')) {
+          lines.push(row);
+        }
+      }
+      return lines;
+    }
+
+    function handleImportAuditCSV(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const text = e.target.result;
+          const rows = parseCSV(text);
+          if (rows.length < 2) {
+            alert(AppState.lang === 'en' ? 'CSV file is empty or invalid.' : 'File CSV kosong atau tidak valid.');
+            return;
+          }
+
+          const header = rows[0].map(h => h.trim().toLowerCase().replace(/^[\uFEFF"']+|["']+$/g, ''));
+          const idxId = header.indexOf('event_id');
+          const idxUrl = header.indexOf('url');
+          const idxPlace = header.indexOf('place');
+          const idxProv = header.indexOf('province');
+          const idxReg = header.indexOf('region');
+          const idxDateStart = header.indexOf('date_start');
+          const idxDateEnd = header.indexOf('date_end');
+          const idxDepth = header.indexOf('depth_cm');
+          const idxTitle = header.indexOf('title');
+          const idxTerms = header.indexOf('terms');
+          const idxTgStation = header.indexOf('tg_station');
+          const idxTgAnom = header.indexOf('tg_anom_cm');
+          const idxOrigTier = header.indexOf('original_tier');
+          const idxVerTier = header.indexOf('verified_tier');
+          const idxStatus = header.indexOf('audit_status');
+          const idxReason = header.indexOf('audit_reason') !== -1 ? header.indexOf('audit_reason') : header.indexOf('reason');
+          const idxFlaggedAt = header.indexOf('flagged_at');
+
+          let importedCount = 0;
+          for (let i = 1; i < rows.length; i++) {
+            const r = rows[i];
+            if (r.length < 2 || !r[0]) continue;
+
+            const origId = idxId !== -1 ? r[idxId].trim() : '';
+            const u = idxUrl !== -1 ? r[idxUrl].trim() : '';
+            const dt = idxDateStart !== -1 ? r[idxDateStart].trim() : '';
+            const pl = idxPlace !== -1 ? r[idxPlace].trim() : '';
+
+            // Match against current allEvents
+            let matchedEv = null;
+            if (u) {
+              const uTokens = u.split(/\s+/);
+              matchedEv = AppState.allEvents.find(ev => 
+                uTokens.some(tok => tok && (ev.url === tok || (ev.articles && ev.articles.some(a => a.url === tok))))
+              );
+            }
+            if (!matchedEv && dt && pl) {
+              matchedEv = AppState.allEvents.find(ev => 
+                ev.date_start === dt && String(ev.place || '').toLowerCase() === pl.toLowerCase()
+              );
+            }
+            if (!matchedEv && origId) {
+              matchedEv = AppState.allEvents.find(ev => String(ev.id) === origId);
+            }
+
+            const targetId = matchedEv ? matchedEv.id : (origId || `AUDIT_${Date.now()}_${i}`);
+            const rawVTier = idxVerTier !== -1 ? r[idxVerTier].trim().toLowerCase() : '';
+            const rawStatus = idxStatus !== -1 ? r[idxStatus].trim().toUpperCase() : '';
+            const vTier = ['confirmed', 'probable', 'possible', 'not_rob'].includes(rawVTier) 
+              ? rawVTier 
+              : (rawStatus === 'INACCURATE' ? 'not_rob' : (['CONFIRMED', 'PROBABLE', 'POSSIBLE'].includes(rawStatus) ? rawStatus.toLowerCase() : 'not_rob'));
+
+            AppState.flaggedEvents[targetId] = {
+              id: targetId,
+              place: pl || (matchedEv ? matchedEv.place : ''),
+              province: (idxProv !== -1 ? r[idxProv] : '') || (matchedEv ? matchedEv.province : ''),
+              region: (idxReg !== -1 ? r[idxReg] : '') || (matchedEv ? matchedEv.region : ''),
+              date_start: dt || (matchedEv ? matchedEv.date_start : ''),
+              date_end: (idxDateEnd !== -1 ? r[idxDateEnd] : '') || (matchedEv ? matchedEv.date_end : ''),
+              depth_cm: idxDepth !== -1 && r[idxDepth] !== '' ? parseFloat(r[idxDepth]) : (matchedEv ? matchedEv.depth_cm : null),
+              title: (idxTitle !== -1 ? r[idxTitle] : '') || (matchedEv ? matchedEv.title : ''),
+              url: u || (matchedEv ? matchedEv.url : ''),
+              terms: (idxTerms !== -1 ? r[idxTerms] : '') || (matchedEv ? matchedEv.terms : ''),
+              tg_station: (idxTgStation !== -1 ? r[idxTgStation] : '') || (matchedEv && matchedEv.tg ? matchedEv.tg.station : ''),
+              tg_anom_cm: idxTgAnom !== -1 && r[idxTgAnom] !== '' ? parseFloat(r[idxTgAnom]) : (matchedEv && matchedEv.tg ? matchedEv.tg.anom_cm : null),
+              original_tier: (idxOrigTier !== -1 ? r[idxOrigTier] : '') || (matchedEv ? matchedEv.tier : 'unknown'),
+              verified_tier: vTier,
+              audit_status: (vTier === 'not_rob') ? 'INACCURATE' : vTier.toUpperCase(),
+              reason: idxReason !== -1 && r[idxReason] ? r[idxReason] : `Imported from CSV`,
+              audit_reason: idxReason !== -1 && r[idxReason] ? r[idxReason] : `Imported from CSV`,
+              flagged_at: (idxFlaggedAt !== -1 && r[idxFlaggedAt]) ? r[idxFlaggedAt] : new Date().toISOString()
+            };
+            importedCount++;
+          }
+
+          saveFlaggedEvents();
+          refreshMapMarkers(false);
+          if (AppState.currentView === 'table') {
+            renderTablePage(AppState.tablePage);
+          }
+          renderAuditModalContent();
+          showToast(AppState.lang === 'en' ? `Successfully imported ${importedCount} audit records!` : `Berhasil mengimpor ${importedCount} data audit!`);
+        } catch (err) {
+          console.error(err);
+          alert(AppState.lang === 'en' ? 'Failed to process CSV file: ' + err.message : 'Gagal memproses file CSV: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
     }
 
     function clearAllFlags() {
