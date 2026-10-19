@@ -112,7 +112,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=951.202610191347"></script>
+  <script src="data/events.js?v=951.202610191402"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -485,12 +485,14 @@
           <!-- Audit QC Filter -->
           <div class="pt-1">
             <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1 flex items-center justify-between">
-              <span><i class="fa-solid fa-clipboard-check text-red-500 mr-1"></i> <span data-i18n="audit_filter_label">Audit / QC Filter</span></span>
+              <span><i class="fa-solid fa-clipboard-check text-cyan-600 mr-1"></i> <span data-i18n="audit_filter_label">Audit / QC Filter</span></span>
             </label>
             <select id="filter-audit" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700 text-xs">
-              <option value="all" data-i18n="audit_opt_all">All Events (Semua)</option>
-              <option value="unflagged" data-i18n="audit_opt_clean">Clean Only (Sembunyikan Ditandai)</option>
-              <option value="flagged" data-i18n="audit_opt_flagged">Flagged Only (Hanya yang Ditandai)</option>
+              <option value="all">Semua Kejadian (All Events)</option>
+              <option value="unverified">⏳ Belum Ditinjau (Sisa Kurasi)</option>
+              <option value="verified">✅ Sudah Diverifikasi (Confirmed/Probable/Possible)</option>
+              <option value="flagged">🚫 Ditandai Bukan Rob / Inaccurate</option>
+              <option value="unflagged">🌊 Rob Bersih (Sembunyikan Bukan Rob)</option>
             </select>
           </div>
         </div>
@@ -849,8 +851,8 @@
             <i class="fa-solid fa-triangle-exclamation text-xs"></i>
           </span>
           <div>
-            <h3 class="font-bold text-sm">Konfirmasi Tandai Berita Tidak Akurat</h3>
-            <p class="text-[10px] text-slate-400">Verifikasi manual berita bukan banjir rob</p>
+            <h3 class="font-bold text-sm">Tandai Bukan Rob / Berita Tidak Akurat</h3>
+            <p class="text-[10px] text-slate-400">Klik salah satu kategori di bawah — langsung otomatis tersimpan!</p>
           </div>
         </div>
         <button onclick="closeFlagConfirmModal()" class="text-slate-400 hover:text-white text-lg">
@@ -879,55 +881,55 @@
         <!-- Preset Reason Buttons -->
         <div>
           <div class="flex items-center justify-between mb-1.5">
-            <label class="block text-[11px] font-bold text-slate-700">Pilih Kategori Alasan (Klik salah satu):</label>
-            <label class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200 cursor-pointer select-none" title="Jika dicentang, klik tombol kategori akan langsung menyimpan tanpa perlu klik tombol Simpan lagi">
-              <input type="checkbox" id="flag-oneclick-toggle" onchange="toggleOneClickFlagMode(this.checked)" class="w-3 h-3 text-red-600 rounded border-amber-300 focus:ring-red-500 cursor-pointer">
+            <label class="block text-[11px] font-bold text-slate-700">Pilih Kategori Alasan (1-Klik Simpan):</label>
+            <label class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 cursor-pointer select-none" title="Klik langsung menyimpan tanpa perlu ngetik atau klik tombol Simpan lagi">
+              <input type="checkbox" id="flag-oneclick-toggle" checked onchange="toggleOneClickFlagMode(this.checked)" class="w-3 h-3 text-emerald-600 rounded border-emerald-300 focus:ring-emerald-500 cursor-pointer">
               <span>⚡ Klik Langsung Simpan</span>
             </label>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5" id="flag-preset-buttons">
-            <button type="button" data-reason="Proyek / Tanggul / Pembangunan (Tidak Ada Banjir)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
-              <span>🏗️</span> <span class="truncate">Proyek / Tanggul / Infrastruktur</span>
+            <button type="button" data-reason="Proyek / Tanggul / Pembangunan (Tidak Ada Banjir)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
+              <span>🏗️</span> <span class="truncate font-medium">Proyek / Tanggul / Pembangunan</span>
             </button>
-            <button type="button" data-reason="Langkah Preventif / Mitigasi / Siaga Operasional" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
-              <span>🛡️</span> <span class="truncate">Preventif / Mitigasi / Siaga Pompa</span>
+            <button type="button" data-reason="Langkah Preventif / Mitigasi / Siaga Operasional" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
+              <span>🛡️</span> <span class="truncate font-medium">Preventif / Mitigasi / Siaga Pompa</span>
             </button>
-            <button type="button" data-reason="Edukasi / Kajian Pakar / Opini (Bukan Kejadian)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
-              <span>🎓</span> <span class="truncate">Edukasi / Kajian Pakar / Riset</span>
+            <button type="button" data-reason="Edukasi / Kajian Pakar / Opini (Bukan Kejadian)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
+              <span>🎓</span> <span class="truncate font-medium">Edukasi / Kajian Pakar / Riset</span>
             </button>
-            <button type="button" data-reason="Dokumentasi Jurnalistik / Profil Kronis Menahun" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
-              <span>📸</span> <span class="truncate">Dokumentasi / Kronis Menahun</span>
+            <button type="button" data-reason="Dokumentasi Jurnalistik / Profil Kronis Menahun" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
+              <span>📸</span> <span class="truncate font-medium">Dokumentasi / Kronis Menahun</span>
             </button>
-            <button type="button" data-reason="Pernyataan Pejabat / Kebijakan / Program Pemerintah" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
-              <span>👔</span> <span class="truncate">Pernyataan Pejabat / Kebijakan</span>
+            <button type="button" data-reason="Pernyataan Pejabat / Kebijakan / Program Pemerintah" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
+              <span>👔</span> <span class="truncate font-medium">Pernyataan Pejabat / Rencana Pemda</span>
             </button>
-            <button type="button" data-reason="Bantuan Sosial / Sembako / CSR Pasca-Banjir" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
-              <span>📦</span> <span class="truncate">Baksos / Sembako / CSR</span>
+            <button type="button" data-reason="Peringatan Dini / Prediksi BMKG (Belum Terjadi)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
+              <span>⚠️</span> <span class="truncate font-medium">Peringatan BMKG (Baru Prediksi)</span>
             </button>
-            <button type="button" data-reason="Peringatan Dini / Prediksi BMKG (Belum Terjadi)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
-              <span>⚠️</span> <span class="truncate">Peringatan / Prediksi BMKG</span>
+            <button type="button" data-reason="Banjir Hujan / Luapan Kali / Abrasi (Bukan Rob)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
+              <span>🌧️</span> <span class="truncate font-medium">Banjir Hujan / Kali / Sungai</span>
             </button>
-            <button type="button" data-reason="Banjir Hujan / Luapan Kali / Abrasi (Bukan Rob)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
-              <span>🌧️</span> <span class="truncate">Banjir Hujan / Sungai / Abrasi</span>
+            <button type="button" data-reason="Bantuan Sosial / Sembako / CSR Pasca-Banjir" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
+              <span>📦</span> <span class="truncate font-medium">Baksos / Sembako / Bantuan</span>
             </button>
-            <button type="button" data-reason="Demo / Protes / Tuntutan Warga" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
-              <span>📢</span> <span class="truncate">Demo / Protes / Keluhan Warga</span>
+            <button type="button" data-reason="Demo / Protes / Tuntutan Warga" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
+              <span>📢</span> <span class="truncate font-medium">Demo / Protes / Keluhan Warga</span>
             </button>
-            <button type="button" data-reason="Berita Tidak Bisa Diakses / Link Mati" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
-              <span>🔗</span> <span class="truncate">Berita Gak Bisa Diakses / 404</span>
+            <button type="button" data-reason="Berita Tidak Bisa Diakses / Link Mati" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
+              <span>🔗</span> <span class="truncate font-medium">Berita Gak Bisa Diakses / 404</span>
             </button>
-            <button type="button" data-reason="Lokasi / Tanggal Kejadian Tidak Tepat" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-slate-100 hover:bg-amber-100 border border-slate-200 hover:border-amber-400 rounded-lg text-[11px] text-slate-700 hover:text-amber-900 transition flex items-center gap-1.5">
-              <span>📍</span> <span class="truncate">Lokasi / Tanggal Keliru</span>
+            <button type="button" data-reason="Lokasi / Tanggal Kejadian Tidak Tepat" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
+              <span>📍</span> <span class="truncate font-medium">Salah Lokasi / Salah Tanggal</span>
             </button>
-            <button type="button" data-reason="Pokoknya Bukan Banjir Rob (Perlu Analisis Lanjut)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-1.5 bg-red-50 hover:bg-red-100 border border-red-200 hover:border-red-400 rounded-lg text-[11px] text-red-800 font-semibold hover:text-red-950 transition flex items-center gap-1.5">
-              <span>❌</span> <span class="truncate">Pokoknya Bukan Rob (Lainnya)</span>
+            <button type="button" data-reason="Pokoknya Bukan Banjir Rob (Perlu Analisis Lanjut)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-red-50 hover:bg-red-100 border border-red-200 hover:border-red-400 rounded-lg text-[11px] text-red-800 font-bold hover:text-red-950 transition flex items-center gap-1.5 cursor-pointer">
+              <span>❌</span> <span class="truncate font-bold">Pokoknya Bukan Rob (Lainnya)</span>
             </button>
           </div>
         </div>
 
         <!-- Custom Notes Input -->
         <div>
-          <label for="flag-reason-input" class="block text-[11px] font-bold text-slate-700 mb-1">Alasan Terpilih / Catatan Tambahan (Opsional):</label>
+          <label for="flag-reason-input" class="block text-[11px] font-bold text-slate-700 mb-1">Catatan Tambahan (Opsional):</label>
           <textarea id="flag-reason-input" rows="2" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none" placeholder="Klik kategori di atas atau ketik catatan tambahan bila perlu..."></textarea>
         </div>
       </div>
@@ -939,24 +941,24 @@
         </button>
         <button type="button" onclick="submitFlagEvent()" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
           <i class="fa-solid fa-check"></i>
-          <span>Simpan & Tandai Tidak Akurat</span>
+          <span>Simpan & Tandai Bukan Rob</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ================= MODAL: AUDIT & EKSPOR CSV ================= -->
+  <!-- ================= MODAL: AUDIT & KURASI DATA TRAINING ================= -->
   <div id="modal-audit" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
     <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
       <!-- Header -->
       <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
         <div class="flex items-center gap-2.5">
-          <span class="w-8 h-8 rounded-lg bg-red-600/30 border border-red-500 flex items-center justify-center text-red-400">
+          <span class="w-8 h-8 rounded-lg bg-cyan-600/30 border border-cyan-500 flex items-center justify-center text-cyan-400">
             <i class="fa-solid fa-clipboard-check text-sm"></i>
           </span>
           <div>
-            <h3 class="font-bold text-sm sm:text-base">Daftar Audit Berita Tidak Akurat / Bukan Rob</h3>
-            <p class="text-[11px] text-slate-400">Verifikasi manual untuk membersihkan katalog kejadian banjir rob</p>
+            <h3 class="font-bold text-sm sm:text-base">Daftar Audit & Kurasi Data Training (QC)</h3>
+            <p class="text-[11px] text-slate-400">Verifikasi tier kejadian & penandaan berita tidak akurat untuk dataset ground-truth</p>
           </div>
         </div>
         <button onclick="toggleModal('modal-audit', false)" class="text-slate-400 hover:text-white text-lg">
@@ -964,12 +966,28 @@
         </button>
       </div>
 
-      <!-- Action Bar -->
-      <div class="px-6 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div class="flex items-center gap-2">
-          <span class="font-semibold text-slate-700">Total Ditandai:</span>
-          <span id="audit-modal-total-count" class="font-mono font-bold text-red-700 bg-red-100 border border-red-200 px-2 py-0.5 rounded-full text-xs">0</span>
+      <!-- Action Bar with Filter Tabs -->
+      <div class="px-6 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2.5 text-xs">
+        <!-- Sub-filters inside modal -->
+        <div class="flex flex-wrap items-center gap-1.5" id="audit-filter-pills">
+          <button type="button" onclick="filterAuditModalTable('all')" id="btn-audit-tab-all" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-white shadow-xs">
+            Semua (<span id="audit-filter-count-all">0</span>)
+          </button>
+          <button type="button" onclick="filterAuditModalTable('confirmed')" id="btn-audit-tab-confirmed" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition">
+            🟢 Confirmed (<span id="audit-filter-count-conf">0</span>)
+          </button>
+          <button type="button" onclick="filterAuditModalTable('probable')" id="btn-audit-tab-probable" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200 transition">
+            🟡 Probable (<span id="audit-filter-count-prob">0</span>)
+          </button>
+          <button type="button" onclick="filterAuditModalTable('possible')" id="btn-audit-tab-possible" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-100 text-blue-800 hover:bg-blue-200 transition">
+            🔵 Possible (<span id="audit-filter-count-poss">0</span>)
+          </button>
+          <button type="button" onclick="filterAuditModalTable('not_rob')" id="btn-audit-tab-not_rob" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-100 text-red-800 hover:bg-red-200 transition">
+            🔴 Bukan Rob (<span id="audit-filter-count-notrob">0</span>)
+          </button>
         </div>
+
+        <!-- Export & Action Buttons -->
         <div class="flex items-center gap-2">
           <button onclick="copyFlaggedIDs()" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs">
             <i class="fa-regular fa-copy text-slate-500"></i>
@@ -977,7 +995,7 @@
           </button>
           <button onclick="exportFlaggedToCSV()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
             <i class="fa-solid fa-file-csv"></i>
-            <span>Unduh CSV Audit</span>
+            <span>Unduh CSV Data Training</span>
           </button>
           <button onclick="clearAllFlags()" class="px-2.5 py-1.5 bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-medium transition" title="Hapus Semua Tanda">
             <i class="fa-regular fa-trash-can"></i>
@@ -992,7 +1010,7 @@
 
       <!-- Footer -->
       <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
-        <span>Tersimpan di browser lokal (localStorage). Ekspor CSV untuk diproses dengan Python.</span>
+        <span>Tersimpan di browser lokal (localStorage). Ekspor CSV untuk melatih / retrain classifier Python.</span>
         <button onclick="toggleModal('modal-audit', false)" class="px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-700 transition">
           Tutup
         </button>
@@ -1633,7 +1651,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=951.202610191347')
+        fetch('data/events.json?v=951.202610191402')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -2073,9 +2091,15 @@
         // Audit QC Filter
         const auditFilterEl = document.getElementById('filter-audit');
         const auditVal = auditFilterEl ? auditFilterEl.value : 'all';
-        const isFlagged = !!(AppState.flaggedEvents && AppState.flaggedEvents[e.id]);
-        if (auditVal === 'flagged' && !isFlagged) return false;
-        if (auditVal === 'unflagged' && isFlagged) return false;
+        const curEntry = (AppState.flaggedEvents && AppState.flaggedEvents[e.id]) ? AppState.flaggedEvents[e.id] : null;
+        const isCurated = !!curEntry;
+        const isNotRob = isCurated && (curEntry.verified_tier === 'not_rob' || curEntry.audit_status === 'INACCURATE');
+        const isVerifiedRob = isCurated && !isNotRob;
+
+        if (auditVal === 'flagged' && !isNotRob) return false;
+        if (auditVal === 'verified' && !isVerifiedRob) return false;
+        if (auditVal === 'unverified' && isCurated) return false;
+        if (auditVal === 'unflagged' && isNotRob) return false;
 
         // Free search text (includes Event ID, place, regency, province, headline, terms, reason, tide station, audit reason)
         if (searchVal.length > 0) {
@@ -2220,6 +2244,47 @@
       if (chartCountEl) chartCountEl.textContent = count.toLocaleString();
     }
 
+    // Helper to generate marker icon based on original or verified QC tier
+    function getMarkerIconConfig(e) {
+      const f = (AppState.flaggedEvents && AppState.flaggedEvents[e.id]) ? AppState.flaggedEvents[e.id] : null;
+      const verifiedTier = f ? (f.verified_tier || (f.audit_status === 'INACCURATE' ? 'not_rob' : f.audit_status ? f.audit_status.toLowerCase() : 'not_rob')) : null;
+
+      if (verifiedTier === 'not_rob') {
+        return {
+          html: `<div style="background-color: #dc2626; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 8px rgba(220,38,38,0.9); display:flex; align-items:center; justify-content:center; color:white; font-size:8px; font-weight:bold;"><i class="fa-solid fa-xmark"></i></div>`,
+          size: [14, 14],
+          anchor: [7, 7]
+        };
+      } else if (verifiedTier === 'confirmed') {
+        return {
+          html: `<div style="background-color: #059669; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 8px rgba(5,150,105,0.9); display:flex; align-items:center; justify-content:center; color:white; font-size:8px; font-weight:bold;"><i class="fa-solid fa-check"></i></div>`,
+          size: [14, 14],
+          anchor: [7, 7]
+        };
+      } else if (verifiedTier === 'probable') {
+        return {
+          html: `<div style="background-color: #d97706; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 8px rgba(217,119,6,0.9); display:flex; align-items:center; justify-content:center; color:white; font-size:8px; font-weight:bold;"><i class="fa-solid fa-check"></i></div>`,
+          size: [14, 14],
+          anchor: [7, 7]
+        };
+      } else if (verifiedTier === 'possible') {
+        return {
+          html: `<div style="background-color: #2563eb; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 8px rgba(37,99,235,0.9); display:flex; align-items:center; justify-content:center; color:white; font-size:8px; font-weight:bold;"><i class="fa-solid fa-check"></i></div>`,
+          size: [14, 14],
+          anchor: [7, 7]
+        };
+      } else {
+        let pinColor = '#2563eb'; // blue
+        if (e.tier === 'confirmed') pinColor = '#059669'; // emerald
+        else if (e.tier === 'probable') pinColor = '#d97706'; // amber
+        return {
+          html: `<div style="background-color: ${pinColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.35);"></div>`,
+          size: [12, 12],
+          anchor: [6, 6]
+        };
+      }
+    }
+
     // Refresh Map Markers with MarkerCluster
     function refreshMapMarkers(autoFit = true) {
       if (!AppState.markerClusterGroup) return;
@@ -2238,20 +2303,12 @@
       AppState.filteredEvents.forEach(e => {
         if (!e.lat || !e.lon) return;
 
-        let pinColor = '#2563eb'; // blue
-        if (e.tier === 'confirmed') pinColor = '#059669'; // emerald
-        else if (e.tier === 'probable') pinColor = '#d97706'; // amber
-
-        const isFlagged = !!(AppState.flaggedEvents && AppState.flaggedEvents[e.id]);
-
-        // Custom SVG Circle Marker
+        const iconCfg = getMarkerIconConfig(e);
         const markerIcon = L.divIcon({
           className: 'custom-flood-pin',
-          html: isFlagged
-            ? `<div style="background-color: #dc2626; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 8px rgba(220,38,38,0.9); display:flex; align-items:center; justify-content:center; color:white; font-size:9px; font-weight:bold;"><i class="fa-solid fa-xmark"></i></div>`
-            : `<div style="background-color: ${pinColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-          iconSize: [isFlagged ? 14 : 12, isFlagged ? 14 : 12],
-          iconAnchor: [isFlagged ? 7 : 6, isFlagged ? 7 : 6]
+          html: iconCfg.html,
+          iconSize: iconCfg.size,
+          iconAnchor: iconCfg.anchor
         });
 
         const marker = L.marker([e.lat, e.lon], { icon: markerIcon });
@@ -2294,11 +2351,34 @@
     // Build Popup HTML Content for Event
     function buildPopupContent(e) {
       const dict = I18N[AppState.lang];
+
+      // Audit & Verification QC data
+      const existingAudit = (AppState.flaggedEvents && AppState.flaggedEvents[e.id]) ? AppState.flaggedEvents[e.id] : null;
+      const isCurated = !!existingAudit;
+      const verifiedTier = existingAudit ? (existingAudit.verified_tier || (existingAudit.audit_status === 'INACCURATE' ? 'not_rob' : existingAudit.audit_status ? existingAudit.audit_status.toLowerCase() : 'not_rob')) : null;
+
+      // Header Badge logic
       let badgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
-      if (e.tier === 'confirmed') {
-        badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      } else if (e.tier === 'probable') {
-        badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+      let badgeLabel = e.tier_label;
+
+      if (verifiedTier === 'not_rob') {
+        badgeClass = 'bg-red-100 text-red-800 border-red-300 font-bold';
+        badgeLabel = '⚠️ BUKAN ROB (AUDIT)';
+      } else if (verifiedTier === 'confirmed') {
+        badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
+        badgeLabel = '✓ VERIFIED: CONFIRMED';
+      } else if (verifiedTier === 'probable') {
+        badgeClass = 'bg-amber-100 text-amber-800 border-amber-300 font-bold';
+        badgeLabel = '✓ VERIFIED: PROBABLE';
+      } else if (verifiedTier === 'possible') {
+        badgeClass = 'bg-blue-100 text-blue-800 border-blue-300 font-bold';
+        badgeLabel = '✓ VERIFIED: POSSIBLE';
+      } else {
+        if (e.tier === 'confirmed') {
+          badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        } else if (e.tier === 'probable') {
+          badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
+        }
       }
 
       // Build Tide Station & Water Level Anomaly Box
@@ -2391,45 +2471,113 @@
         `;
       }
 
-      // Flag / Inaccuracy Audit Section
-      const isFlagged = !!(AppState.flaggedEvents && AppState.flaggedEvents[e.id]);
-      const flagData = isFlagged ? AppState.flaggedEvents[e.id] : null;
+      // Tier Verification QC Toggle Buttons
+      const isConf = verifiedTier === 'confirmed' || (!isCurated && e.tier === 'confirmed');
+      const isProb = verifiedTier === 'probable' || (!isCurated && e.tier === 'probable');
+      const isPoss = verifiedTier === 'possible' || (!isCurated && e.tier === 'possible');
+      const isNotRob = verifiedTier === 'not_rob';
 
-      const flagSectionHtml = isFlagged ? `
-        <div class="mt-2 pt-2 border-t border-red-200">
-          <div class="p-2.5 rounded-lg bg-red-50 border border-red-200 space-y-1.5 shadow-xs">
+      const hasManualConf = verifiedTier === 'confirmed';
+      const hasManualProb = verifiedTier === 'probable';
+      const hasManualPoss = verifiedTier === 'possible';
+
+      const btnConfClass = hasManualConf
+        ? 'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400 shadow-sm'
+        : (isConf && !isCurated ? 'bg-emerald-50 text-emerald-900 border border-emerald-300 font-semibold' : 'bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200');
+
+      const btnProbClass = hasManualProb
+        ? 'bg-amber-500 text-white font-bold ring-2 ring-amber-300 shadow-sm'
+        : (isProb && !isCurated ? 'bg-amber-50 text-amber-900 border border-amber-300 font-semibold' : 'bg-white hover:bg-amber-50 text-amber-800 border border-amber-200');
+
+      const btnPossClass = hasManualPoss
+        ? 'bg-blue-600 text-white font-bold ring-2 ring-blue-400 shadow-sm'
+        : (isPoss && !isCurated ? 'bg-blue-50 text-blue-900 border border-blue-300 font-semibold' : 'bg-white hover:bg-blue-50 text-blue-800 border border-blue-200');
+
+      const btnNotRobClass = isNotRob
+        ? 'bg-red-600 text-white font-bold ring-2 ring-red-400 shadow-sm'
+        : 'bg-white hover:bg-red-50 text-red-700 border border-red-200';
+
+      let qcStatusDetailHtml = '';
+      if (isNotRob) {
+        qcStatusDetailHtml = `
+          <div class="mt-1.5 p-2 rounded-lg bg-red-50 border border-red-200 text-[10px] space-y-1">
             <div class="flex items-center justify-between">
-              <span class="text-[11px] font-bold text-red-800 flex items-center gap-1">
+              <span class="font-bold text-red-800 flex items-center gap-1">
                 <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
-                ${AppState.lang === 'en' ? 'Flagged: Inaccurate Report' : 'Ditandai: Berita Tidak Akurat'}
+                ${AppState.lang === 'en' ? 'Flagged: Not Rob / Inaccurate' : 'Ditandai: Bukan Banjir Rob'}
               </span>
-              <span class="text-[9px] font-mono font-bold text-red-700 bg-red-100 px-1.5 py-0.5 rounded border border-red-200">AUDIT</span>
-            </div>
-            <p class="text-[10px] text-red-900 bg-white/95 p-1.5 rounded border border-red-100 font-medium leading-relaxed">
-              "${flagData.reason || (AppState.lang === 'en' ? 'Inaccurate / non-flood report' : 'Tidak akurat / bukan banjir rob')}"
-            </p>
-            <div class="flex items-center justify-between text-[10px] pt-0.5">
-              <button onclick="openFlagConfirmModal('${e.id}')" class="text-red-700 hover:text-red-900 font-semibold underline flex items-center gap-1">
-                <i class="fa-solid fa-pen-to-square text-[9px]"></i> ${AppState.lang === 'en' ? 'Edit Reason' : 'Ubah Alasan'}
+              <button type="button" onclick="unflagEvent('${e.id}')" class="text-slate-500 hover:text-red-700 font-semibold underline text-[9px] cursor-pointer">
+                ${AppState.lang === 'en' ? 'Reset' : 'Batalkan'}
               </button>
-              <button onclick="unflagEvent('${e.id}')" class="text-slate-500 hover:text-red-700 font-medium underline flex items-center gap-1">
-                <i class="fa-solid fa-trash-can text-[9px]"></i> ${AppState.lang === 'en' ? 'Remove Flag' : 'Batalkan Tanda'}
+            </div>
+            <p class="text-red-900 font-medium bg-white/90 p-1.5 rounded border border-red-100 text-[10px] leading-relaxed">
+              "${existingAudit.reason || existingAudit.audit_reason || 'Bukan rob'}"
+            </p>
+            <div class="flex justify-end">
+              <button type="button" onclick="openFlagConfirmModal('${e.id}')" class="text-red-700 hover:text-red-900 font-semibold underline text-[9px] flex items-center gap-1 cursor-pointer">
+                <i class="fa-solid fa-pen-to-square text-[8px]"></i> ${AppState.lang === 'en' ? 'Edit Category' : 'Ubah Kategori'}
               </button>
             </div>
           </div>
-        </div>
-      ` : `
+        `;
+      } else if (hasManualConf || hasManualProb || hasManualPoss) {
+        qcStatusDetailHtml = `
+          <div class="mt-1.5 p-1.5 px-2 rounded-lg bg-emerald-50 border border-emerald-200 text-[10px] flex items-center justify-between">
+            <span class="font-semibold text-emerald-900 flex items-center gap-1">
+              <i class="fa-solid fa-circle-check text-emerald-600"></i>
+              <span>QC Manual: <strong class="uppercase font-mono">${verifiedTier}</strong></span>
+            </span>
+            <button type="button" onclick="unflagEvent('${e.id}')" class="text-slate-500 hover:text-red-700 font-semibold underline text-[9px] cursor-pointer">
+              ${AppState.lang === 'en' ? 'Reset' : 'Batalkan'}
+            </button>
+          </div>
+        `;
+      } else {
+        qcStatusDetailHtml = `
+          <div class="text-[9px] text-slate-400 text-center pt-0.5 flex items-center justify-center gap-1">
+            <i class="fa-regular fa-hand-pointer text-cyan-600 text-[8px]"></i>
+            <span>${AppState.lang === 'en' ? 'Click a tier button above for instant 1-click QC' : 'Klik tombol tier di atas untuk 1-klik simpan verifikasi QC'}</span>
+          </div>
+        `;
+      }
+
+      const qcSectionHtml = `
         <div class="mt-2 pt-2 border-t border-slate-200">
-          <label class="flex items-center gap-2 p-2 rounded-lg bg-amber-50/70 hover:bg-amber-100/70 border border-amber-200/80 cursor-pointer transition select-none">
-            <input type="checkbox" onchange="onPopupCheckboxChange('${e.id}', this)" class="w-4 h-4 text-red-600 rounded border-amber-300 focus:ring-red-500 cursor-pointer">
-            <div class="flex-1">
-              <span class="text-[11px] font-bold text-amber-900 flex items-center gap-1 leading-tight">
-                <i class="fa-regular fa-flag text-amber-600 text-[10px]"></i>
-                ${AppState.lang === 'en' ? 'Flag Inaccurate / Not Rob' : 'Tandai Berita Tidak Akurat / Bukan Rob'}
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
+                <i class="fa-solid fa-sliders text-cyan-600"></i>
+                <span>Verifikasi Tier (Data Training QC):</span>
               </span>
-              <span class="text-[9px] text-amber-700/90 block mt-0.5">${AppState.lang === 'en' ? 'Click to confirm reason and save to audit list' : 'Klik untuk konfirmasi & simpan ke daftar audit'}</span>
+              ${isCurated ? `<span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-100 text-cyan-800 border border-cyan-200">CURATED</span>` : ''}
             </div>
-          </label>
+
+            <!-- 4 1-Click Verification Toggle Buttons -->
+            <div class="grid grid-cols-4 gap-1">
+              <button type="button" onclick="setVerifiedTier('${e.id}', 'confirmed')" title="Verifikasi sebagai Confirmed (Dampak/Genangan Nyata)"
+                class="py-1.5 px-1 rounded-lg text-center font-bold text-[10px] transition flex flex-col items-center justify-center gap-0.5 cursor-pointer ${btnConfClass}">
+                <span class="text-xs">🟢</span>
+                <span class="truncate">Confirmed</span>
+              </button>
+              <button type="button" onclick="setVerifiedTier('${e.id}', 'probable')" title="Verifikasi sebagai Probable (Berita Rob Kredibel)"
+                class="py-1.5 px-1 rounded-lg text-center font-bold text-[10px] transition flex flex-col items-center justify-center gap-0.5 cursor-pointer ${btnProbClass}">
+                <span class="text-xs">🟡</span>
+                <span class="truncate">Probable</span>
+              </button>
+              <button type="button" onclick="setVerifiedTier('${e.id}', 'possible')" title="Verifikasi sebagai Possible (Indikasi Ringan / Umum)"
+                class="py-1.5 px-1 rounded-lg text-center font-bold text-[10px] transition flex flex-col items-center justify-center gap-0.5 cursor-pointer ${btnPossClass}">
+                <span class="text-xs">🔵</span>
+                <span class="truncate">Possible</span>
+              </button>
+              <button type="button" onclick="openFlagConfirmModal('${e.id}')" title="Tandai Bukan Rob / Berita Tidak Akurat (Pilih Alasan)"
+                class="py-1.5 px-1 rounded-lg text-center font-bold text-[10px] transition flex flex-col items-center justify-center gap-0.5 cursor-pointer ${btnNotRobClass}">
+                <span class="text-xs">🔴</span>
+                <span class="truncate">Bukan Rob</span>
+              </button>
+            </div>
+
+            ${qcStatusDetailHtml}
+          </div>
         </div>
       `;
 
@@ -2441,7 +2589,7 @@
               <i class="fa-solid fa-water"></i> ${e.id}
             </div>
             <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full border ${badgeClass}">
-              ${e.tier_label}
+              ${badgeLabel}
             </span>
           </div>
 
@@ -2503,8 +2651,8 @@
               </div>
             ` : ''}
 
-            <!-- Flag / Audit QC Section -->
-            ${flagSectionHtml}
+            <!-- Tier Verification & Audit QC Section -->
+            ${qcSectionHtml}
 
             <!-- Footer with ID and Email Report Fallback -->
             <div class="pt-1 border-t border-slate-100 flex items-center justify-between text-[10px]">
@@ -2839,27 +2987,51 @@
         `;
       } else {
         tbody.innerHTML = pageEvents.map(e => {
-          let badgeClass = 'bg-blue-100 text-blue-800';
-          if (e.tier === 'confirmed') badgeClass = 'bg-emerald-100 text-emerald-800';
-          else if (e.tier === 'probable') badgeClass = 'bg-amber-100 text-amber-800';
+          const rowAudit = (AppState.flaggedEvents && AppState.flaggedEvents[e.id]) ? AppState.flaggedEvents[e.id] : null;
+          const isRowCurated = !!rowAudit;
+          const verTier = rowAudit ? (rowAudit.verified_tier || (rowAudit.audit_status === 'INACCURATE' ? 'not_rob' : rowAudit.audit_status ? rowAudit.audit_status.toLowerCase() : 'not_rob')) : null;
 
-          const isRowFlagged = !!(AppState.flaggedEvents && AppState.flaggedEvents[e.id]);
-          const flagReasonTooltip = isRowFlagged 
-            ? `Ditandai Tidak Akurat: ${AppState.flaggedEvents[e.id].reason || 'Audit QC'}` 
-            : (AppState.lang === 'en' ? 'Flag as inaccurate / not rob' : 'Tandai berita tidak akurat / bukan rob');
+          let badgeClass = 'bg-blue-100 text-blue-800';
+          let tierDisplay = e.tier_label;
+
+          if (verTier === 'not_rob') {
+            badgeClass = 'bg-red-100 text-red-800 font-bold border border-red-200';
+            tierDisplay = '⚠️ BUKAN ROB';
+          } else if (verTier === 'confirmed') {
+            badgeClass = 'bg-emerald-100 text-emerald-800 font-bold border border-emerald-200';
+            tierDisplay = '✓ Confirmed';
+          } else if (verTier === 'probable') {
+            badgeClass = 'bg-amber-100 text-amber-800 font-bold border border-amber-200';
+            tierDisplay = '✓ Probable';
+          } else if (verTier === 'possible') {
+            badgeClass = 'bg-blue-100 text-blue-800 font-bold border border-blue-200';
+            tierDisplay = '✓ Possible';
+          } else {
+            if (e.tier === 'confirmed') badgeClass = 'bg-emerald-100 text-emerald-800';
+            else if (e.tier === 'probable') badgeClass = 'bg-amber-100 text-amber-800';
+          }
+
+          const flagReasonTooltip = isRowCurated 
+            ? (verTier === 'not_rob' ? `Bukan Rob: ${rowAudit.reason || 'Audit QC'}` : `QC Verified: ${verTier.toUpperCase()}`) 
+            : 'Verifikasi Tier / Tandai Bukan Rob';
+
+          let rowBgClass = '';
+          if (isRowCurated) {
+            rowBgClass = verTier === 'not_rob' ? 'bg-red-50/40' : 'bg-emerald-50/30';
+          }
 
           return `
-            <tr class="hover:bg-slate-50 transition ${isRowFlagged ? 'bg-red-50/40' : ''}">
+            <tr class="hover:bg-slate-50 transition ${rowBgClass}">
               <td class="py-2 px-3 font-mono text-[11px] font-semibold text-slate-800">
                 ${e.id}
-                ${isRowFlagged ? `<span class="ml-1 text-[9px] font-bold text-red-600 bg-red-100 px-1 py-0.2 rounded">FLAG</span>` : ''}
+                ${isRowCurated ? `<span class="ml-1 text-[9px] font-bold ${verTier === 'not_rob' ? 'text-red-600 bg-red-100' : 'text-emerald-700 bg-emerald-100'} px-1 py-0.2 rounded font-mono">${verTier === 'not_rob' ? 'FLAG' : 'QC'}</span>` : ''}
               </td>
               <td class="py-2 px-3 whitespace-nowrap text-slate-600">${e.date_start}</td>
               <td class="py-2 px-3 font-medium text-slate-900">${e.place}</td>
               <td class="py-2 px-3 text-slate-600">${e.province}</td>
               <td class="py-2 px-3 text-slate-600">${e.region_label}</td>
               <td class="py-2 px-3">
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeClass}">${e.tier_label}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeClass}">${tierDisplay}</span>
               </td>
               <td class="py-2 px-3 font-mono font-medium text-cyan-900">${e.depth_cm ? `${e.depth_cm} cm` : '-'}</td>
               <td class="py-2 px-3 font-mono">
@@ -2878,7 +3050,7 @@
                 <span class="text-slate-800 font-medium">${e.title || 'Coastal Flood Report'}</span>
               </td>
               <td class="py-2 px-3 text-center whitespace-nowrap space-x-1">
-                <button onclick="focusMapEvent('${e.id}')" title="Focus & Open Popup on Map" 
+                <button onclick="focusMapEvent('${e.id}')" title="Buka & Verifikasi di Peta" 
                   class="px-2 py-1 bg-slate-100 hover:bg-cyan-50 hover:text-cyan-700 rounded text-slate-600 transition">
                   <i class="fa-solid fa-map-location-dot"></i>
                 </button>
@@ -2888,9 +3060,9 @@
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                   </a>
                 ` : ''}
-                <button onclick="toggleFlagModalFromTable('${e.id}')" title="${flagReasonTooltip}" 
-                  class="inline-block px-2 py-1 ${isRowFlagged ? 'bg-red-100 text-red-700 border border-red-300 font-bold' : 'bg-slate-100 hover:bg-amber-50 hover:text-amber-700 text-slate-400'} rounded transition">
-                  <i class="${isRowFlagged ? 'fa-solid fa-flag text-red-600' : 'fa-regular fa-flag'}"></i>
+                <button onclick="openFlagConfirmModal('${e.id}')" title="${flagReasonTooltip}" 
+                  class="inline-block px-2 py-1 ${isRowCurated ? (verTier === 'not_rob' ? 'bg-red-100 text-red-700 border border-red-300 font-bold' : 'bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold') : 'bg-slate-100 hover:bg-amber-50 hover:text-amber-700 text-slate-400'} rounded transition">
+                  <i class="${isRowCurated ? (verTier === 'not_rob' ? 'fa-solid fa-flag text-red-600' : 'fa-solid fa-check text-emerald-600') : 'fa-solid fa-sliders'}"></i>
                 </button>
               </td>
             </tr>
@@ -3023,7 +3195,22 @@
     }
 
     function updateFlaggedUI() {
-      const count = Object.keys(AppState.flaggedEvents || {}).length;
+      const allEntries = Object.values(AppState.flaggedEvents || {});
+      const count = allEntries.length;
+
+      let confCount = 0;
+      let probCount = 0;
+      let possCount = 0;
+      let notRobCount = 0;
+
+      allEntries.forEach(f => {
+        const vTier = f.verified_tier || (f.audit_status === 'INACCURATE' ? 'not_rob' : f.audit_status ? f.audit_status.toLowerCase() : 'not_rob');
+        if (vTier === 'confirmed') confCount++;
+        else if (vTier === 'probable') probCount++;
+        else if (vTier === 'possible') possCount++;
+        else notRobCount++;
+      });
+
       const badge = document.getElementById('audit-badge-count');
       if (badge) {
         badge.textContent = count;
@@ -3040,6 +3227,73 @@
 
       const modalTotal = document.getElementById('audit-modal-total-count');
       if (modalTotal) modalTotal.textContent = count;
+
+      const elAll = document.getElementById('audit-filter-count-all');
+      if (elAll) elAll.textContent = count;
+      const elConf = document.getElementById('audit-filter-count-conf');
+      if (elConf) elConf.textContent = confCount;
+      const elProb = document.getElementById('audit-filter-count-prob');
+      if (elProb) elProb.textContent = probCount;
+      const elPoss = document.getElementById('audit-filter-count-poss');
+      if (elPoss) elPoss.textContent = possCount;
+      const elNotRob = document.getElementById('audit-filter-count-notrob');
+      if (elNotRob) elNotRob.textContent = notRobCount;
+    }
+
+    function setVerifiedTier(eventId, newTier) {
+      if (newTier === 'not_rob') {
+        openFlagConfirmModal(eventId);
+        return;
+      }
+
+      const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
+      if (!ev) return;
+
+      if (!AppState.flaggedEvents) AppState.flaggedEvents = {};
+
+      const originalTier = ev.tier || 'unknown';
+      const auditStatus = newTier.toUpperCase();
+      const reasonText = `Manual QC: Verified as ${auditStatus}`;
+
+      AppState.flaggedEvents[eventId] = {
+        id: eventId,
+        place: ev.place || '',
+        province: ev.province || '',
+        region: ev.region || '',
+        date_start: ev.date_start || '',
+        date_end: ev.date_end || '',
+        depth_cm: ev.depth_cm !== undefined ? ev.depth_cm : null,
+        title: ev.title || '',
+        url: ev.url || '',
+        terms: ev.terms || '',
+        tg_station: ev.tg ? (ev.tg.station || '') : '',
+        tg_anom_cm: ev.tg && ev.tg.anom_cm !== null && ev.tg.anom_cm !== undefined ? ev.tg.anom_cm : '',
+        original_tier: originalTier,
+        verified_tier: newTier,
+        audit_status: auditStatus,
+        reason: reasonText,
+        audit_reason: reasonText,
+        flagged_at: new Date().toISOString()
+      };
+
+      saveFlaggedEvents();
+      updateOpenMarkerPopup(eventId);
+
+      if (AppState.currentView === 'table') {
+        renderTablePage(AppState.tablePage);
+      }
+
+      const auditModal = document.getElementById('modal-audit');
+      if (auditModal && !auditModal.classList.contains('hidden')) {
+        renderAuditModalContent();
+      }
+
+      const tierLabels = {
+        confirmed: 'Confirmed (🟢 Dampak/Genangan Nyata)',
+        probable: 'Probable (🟡 Berita Rob Kredibel)',
+        possible: 'Possible (🔵 Indikasi Ringan)'
+      };
+      showToast(AppState.lang === 'en' ? `✓ #${eventId} verified as ${newTier.toUpperCase()}` : `✓ #${eventId} diverifikasi sebagai ${tierLabels[newTier] || newTier}!`);
     }
 
     function onPopupCheckboxChange(eventId, chkEl) {
@@ -3084,21 +3338,24 @@
         reasonInput.value = currentReason;
       }
 
-      // Restore 1-click mode toggle state
+      // Restore 1-click mode toggle state (default to true so Randi can 1-click save!)
       const oneClickChk = document.getElementById('flag-oneclick-toggle');
       if (oneClickChk) {
         try {
-          oneClickChk.checked = localStorage.getItem('INA_ONECLICK_FLAG') === 'true';
-        } catch (e) {}
+          const storedVal = localStorage.getItem('INA_ONECLICK_FLAG');
+          oneClickChk.checked = storedVal === null ? true : storedVal === 'true';
+        } catch (e) {
+          oneClickChk.checked = true;
+        }
       }
 
       // Reset and highlight matching preset button style
       document.querySelectorAll('#flag-preset-buttons .preset-btn').forEach(btn => {
         const btnReason = btn.getAttribute('data-reason') || '';
         if (currentReason && btnReason === currentReason) {
-          btn.classList.add('bg-amber-200', 'border-amber-500', 'font-bold', 'ring-1', 'ring-amber-400');
+          btn.classList.add('bg-red-200', 'border-red-500', 'font-bold', 'ring-1', 'ring-red-400');
         } else {
-          btn.classList.remove('bg-amber-200', 'border-amber-500', 'font-bold', 'ring-1', 'ring-amber-400');
+          btn.classList.remove('bg-red-200', 'border-red-500', 'font-bold', 'ring-1', 'ring-red-400');
         }
       });
 
@@ -3123,14 +3380,15 @@
       document.querySelectorAll('#flag-preset-buttons .preset-btn').forEach(btn => {
         const btnReason = btn.getAttribute('data-reason') || '';
         if ((isEl && btn === btnOrText) || (!isEl && btnReason === reasonText)) {
-          btn.classList.add('bg-amber-200', 'border-amber-500', 'font-bold', 'ring-1', 'ring-amber-400');
+          btn.classList.add('bg-red-200', 'border-red-500', 'font-bold', 'ring-1', 'ring-red-400');
         } else {
-          btn.classList.remove('bg-amber-200', 'border-amber-500', 'font-bold', 'ring-1', 'ring-amber-400');
+          btn.classList.remove('bg-red-200', 'border-red-500', 'font-bold', 'ring-1', 'ring-red-400');
         }
       });
 
       const oneClickChk = document.getElementById('flag-oneclick-toggle');
-      if (oneClickChk && oneClickChk.checked) {
+      // Defaults to 1-click instant submit!
+      if (!oneClickChk || oneClickChk.checked) {
         submitFlagEvent();
       }
     }
@@ -3168,7 +3426,11 @@
         terms: ev ? (ev.terms || '') : '',
         tg_station: ev && ev.tg ? (ev.tg.station || '') : '',
         tg_anom_cm: ev && ev.tg && ev.tg.anom_cm !== null && ev.tg.anom_cm !== undefined ? ev.tg.anom_cm : '',
+        original_tier: ev ? (ev.tier || 'unknown') : 'unknown',
+        verified_tier: 'not_rob',
+        audit_status: 'INACCURATE',
         reason: reasonText,
+        audit_reason: reasonText,
         flagged_at: new Date().toISOString()
       };
 
@@ -3189,7 +3451,7 @@
         renderAuditModalContent();
       }
 
-      showToast(AppState.lang === 'en' ? `✓ Event #${eventId} flagged as inaccurate.` : `✓ Kejadian #${eventId} berhasil ditandai tidak akurat.`);
+      showToast(AppState.lang === 'en' ? `✓ Event #${eventId} marked as not rob.` : `✓ Kejadian #${eventId} ditandai sebagai BUKAN ROB.`);
     }
 
     function unflagEvent(eventId) {
@@ -3214,24 +3476,16 @@
       const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
       if (!ev) return;
 
-      const isFlagged = !!(AppState.flaggedEvents && AppState.flaggedEvents[eventId]);
-      let pinColor = '#2563eb';
-      if (ev.tier === 'confirmed') pinColor = '#059669';
-      else if (ev.tier === 'probable') pinColor = '#d97706';
-
       if (marker) {
-        // Update marker icon
+        const iconCfg = getMarkerIconConfig(ev);
         const markerIcon = L.divIcon({
           className: 'custom-flood-pin',
-          html: isFlagged
-            ? `<div style="background-color: #dc2626; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 8px rgba(220,38,38,0.9); display:flex; align-items:center; justify-content:center; color:white; font-size:9px; font-weight:bold;"><i class="fa-solid fa-xmark"></i></div>`
-            : `<div style="background-color: ${pinColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
-          iconSize: [isFlagged ? 14 : 12, isFlagged ? 14 : 12],
-          iconAnchor: [isFlagged ? 7 : 6, isFlagged ? 7 : 6]
+          html: iconCfg.html,
+          iconSize: iconCfg.size,
+          iconAnchor: iconCfg.anchor
         });
         marker.setIcon(markerIcon);
 
-        // Update popup content
         const newHtml = buildPopupContent(ev);
         marker.setPopupContent(newHtml);
         if (marker.isPopupOpen && marker.isPopupOpen()) {
@@ -3245,32 +3499,73 @@
     }
 
     function openAuditModal() {
+      AppState.auditFilterTier = AppState.auditFilterTier || 'all';
       renderAuditModalContent();
       toggleModal('modal-audit', true);
+    }
+
+    function filterAuditModalTable(tier) {
+      AppState.auditFilterTier = tier;
+      renderAuditModalContent();
     }
 
     function renderAuditModalContent() {
       const container = document.getElementById('audit-modal-table-container');
       if (!container) return;
-      const ids = Object.keys(AppState.flaggedEvents || {});
+
+      const currentFilter = AppState.auditFilterTier || 'all';
       updateFlaggedUI();
 
-      if (ids.length === 0) {
+      // Highlight active filter pill tab
+      const filterTabs = ['all', 'confirmed', 'probable', 'possible', 'not_rob'];
+      filterTabs.forEach(t => {
+        const btn = document.getElementById(`btn-audit-tab-${t}`);
+        if (!btn) return;
+        if (t === currentFilter) {
+          btn.className = "px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white shadow-sm ring-2 ring-cyan-500";
+        } else {
+          let idleClass = "bg-slate-100 text-slate-700 hover:bg-slate-200";
+          if (t === 'confirmed') idleClass = "bg-emerald-50 text-emerald-800 hover:bg-emerald-100";
+          else if (t === 'probable') idleClass = "bg-amber-50 text-amber-800 hover:bg-amber-100";
+          else if (t === 'possible') idleClass = "bg-blue-50 text-blue-800 hover:bg-blue-100";
+          else if (t === 'not_rob') idleClass = "bg-red-50 text-red-800 hover:bg-red-100";
+          btn.className = `px-2.5 py-1 rounded-lg text-xs font-semibold ${idleClass} transition`;
+        }
+      });
+
+      const allIds = Object.keys(AppState.flaggedEvents || {});
+      if (allIds.length === 0) {
         container.innerHTML = `
           <div class="text-center py-12 text-slate-400">
-            <i class="fa-regular fa-circle-check text-4xl text-slate-300 mb-3 block"></i>
-            <p class="font-bold text-slate-700 text-sm">${AppState.lang === 'en' ? 'No events flagged yet.' : 'Belum ada kejadian yang ditandai tidak akurat.'}</p>
+            <i class="fa-regular fa-clipboard text-4xl text-slate-300 mb-3 block"></i>
+            <p class="font-bold text-slate-700 text-sm">Belum ada kejadian yang ditinjau atau diverifikasi.</p>
             <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
-              ${AppState.lang === 'en' 
-                ? 'Open any event popup on the map or click the flag icon in the data table to mark non-flood reports, protests, or weather warnings.' 
-                : 'Buka popup kejadian di peta atau klik ikon bendera di tabel data untuk menandai berita bukan rob, berita demo warga, atau berita proyek tanggul.'}
+              Buka popup kejadian di peta lalu klik tombol toggle tier (🟢 Confirmed / 🟡 Probable / 🔵 Possible / 🔴 Bukan Rob) untuk mulai kurasi data training.
             </p>
           </div>
         `;
         return;
       }
 
-      const rows = ids.map(id => {
+      // Filter entries by current tab
+      const filteredIds = allIds.filter(id => {
+        if (currentFilter === 'all') return true;
+        const f = AppState.flaggedEvents[id] || {};
+        const vTier = f.verified_tier || (f.audit_status === 'INACCURATE' ? 'not_rob' : f.audit_status ? f.audit_status.toLowerCase() : 'not_rob');
+        return vTier === currentFilter;
+      });
+
+      if (filteredIds.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-400">
+            <p class="font-bold text-slate-700 text-sm">Tidak ada data untuk kategori ini.</p>
+            <button onclick="filterAuditModalTable('all')" class="mt-2 text-xs font-semibold text-cyan-600 underline">Tampilkan Semua Data</button>
+          </div>
+        `;
+        return;
+      }
+
+      const rows = filteredIds.map(id => {
         const f = AppState.flaggedEvents[id] || {};
         const ev = AppState.allEvents.find(e => String(e.id) === String(id)) || {};
         const dateStr = f.date_start || ev.date_start || '-';
@@ -3278,7 +3573,19 @@
         const provStr = f.province || ev.province || '';
         const titleStr = f.title || ev.title || 'Laporan Kejadian';
         const urlStr = f.url || ev.url || '';
-        const reasonStr = f.reason || 'Tidak akurat / bukan rob';
+        const vTier = f.verified_tier || (f.audit_status === 'INACCURATE' ? 'not_rob' : f.audit_status ? f.audit_status.toLowerCase() : 'not_rob');
+        const reasonStr = f.audit_reason || f.reason || 'Diverifikasi manual';
+
+        let badgeHtml = '';
+        if (vTier === 'not_rob') {
+          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-800 text-[11px] font-bold">🔴 Bukan Rob: ${reasonStr}</span>`;
+        } else if (vTier === 'confirmed') {
+          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">🟢 Confirmed (Manual QC)</span>`;
+        } else if (vTier === 'probable') {
+          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold">🟡 Probable (Manual QC)</span>`;
+        } else if (vTier === 'possible') {
+          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-800 text-[11px] font-bold">🔵 Possible (Manual QC)</span>`;
+        }
 
         return `
           <tr class="hover:bg-slate-50 transition border-b border-slate-100">
@@ -3291,26 +3598,24 @@
             <td class="py-2.5 px-3 max-w-xs">
               <div class="text-slate-800 font-medium line-clamp-2" title="${titleStr}">"${titleStr}"</div>
               ${urlStr ? `
-                <a href="${urlStr}" target="_blank" rel="noopener noreferrer" class="text-cyan-700 hover:underline text-[10px] inline-flex items-center gap-1 mt-0.5">
+                <a href="${urlStr}" target="_blank" rel="noopener noreferrer" class="text-cyan-700 hover:underline text-[10px] inline-flex items-center gap-1 mt-0.5 font-medium">
                   <span>Buka Berita</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               ` : ''}
             </td>
             <td class="py-2.5 px-3">
-              <span class="inline-block px-2 py-1 rounded-lg bg-red-50 border border-red-200 text-red-800 text-[11px] font-semibold leading-snug">
-                ⚠️ ${reasonStr}
-              </span>
+              ${badgeHtml}
             </td>
             <td class="py-2.5 px-3 whitespace-nowrap text-center space-x-1">
               <button onclick="focusMapEvent('${id}'); toggleModal('modal-audit', false);" title="Lihat di Peta" 
                 class="px-2 py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 rounded font-semibold transition text-xs">
                 <i class="fa-solid fa-location-dot"></i> Peta
               </button>
-              <button onclick="openFlagConfirmModal('${id}')" title="Ubah Catatan" 
+              <button onclick="${vTier === 'not_rob' ? `openFlagConfirmModal('${id}')` : `focusMapEvent('${id}'); toggleModal('modal-audit', false);`}" title="Ubah Verifikasi" 
                 class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition text-xs">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
-              <button onclick="unflagEvent('${id}')" title="Hapus dari Daftar Audit" 
+              <button onclick="unflagEvent('${id}')" title="Reset / Hapus dari Daftar" 
                 class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded transition text-xs">
                 <i class="fa-regular fa-trash-can"></i>
               </button>
@@ -3328,7 +3633,7 @@
                 <th class="py-2.5 px-3">Tanggal</th>
                 <th class="py-2.5 px-3">Lokasi</th>
                 <th class="py-2.5 px-3">Berita</th>
-                <th class="py-2.5 px-3">Alasan Tidak Akurat</th>
+                <th class="py-2.5 px-3">Status Verifikasi QC</th>
                 <th class="py-2.5 px-3 text-center">Aksi</th>
               </tr>
             </thead>
@@ -3343,12 +3648,12 @@
     function exportFlaggedToCSV() {
       const ids = Object.keys(AppState.flaggedEvents || {});
       if (ids.length === 0) {
-        alert(AppState.lang === 'en' ? 'No flagged events to export.' : 'Belum ada kejadian yang ditandai untuk diekspor.');
+        alert(AppState.lang === 'en' ? 'No curated events to export.' : 'Belum ada kejadian yang diverifikasi / ditandai untuk diekspor.');
         return;
       }
 
       const rows = [];
-      // Header row
+      // Header row for Ground-Truth Training Data
       rows.push([
         'event_id',
         'place',
@@ -3362,6 +3667,8 @@
         'terms',
         'tg_station',
         'tg_anom_cm',
+        'original_tier',
+        'verified_tier',
         'audit_status',
         'audit_reason',
         'flagged_at'
@@ -3370,6 +3677,11 @@
       ids.forEach(id => {
         const f = AppState.flaggedEvents[id] || {};
         const e = AppState.allEvents.find(x => String(x.id) === String(id)) || {};
+        const origTier = f.original_tier || e.tier || '';
+        const verTier = f.verified_tier || (f.audit_status === 'INACCURATE' ? 'not_rob' : (f.audit_status ? f.audit_status.toLowerCase() : 'not_rob'));
+        const auditStatus = f.audit_status || (verTier === 'not_rob' ? 'INACCURATE' : verTier.toUpperCase());
+        const auditReason = f.audit_reason || f.reason || '';
+
         rows.push([
           `"${f.id || id}"`,
           `"${(f.place || e.place || '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
@@ -3383,8 +3695,10 @@
           `"${(f.terms || e.terms || '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
           `"${(f.tg_station || (e.tg ? e.tg.station : '') || '').replace(/"/g, '""')}"`,
           (f.tg_anom_cm !== undefined && f.tg_anom_cm !== '') ? f.tg_anom_cm : ((e.tg && e.tg.anom_cm !== null) ? e.tg.anom_cm : ''),
-          '"INACCURATE"',
-          `"${(f.reason || '').replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
+          `"${origTier}"`,
+          `"${verTier}"`,
+          `"${auditStatus}"`,
+          `"${auditReason.replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
           `"${f.flagged_at || new Date().toISOString()}"`
         ]);
       });
@@ -3395,13 +3709,13 @@
       const a = document.createElement('a');
       const todayStr = new Date().toISOString().split('T')[0];
       a.href = url;
-      a.download = `rob_inaccurate_audit_${todayStr}.csv`;
+      a.download = `rob_curated_training_data_${todayStr}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      showToast(AppState.lang === 'en' ? `Downloaded ${ids.length} audit records to CSV!` : `Berhasil mengunduh ${ids.length} data audit ke CSV!`);
+      showToast(AppState.lang === 'en' ? `Downloaded ${ids.length} training records to CSV!` : `Berhasil mengunduh ${ids.length} data training QC ke CSV!`);
     }
 
     function copyFlaggedIDs() {
@@ -3426,17 +3740,17 @@
       const count = Object.keys(AppState.flaggedEvents || {}).length;
       if (count === 0) return;
       const confirmMsg = AppState.lang === 'en' 
-        ? `Are you sure you want to clear all ${count} flagged items?` 
-        : `Apakah Anda yakin ingin menghapus semua ${count} tanda audit?`;
+        ? `Are you sure you want to clear all ${count} curated records?` 
+        : `Apakah Anda yakin ingin menghapus semua ${count} data kurasi QC?`;
       if (confirm(confirmMsg)) {
         AppState.flaggedEvents = {};
         saveFlaggedEvents();
-        renderMarkers(false);
+        refreshMapMarkers(false);
         if (AppState.currentView === 'table') {
           renderTablePage(AppState.tablePage);
         }
         renderAuditModalContent();
-        showToast(AppState.lang === 'en' ? 'All audit flags cleared.' : 'Semua tanda audit telah dihapus.');
+        showToast(AppState.lang === 'en' ? 'All curated flags cleared.' : 'Semua tanda audit & verifikasi telah dihapus.');
       }
     }
 
