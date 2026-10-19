@@ -76,13 +76,25 @@
     /* Leaflet popup customization */
     .leaflet-popup-content-wrapper {
       padding: 0;
-      border-radius: 12px;
+      border-radius: 14px;
       overflow: hidden;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.08);
     }
     .leaflet-popup-content {
       margin: 0 !important;
       line-height: 1.4;
+      max-width: 100% !important;
+    }
+    .leaflet-popup-close-button {
+      top: 10px !important;
+      right: 12px !important;
+      color: rgba(255, 255, 255, 0.75) !important;
+      font-size: 18px !important;
+      z-index: 30 !important;
+      transition: color 0.15s ease;
+    }
+    .leaflet-popup-close-button:hover {
+      color: #ffffff !important;
     }
     /* Cluster custom styling */
     .marker-cluster-small {
@@ -112,7 +124,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=951.202610191402"></script>
+  <script src="data/events.js?v=951.202610191412"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -594,33 +606,6 @@
 
       </div>
 
-      <!-- Floating Map Legend (Collapsible on Mobile) -->
-      <div id="map-legend" class="absolute bottom-18 sm:bottom-6 left-3 sm:left-4 z-20 bg-white/95 backdrop-blur-sm p-2.5 sm:p-3 rounded-xl shadow-lg border border-slate-200 text-xs max-w-[240px] sm:max-w-xs pointer-events-auto transition-all">
-        <div onclick="toggleMobileLegend()" class="font-bold text-slate-800 text-[11px] flex items-center justify-between cursor-pointer sm:cursor-default">
-          <div class="flex items-center gap-1.5">
-            <i class="fa-solid fa-layer-group text-slate-400"></i>
-            <span data-i18n="legend_title">Confidence Tier Legend</span>
-          </div>
-          <i id="legend-collapse-icon" class="fa-solid fa-chevron-down text-slate-400 text-[10px] sm:hidden"></i>
-        </div>
-        <div id="legend-body" class="space-y-1.5 text-[11px] mt-2 hidden sm:block">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-600 inline-block shadow-sm flex-none"></span>
-            <span class="font-medium text-slate-700" data-i18n="legend_confirmed">Confirmed (Verified physical impact)</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-500 inline-block shadow-sm flex-none"></span>
-            <span class="font-medium text-slate-700" data-i18n="legend_probable">Probable (Credible flood report)</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-blue-600 inline-block shadow-sm flex-none"></span>
-            <span class="font-medium text-slate-700" data-i18n="legend_possible">Possible (Minor / potential impact)</span>
-          </div>
-          <div class="pt-1.5 border-t border-slate-100 text-[10px] text-slate-400 leading-tight" data-i18n="cluster_hint">
-            Cluster numbers show aggregate event counts at that spatial zoom level.
-          </div>
-        </div>
-      </div>
 
       <!-- Floating Mobile Filter Trigger on Map -->
       <div class="md:hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-20 pointer-events-auto">
@@ -1651,7 +1636,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=951.202610191402')
+        fetch('data/events.json?v=951.202610191412')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -2317,8 +2302,10 @@
         const popupContent = buildPopupContent(e);
 
         marker.bindPopup(popupContent, { 
-          maxWidth: Math.min(340, window.innerWidth - 32),
-          autoPanPadding: [16, 70]
+          maxWidth: Math.min(460, window.innerWidth - 24),
+          minWidth: Math.min(340, window.innerWidth - 32),
+          autoPanPadding: [20, 80],
+          autoPan: true
         });
         markers.push(marker);
         AppState.markersById[e.id] = marker;
@@ -2542,8 +2529,8 @@
       }
 
       const qcSectionHtml = `
-        <div class="mt-2 pt-2 border-t border-slate-200">
-          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+        <div class="mt-2.5 pt-2.5 border-t border-slate-200">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
                 <i class="fa-solid fa-sliders text-cyan-600"></i>
@@ -2553,25 +2540,25 @@
             </div>
 
             <!-- 4 1-Click Verification Toggle Buttons -->
-            <div class="grid grid-cols-4 gap-1">
+            <div class="grid grid-cols-4 gap-1.5">
               <button type="button" onclick="setVerifiedTier('${e.id}', 'confirmed')" title="Verifikasi sebagai Confirmed (Dampak/Genangan Nyata)"
-                class="py-1.5 px-1 rounded-lg text-center font-bold text-[10px] transition flex flex-col items-center justify-center gap-0.5 cursor-pointer ${btnConfClass}">
-                <span class="text-xs">🟢</span>
+                class="py-2 px-1 rounded-lg text-center font-bold text-[10.5px] transition flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 ${btnConfClass}">
+                <span class="text-sm">🟢</span>
                 <span class="truncate">Confirmed</span>
               </button>
               <button type="button" onclick="setVerifiedTier('${e.id}', 'probable')" title="Verifikasi sebagai Probable (Berita Rob Kredibel)"
-                class="py-1.5 px-1 rounded-lg text-center font-bold text-[10px] transition flex flex-col items-center justify-center gap-0.5 cursor-pointer ${btnProbClass}">
-                <span class="text-xs">🟡</span>
+                class="py-2 px-1 rounded-lg text-center font-bold text-[10.5px] transition flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 ${btnProbClass}">
+                <span class="text-sm">🟡</span>
                 <span class="truncate">Probable</span>
               </button>
               <button type="button" onclick="setVerifiedTier('${e.id}', 'possible')" title="Verifikasi sebagai Possible (Indikasi Ringan / Umum)"
-                class="py-1.5 px-1 rounded-lg text-center font-bold text-[10px] transition flex flex-col items-center justify-center gap-0.5 cursor-pointer ${btnPossClass}">
-                <span class="text-xs">🔵</span>
+                class="py-2 px-1 rounded-lg text-center font-bold text-[10.5px] transition flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 ${btnPossClass}">
+                <span class="text-sm">🔵</span>
                 <span class="truncate">Possible</span>
               </button>
               <button type="button" onclick="openFlagConfirmModal('${e.id}')" title="Tandai Bukan Rob / Berita Tidak Akurat (Pilih Alasan)"
-                class="py-1.5 px-1 rounded-lg text-center font-bold text-[10px] transition flex flex-col items-center justify-center gap-0.5 cursor-pointer ${btnNotRobClass}">
-                <span class="text-xs">🔴</span>
+                class="py-2 px-1 rounded-lg text-center font-bold text-[10.5px] transition flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 ${btnNotRobClass}">
+                <span class="text-sm">🔴</span>
                 <span class="truncate">Bukan Rob</span>
               </button>
             </div>
@@ -2582,9 +2569,9 @@
       `;
 
       return `
-        <div class="w-[280px] sm:w-80 max-w-[85vw] text-xs font-sans">
-          <!-- Popup Header -->
-          <div class="p-3 bg-slate-900 text-white flex items-center justify-between">
+        <div class="w-[320px] sm:w-[410px] md:w-[430px] max-w-[94vw] text-xs font-sans flex flex-col">
+          <!-- Popup Header (Sticky with right padding to clear Leaflet close button) -->
+          <div class="p-3 sm:px-4 sm:py-3 bg-slate-900 text-white flex items-center justify-between sticky top-0 z-20 shrink-0 border-b border-slate-800 pr-8">
             <div class="flex items-center gap-1.5 font-mono font-bold text-cyan-300">
               <i class="fa-solid fa-water"></i> ${e.id}
             </div>
@@ -2595,8 +2582,8 @@
 
           ${sameLocSwitcherHtml}
 
-          <!-- Popup Body -->
-          <div class="p-3 sm:p-3.5 space-y-2.5 bg-white text-slate-700">
+          <!-- Popup Body (Scrollable with max height) -->
+          <div class="p-3.5 sm:p-4 space-y-3 bg-white text-slate-700 max-h-[62vh] sm:max-h-[68vh] overflow-y-auto overscroll-contain">
             
             <!-- Date & Location -->
             <div class="grid grid-cols-2 gap-2 text-[11px] pb-2 border-b border-slate-100">
@@ -2614,7 +2601,7 @@
 
             <!-- Depth Highlight if available -->
             ${e.depth_cm ? `
-              <div class="p-2 bg-cyan-50 border border-cyan-200 rounded-lg flex items-center justify-between">
+              <div class="p-2.5 bg-cyan-50 border border-cyan-200 rounded-lg flex items-center justify-between">
                 <span class="text-cyan-900 font-semibold"><i class="fa-solid fa-ruler-vertical text-cyan-600 mr-1"></i> ${dict.popup_depth}</span>
                 <span class="font-mono font-bold text-cyan-950 text-sm">${e.depth_cm} cm</span>
               </div>
@@ -2629,11 +2616,11 @@
             <!-- News Title -->
             <div>
               <span class="text-slate-400 block text-[10px] mb-0.5">${dict.popup_headline}</span>
-              <p class="font-semibold text-slate-800 leading-snug line-clamp-2">"${e.title || 'Coastal Flood Report'}"</p>
+              <p class="font-semibold text-slate-800 leading-snug text-[12px]">"${e.title || 'Coastal Flood Report'}"</p>
             </div>
 
             <!-- Metadata details -->
-            <div class="text-[10px] text-slate-500 space-y-0.5 bg-slate-50 p-2 rounded border border-slate-100">
+            <div class="text-[10px] text-slate-500 space-y-0.5 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
               <div><strong>${dict.popup_region}</strong> ${e.region_label}</div>
               <div><strong>${dict.popup_terms}</strong> <code class="text-cyan-800">${e.terms || 'banjir rob'}</code></div>
               ${e.tier_reason ? `<div><strong>${dict.popup_reason}</strong> ${e.tier_reason}</div>` : ''}
@@ -2642,9 +2629,9 @@
 
             <!-- Action Link -->
             ${e.url ? `
-              <div class="pt-1">
+              <div class="pt-0.5">
                 <a href="${e.url}" target="_blank" rel="noopener noreferrer" 
-                  class="w-full py-1.5 px-3 bg-cyan-600 hover:bg-cyan-700 text-white text-center rounded-md font-semibold flex items-center justify-center gap-1.5 transition">
+                  class="w-full py-2 px-3 bg-cyan-600 hover:bg-cyan-700 text-white text-center rounded-lg font-semibold flex items-center justify-center gap-1.5 transition shadow-xs">
                   <span>${dict.popup_btn}</span>
                   <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                 </a>
@@ -2655,7 +2642,7 @@
             ${qcSectionHtml}
 
             <!-- Footer with ID and Email Report Fallback -->
-            <div class="pt-1 border-t border-slate-100 flex items-center justify-between text-[10px]">
+            <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
               <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Laporan%20Kejadian%20${e.id}&body=Event%20ID:%20${e.id}%0ALokasi:%20${encodeURIComponent(e.place)}%0ATanggal:%20${e.date_start}%0AJudul%20Berita:%20${encodeURIComponent(e.title || '')}%0ATautan:%20${encodeURIComponent(e.url || '')}%0A%0ACatatan%20(misal%20bukan%20banjir%20rob,%20berita%20demo,%20atau%20proyek%20tanggul):%20" 
                 class="text-slate-400 hover:text-amber-700 flex items-center gap-1 transition" title="${dict.popup_report_issue}">
                 <i class="fa-regular fa-envelope text-[9px] text-amber-500"></i>
