@@ -124,7 +124,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=951.202610192353"></script>
+  <script src="data/events.js?v=951.202610201022"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -1122,11 +1122,12 @@
         popup_days: "days",
         popup_loc: "COASTAL LOCATION",
         popup_depth: "Estimated Inundation:",
-        popup_tg_station: "Nearest Tide Station",
-        popup_tg_anom: "Max Water Level Anomaly",
-        popup_tg_peak_wl: "Observed Peak WL",
+        popup_tg_station: "Nearest BMKG Tide Station",
+        popup_tg_anom: "Water Level Anomaly",
+        popup_tg_peak_wl: "BMKG Tide Gauge Peak WL",
         popup_tg_pct: "Daily Percentile",
-        popup_tg_inactive: "Station inactive on event date",
+        popup_tg_inactive: "Station inactive / no data on date (active 2022–2025)",
+        popup_tg_none: "> 100 km (beyond BMKG tide station network)",
         popup_sat_title: "Satellite Sea Level (C3S Altimetry)",
         popup_sat_offshore: "offshore",
         popup_sat_sla: "Sea Level Anomaly (SLA)",
@@ -1249,9 +1250,10 @@
         popup_depth: "Estimasi Genangan:",
         popup_tg_station: "Stasiun Pasut BMKG Terdekat",
         popup_tg_anom: "Anomali Muka Air Maks.",
-        popup_tg_peak_wl: "Muka Air Puncak",
+        popup_tg_peak_wl: "Muka Air Pasut Maks. BMKG",
         popup_tg_pct: "Persentil Harian",
-        popup_tg_inactive: "Stasiun belum aktif / pra-2022",
+        popup_tg_inactive: "Stasiun belum aktif / arsip 2022–2025",
+        popup_tg_none: "> 100 km (di luar jangkauan stasiun pasut BMKG)",
         popup_sat_title: "Muka Air Laut Satelit (Altimetri C3S)",
         popup_sat_offshore: "lepas pantai",
         popup_sat_sla: "Anomali Muka Air (SLA)",
@@ -1628,7 +1630,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=951.202610192353')
+        fetch('data/events.json?v=951.202610201022')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -2391,7 +2393,7 @@
           const anomTextColor = isHigh ? 'text-amber-800' : 'text-cyan-900';
 
           tgBoxHtml = `
-            <div class="p-2.5 rounded-lg border ${cardBg} space-y-1">
+            <div class="p-2.5 rounded-lg border ${cardBg} space-y-1.5">
               <div class="flex items-center justify-between text-[11px] font-bold text-slate-900">
                 <span class="flex items-center gap-1.5 text-cyan-950">
                   <i class="fa-solid fa-tower-broadcast text-cyan-600"></i>
@@ -2399,26 +2401,50 @@
                 </span>
                 <span class="text-[10px] text-slate-500 font-normal">(${e.tg.dist_km} km)</span>
               </div>
-              <div class="flex items-center justify-between pt-0.5 text-xs">
-                <span class="text-slate-600 font-medium">${dict.popup_tg_anom}:</span>
-                <span class="font-mono font-bold text-sm ${anomTextColor}">${anomSign}${e.tg.anom_cm} cm</span>
-              </div>
-              ${e.tg.wl_m !== null ? `
-                <div class="text-[10px] text-slate-500 flex justify-between border-t border-slate-200/60 pt-1">
-                  <span>${dict.popup_tg_peak_wl}: <strong class="font-mono text-slate-800">${e.tg.wl_m} m</strong></span>
-                  ${e.tg.pct !== null ? `<span>${dict.popup_tg_pct}: <strong class="font-mono text-slate-800">${e.tg.pct}%</strong></span>` : ''}
+              <div class="grid grid-cols-2 gap-2 pt-0.5">
+                <div class="bg-white/85 p-1.5 rounded border border-slate-200/60 shadow-xs">
+                  <span class="text-[9.5px] text-slate-500 font-medium block leading-tight">${dict.popup_tg_peak_wl}</span>
+                  <div class="flex items-baseline gap-1 mt-0.5">
+                    <span class="font-mono font-bold text-xs text-slate-900">${e.tg.wl_m !== null && e.tg.wl_m !== undefined ? `${e.tg.wl_m} m` : '-'}</span>
+                    ${e.tg.pct !== null && e.tg.pct !== undefined ? `<span class="text-[9px] text-slate-500 font-mono">(P${e.tg.pct}%)</span>` : ''}
+                  </div>
                 </div>
-              ` : ''}
+                <div class="bg-white/85 p-1.5 rounded border border-slate-200/60 shadow-xs">
+                  <span class="text-[9.5px] text-slate-500 font-medium block leading-tight">${dict.popup_tg_anom}</span>
+                  <div class="mt-0.5">
+                    <span class="font-mono font-bold text-xs ${anomTextColor}">${anomSign}${e.tg.anom_cm} cm</span>
+                  </div>
+                </div>
+              </div>
             </div>
           `;
         } else {
           tgBoxHtml = `
-            <div class="p-2 rounded bg-slate-50 border border-slate-100 text-[10px] text-slate-500 flex items-center justify-between">
-              <span><i class="fa-solid fa-tower-broadcast text-slate-400 mr-1"></i> ${dict.popup_tg_station}: <strong>${e.tg.station}</strong> (${e.tg.dist_km} km)</span>
-              <span class="italic text-slate-400">${dict.popup_tg_inactive}</span>
+            <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-1">
+              <div class="flex items-center justify-between text-[11px] font-semibold text-slate-800">
+                <span class="flex items-center gap-1.5 text-slate-700">
+                  <i class="fa-solid fa-tower-broadcast text-slate-400"></i>
+                  <span>${dict.popup_tg_station}: <strong>${e.tg.station}</strong></span>
+                </span>
+                <span class="text-[10px] text-slate-500 font-normal">(${e.tg.dist_km} km)</span>
+              </div>
+              <div class="text-[10px] text-slate-500 pt-0.5 border-t border-slate-200/60 flex items-center justify-between">
+                <span class="font-medium text-slate-600">${dict.popup_tg_peak_wl}:</span>
+                <span class="italic text-slate-400">${dict.popup_tg_inactive}</span>
+              </div>
             </div>
           `;
         }
+      } else {
+        tgBoxHtml = `
+          <div class="p-2 rounded-lg bg-slate-50 border border-slate-200/70 text-[10px] text-slate-500 flex items-center justify-between">
+            <span class="flex items-center gap-1.5 text-slate-600">
+              <i class="fa-solid fa-tower-broadcast text-slate-300"></i>
+              <span>${dict.popup_tg_station}:</span>
+            </span>
+            <span class="italic text-slate-400">${dict.popup_tg_none}</span>
+          </div>
+        `;
       }
 
       // Build Satellite SLA (C3S Altimetry) Box
@@ -3090,6 +3116,7 @@
               <td class="py-2 px-3 font-mono">
                 ${e.tg && e.tg.anom_cm !== null 
                   ? `<span class="font-bold text-xs ${e.tg.anom_cm > 0 ? 'text-amber-700' : 'text-slate-600'}">${e.tg.anom_cm > 0 ? '+' : ''}${e.tg.anom_cm} cm</span>
+                     ${e.tg.wl_m !== null && e.tg.wl_m !== undefined ? `<span class="block text-[9.5px] text-cyan-900 font-semibold font-mono">WL: ${e.tg.wl_m} m</span>` : ''}
                      <span class="block text-[10px] text-slate-500 font-sans font-medium">${e.tg.station} (${e.tg.dist_km} km)</span>` 
                   : (e.tg ? `<span class="text-slate-400 text-[10px] font-sans">${e.tg.station} (${e.tg.dist_km} km)</span>` : '<span class="text-slate-400 text-xs">-</span>')}
               </td>
