@@ -124,7 +124,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=1244.202610211845"></script>
+  <script src="data/events.js?v=1244.202610211849"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -401,32 +401,18 @@
 
         <div class="h-px bg-slate-200"></div>
 
-        <!-- 3. Parameters (Water Depth & Audit QC) -->
-        <div class="space-y-2">
+        <!-- 3. Audit / QC Filter -->
+        <div class="space-y-1.5">
           <label class="font-semibold text-slate-700 flex items-center justify-between">
-            <span><i class="fa-solid fa-sliders text-cyan-600 mr-1.5"></i> <span data-i18n="specific_parameters">Parameters</span></span>
+            <span><i class="fa-solid fa-clipboard-check text-cyan-600 mr-1.5"></i> <span data-i18n="audit_filter_label">Audit / QC Filter</span></span>
           </label>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="depth_filter">Water Depth</label>
-              <select id="filter-depth" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700 text-xs">
-                <option value="all" data-i18n="depth_all">All Events</option>
-                <option value="reported" data-i18n="depth_reported">Depth Reported (cm)</option>
-                <option value="50">≥ 50 cm</option>
-                <option value="100">≥ 100 cm (Extreme)</option>
-              </select>
-            </div>
-            <div>
-              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="audit_filter_label">Audit / QC Filter</label>
-              <select id="filter-audit" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700 text-xs">
-                <option value="all">Semua Kejadian (All Events)</option>
-                <option value="unverified">⏳ Belum Ditinjau (Sisa Kurasi)</option>
-                <option value="verified">✅ Sudah Diverifikasi (Event Benar)</option>
-                <option value="flagged">🚫 Ditandai Bukan Event / Inaccurate</option>
-                <option value="unflagged">🌊 Katalog Bersih (Sembunyikan Bukan Event)</option>
-              </select>
-            </div>
-          </div>
+          <select id="filter-audit" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700 text-xs">
+            <option value="all">Semua Kejadian (All Events)</option>
+            <option value="unverified">⏳ Belum Ditinjau (Sisa Kurasi)</option>
+            <option value="verified">✅ Sudah Diverifikasi (Event Benar)</option>
+            <option value="flagged">🚫 Ditandai Bukan Event / Inaccurate</option>
+            <option value="unflagged">🌊 Katalog Bersih (Sembunyikan Bukan Event)</option>
+          </select>
         </div>
 
         <div class="h-px bg-slate-200"></div>
@@ -1663,7 +1649,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=1244.202610211845')
+        fetch('data/events.json?v=1244.202610211849')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -2035,7 +2021,8 @@
       const monthVal = document.getElementById('filter-month').value;
       const provVal = document.getElementById('filter-province').value;
       const hazardVal = document.getElementById('filter-hazard') ? document.getElementById('filter-hazard').value : 'rob';
-      const depthVal = document.getElementById('filter-depth').value;
+      const depthEl = document.getElementById('filter-depth');
+      const depthVal = depthEl ? depthEl.value : 'all';
 
       // Toggle clear search button
       const clearBtn = document.getElementById('search-clear-btn');
@@ -2172,7 +2159,9 @@
       if (document.getElementById('filter-hazard')) {
         document.getElementById('filter-hazard').value = 'rob';
       }
-      document.getElementById('filter-depth').value = 'all';
+      if (document.getElementById('filter-depth')) {
+        document.getElementById('filter-depth').value = 'all';
+      }
       if (document.getElementById('filter-audit')) {
         document.getElementById('filter-audit').value = 'all';
       }
