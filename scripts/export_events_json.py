@@ -256,7 +256,8 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
 
     hazard_display_map = {
         'rob': 'Banjir Rob',
-        'high_wave': 'Gelombang Tinggi'
+        'high_wave': 'Gelombang Tinggi',
+        'tide_wave': 'Rob + Gelombang (compound tide-wave)'   # @@AI@@ 2026-10-21 (Randi)
     }
 
     # Load screened article table for rich per-event article list
