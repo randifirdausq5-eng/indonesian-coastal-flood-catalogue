@@ -52,11 +52,11 @@
   },
   "hazard_counts": {
     "rob": 1025,
-    "high_wave": 158,
-    "tide_wave": 59
+    "high_wave": 159,
+    "tide_wave": 58
   },
-  "tide_gauge_matches": 414,
-  "tide_gauge_anomalies": 191,
-  "satellite_sla_matches": 937,
-  "generated_at": "2026-10-21T19:06:31.725873"
+  "tide_gauge_matches": 413,
+  "tide_gauge_anomalies": 190,
+  "satellite_sla_matches": 936,
+  "generated_at": "2026-10-21T20:24:58.428969"
 }
