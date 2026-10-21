@@ -1,6 +1,6 @@
 {
-  "total_events": 1291,
-  "unique_places": 208,
+  "total_events": 1274,
+  "unique_places": 206,
   "unique_provinces": [
     "Aceh",
     "Bali",
@@ -43,19 +43,19 @@
   ],
   "tier_counts": {},
   "region_counts": {
-    "java_north": 738,
-    "sumatra_west": 42,
-    "java_south": 114,
-    "sumatra_east": 170,
-    "east_indo": 147,
-    "kalimantan": 80
+    "java_north": 732,
+    "sumatra_east": 167,
+    "java_south": 110,
+    "east_indo": 146,
+    "kalimantan": 80,
+    "sumatra_west": 39
   },
   "hazard_counts": {
-    "rob": 1113,
-    "high_wave": 178
+    "rob": 1097,
+    "high_wave": 177
   },
-  "tide_gauge_matches": 417,
+  "tide_gauge_matches": 416,
   "tide_gauge_anomalies": 192,
-  "satellite_sla_matches": 961,
-  "generated_at": "2026-10-21T15:49:10.736342"
+  "satellite_sla_matches": 949,
+  "generated_at": "2026-10-21T16:35:10.049695"
 }
