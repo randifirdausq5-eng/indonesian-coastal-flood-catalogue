@@ -124,7 +124,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=1244.202610211728"></script>
+  <script src="data/events.js?v=1244.202610211745"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -804,8 +804,8 @@
             <i class="fa-solid fa-triangle-exclamation text-xs"></i>
           </span>
           <div>
-            <h3 class="font-bold text-sm">Tandai Bukan Event / Berita Tidak Akurat</h3>
-            <p class="text-[10px] text-slate-400">Klik salah satu kategori di bawah — langsung otomatis tersimpan!</p>
+            <h3 id="flag-modal-title" class="font-bold text-sm">Tandai Bukan Event / Berita Tidak Akurat</h3>
+            <p id="flag-modal-subtitle" class="text-[10px] text-slate-400">Klik salah satu kategori di bawah — langsung otomatis tersimpan!</p>
           </div>
         </div>
         <button onclick="closeFlagConfirmModal()" class="text-slate-400 hover:text-white text-lg">
@@ -825,7 +825,7 @@
           <p class="text-[11px] text-slate-600 line-clamp-2 italic" id="flag-modal-event-title">"Judul Berita"</p>
           <div class="pt-1">
             <a id="flag-modal-event-url" href="#" target="_blank" rel="noopener noreferrer" class="text-cyan-700 hover:underline text-[10px] inline-flex items-center gap-1 font-medium">
-              <span>Periksa tautan berita asli</span>
+              <span id="flag-modal-event-url-text">Periksa tautan berita asli</span>
               <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
             </a>
           </div>
@@ -834,67 +834,32 @@
         <!-- Preset Reason Buttons -->
         <div>
           <div class="flex items-center justify-between mb-1.5">
-            <label class="block text-[11px] font-bold text-slate-700">Pilih Kategori Alasan (1-Klik Simpan):</label>
+            <label id="flag-modal-label-categories" class="block text-[11px] font-bold text-slate-700">Pilih Kategori Alasan (1-Klik Simpan):</label>
             <label class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 cursor-pointer select-none" title="Klik langsung menyimpan tanpa perlu ngetik atau klik tombol Simpan lagi">
               <input type="checkbox" id="flag-oneclick-toggle" checked onchange="toggleOneClickFlagMode(this.checked)" class="w-3 h-3 text-emerald-600 rounded border-emerald-300 focus:ring-emerald-500 cursor-pointer">
-              <span>⚡ Klik Langsung Simpan</span>
+              <span id="flag-modal-oneclick-text">⚡ Klik Langsung Simpan</span>
             </label>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5" id="flag-preset-buttons">
-            <button type="button" data-reason="Proyek / Tanggul / Pembangunan (Tidak Ada Banjir)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
-              <span>🏗️</span> <span class="truncate font-medium">Proyek / Tanggul / Pembangunan</span>
-            </button>
-            <button type="button" data-reason="Langkah Preventif / Mitigasi / Siaga Operasional" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
-              <span>🛡️</span> <span class="truncate font-medium">Preventif / Mitigasi / Siaga Pompa</span>
-            </button>
-            <button type="button" data-reason="Edukasi / Kajian Pakar / Opini (Bukan Kejadian)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
-              <span>🎓</span> <span class="truncate font-medium">Edukasi / Kajian Pakar / Riset</span>
-            </button>
-            <button type="button" data-reason="Dokumentasi Jurnalistik / Profil Kronis Menahun" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
-              <span>📸</span> <span class="truncate font-medium">Dokumentasi / Kronis Menahun</span>
-            </button>
-            <button type="button" data-reason="Pernyataan Pejabat / Kebijakan / Program Pemerintah" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
-              <span>👔</span> <span class="truncate font-medium">Pernyataan Pejabat / Rencana Pemda</span>
-            </button>
-            <button type="button" data-reason="Peringatan Dini / Prediksi BMKG (Belum Terjadi)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
-              <span>⚠️</span> <span class="truncate font-medium">Peringatan BMKG (Baru Prediksi)</span>
-            </button>
-            <button type="button" data-reason="Banjir Hujan / Luapan Kali / Abrasi (Bukan Rob)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
-              <span>🌧️</span> <span class="truncate font-medium">Banjir Hujan / Kali / Sungai</span>
-            </button>
-            <button type="button" data-reason="Bantuan Sosial / Sembako / CSR Pasca-Banjir" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
-              <span>📦</span> <span class="truncate font-medium">Baksos / Sembako / Bantuan</span>
-            </button>
-            <button type="button" data-reason="Demo / Protes / Tuntutan Warga" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
-              <span>📢</span> <span class="truncate font-medium">Demo / Protes / Keluhan Warga</span>
-            </button>
-            <button type="button" data-reason="Berita Tidak Bisa Diakses / Link Mati" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
-              <span>🔗</span> <span class="truncate font-medium">Berita Gak Bisa Diakses / 404</span>
-            </button>
-            <button type="button" data-reason="Lokasi / Tanggal Kejadian Tidak Tepat" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-400 rounded-lg text-[11px] text-slate-800 hover:text-red-900 transition flex items-center gap-1.5 cursor-pointer">
-              <span>📍</span> <span class="truncate font-medium">Salah Lokasi / Salah Tanggal</span>
-            </button>
-            <button type="button" data-reason="Pokoknya Bukan Banjir Rob (Perlu Analisis Lanjut)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-red-50 hover:bg-red-100 border border-red-200 hover:border-red-400 rounded-lg text-[11px] text-red-800 font-bold hover:text-red-950 transition flex items-center gap-1.5 cursor-pointer">
-              <span>❌</span> <span class="truncate font-bold">Pokoknya Bukan Event (Lainnya)</span>
-            </button>
+            <!-- Dynamically populated and localized by renderFlagConfirmModal() -->
           </div>
         </div>
 
         <!-- Custom Notes Input -->
         <div>
-          <label for="flag-reason-input" class="block text-[11px] font-bold text-slate-700 mb-1">Catatan Tambahan (Opsional):</label>
+          <label id="flag-modal-label-notes" for="flag-reason-input" class="block text-[11px] font-bold text-slate-700 mb-1">Catatan Tambahan (Opsional):</label>
           <textarea id="flag-reason-input" rows="2" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none" placeholder="Klik kategori di atas atau ketik catatan tambahan bila perlu..."></textarea>
         </div>
       </div>
 
       <!-- Modal Footer -->
       <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-        <button type="button" onclick="closeFlagConfirmModal()" class="px-3.5 py-1.5 text-slate-600 hover:text-slate-800 text-xs font-semibold">
+        <button id="flag-modal-btn-cancel" type="button" onclick="closeFlagConfirmModal()" class="px-3.5 py-1.5 text-slate-600 hover:text-slate-800 text-xs font-semibold">
           Batal
         </button>
         <button type="button" onclick="submitFlagEvent()" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
           <i class="fa-solid fa-check"></i>
-          <span>Simpan & Tandai Bukan Event</span>
+          <span id="flag-modal-btn-submit-text">Simpan & Tandai Bukan Event</span>
         </button>
       </div>
     </div>
@@ -910,8 +875,8 @@
             <i class="fa-solid fa-clipboard-check text-sm"></i>
           </span>
           <div>
-            <h3 class="font-bold text-sm sm:text-base">Daftar Audit & Kurasi Data (QC)</h3>
-            <p class="text-[11px] text-slate-400">Verifikasi kejadian & penandaan berita tidak akurat untuk dataset ground-truth</p>
+            <h3 id="audit-modal-title" class="font-bold text-sm sm:text-base">Daftar Audit & Kurasi Data (QC)</h3>
+            <p id="audit-modal-subtitle" class="text-[11px] text-slate-400">Verifikasi kejadian & penandaan berita tidak akurat untuk dataset ground-truth</p>
           </div>
         </div>
         <button onclick="toggleModal('modal-audit', false)" class="text-slate-400 hover:text-white text-lg">
@@ -924,13 +889,13 @@
         <!-- Sub-filters inside modal -->
         <div class="flex flex-wrap items-center gap-1.5" id="audit-filter-pills">
           <button type="button" onclick="filterAuditModalTable('all')" id="btn-audit-tab-all" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-white shadow-xs">
-            Semua (<span id="audit-filter-count-all">0</span>)
+            <span id="audit-tab-all-text">Semua</span> (<span id="audit-filter-count-all">0</span>)
           </button>
           <button type="button" onclick="filterAuditModalTable('confirmed')" id="btn-audit-tab-confirmed" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition">
-            🟢 Event Benar (<span id="audit-filter-count-conf">0</span>)
+            <span id="audit-tab-conf-text">🟢 Event Benar</span> (<span id="audit-filter-count-conf">0</span>)
           </button>
           <button type="button" onclick="filterAuditModalTable('not_rob')" id="btn-audit-tab-not_rob" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-100 text-red-800 hover:bg-red-200 transition">
-            🔴 Bukan Event (<span id="audit-filter-count-notrob">0</span>)
+            <span id="audit-tab-notrob-text">🔴 Bukan Event</span> (<span id="audit-filter-count-notrob">0</span>)
           </button>
         </div>
 
@@ -938,22 +903,22 @@
         <div class="flex items-center gap-2">
           <label class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs cursor-pointer" title="Impor file CSV audit/QC">
             <i class="fa-solid fa-file-arrow-up text-cyan-600"></i>
-            <span>Impor CSV</span>
+            <span id="audit-btn-import-text">Impor CSV</span>
             <input type="file" id="audit-csv-file-input" accept=".csv" class="hidden" onchange="handleImportAuditCSV(event)" />
           </label>
           <button onclick="resetFlagsFromCatalogue()" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs" title="Muat Ulang Tanda dari Katalog Bawaan">
             <i class="fa-solid fa-arrows-rotate text-slate-500"></i>
-            <span>Muat dari Katalog</span>
+            <span id="audit-btn-reload-text">Muat dari Katalog</span>
           </button>
           <button onclick="copyFlaggedIDs()" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs">
             <i class="fa-regular fa-copy text-slate-500"></i>
-            <span>Salin ID</span>
+            <span id="audit-btn-copy-text">Salin ID</span>
           </button>
           <button onclick="exportFlaggedToCSV()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
             <i class="fa-solid fa-file-csv"></i>
-            <span>Unduh CSV Data Training</span>
+            <span id="audit-btn-export-text">Unduh CSV Data Training</span>
           </button>
-          <button onclick="clearAllFlags()" class="px-2 py-1.5 bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-medium transition" title="Hapus Semua Tanda">
+          <button onclick="clearAllFlags()" id="audit-btn-clear" class="px-2 py-1.5 bg-white hover:bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-medium transition" title="Hapus Semua Tanda">
             <i class="fa-regular fa-trash-can"></i>
           </button>
         </div>
@@ -966,8 +931,8 @@
 
       <!-- Footer -->
       <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-slate-500 text-[11px]">
-        <span>Tersimpan di browser lokal (localStorage). Ekspor CSV untuk melatih / retrain classifier Python.</span>
-        <button onclick="toggleModal('modal-audit', false)" class="px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-700 transition">
+        <span id="audit-modal-footer-note">Tersimpan di browser lokal (localStorage). Ekspor CSV untuk melatih / retrain classifier Python.</span>
+        <button id="audit-modal-btn-close" onclick="toggleModal('modal-audit', false)" class="px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-700 transition">
           Tutup
         </button>
       </div>
@@ -1282,6 +1247,7 @@
     function updateLanguageUI() {
       const l = AppState.lang;
       const dict = I18N[l];
+      const isEnglish = l === 'en';
 
       document.getElementById('current-lang-label').textContent = l.toUpperCase();
       document.getElementById('app-tagline').textContent = dict.tagline;
@@ -1295,14 +1261,70 @@
         }
       });
 
+      // Update sidebar audit filter select options
+      const auditSelect = document.getElementById('filter-audit');
+      if (auditSelect) {
+        const curVal = auditSelect.value;
+        if (isEnglish) {
+          auditSelect.options[0].text = "All Events (Default)";
+          auditSelect.options[1].text = "⏳ Unreviewed (Pending QC)";
+          auditSelect.options[2].text = "✅ Verified Events (Ground Truth)";
+          auditSelect.options[3].text = "🚫 Flagged: Not an Event / Inaccurate";
+          auditSelect.options[4].text = "🌊 Clean Catalogue (Hide Flagged)";
+        } else {
+          auditSelect.options[0].text = "Semua Kejadian (Default)";
+          auditSelect.options[1].text = "⏳ Belum Ditinjau (Sisa Kurasi)";
+          auditSelect.options[2].text = "✅ Sudah Diverifikasi (Event Benar)";
+          auditSelect.options[3].text = "🚫 Ditandai Bukan Event / Inaccurate";
+          auditSelect.options[4].text = "🌊 Katalog Bersih (Sembunyikan Bukan Event)";
+        }
+        auditSelect.value = curVal;
+      }
+
       // Update about modal content
       renderAboutModal();
+
+      // Refresh confirmation modal labels & presets if rendered
+      renderFlagConfirmModal();
+      if (AppState.pendingFlagEventId) {
+        const ev = AppState.allEvents.find(e => String(e.id) === String(AppState.pendingFlagEventId));
+        if (ev) {
+          const dateEl = document.getElementById('flag-modal-event-date');
+          if (dateEl) dateEl.textContent = `📅 ${ev.date_start}${ev.days > 1 ? ` (${ev.days} ${isEnglish ? 'days' : 'hr'})` : ''}`;
+          const titleEl = document.getElementById('flag-modal-event-title');
+          if (titleEl) titleEl.textContent = `"${ev.title || (isEnglish ? 'Event Report' : 'Laporan Kejadian')}"`;
+        }
+      }
+
+      // Refresh audit modal if open
+      const auditModal = document.getElementById('modal-audit');
+      if (auditModal && !auditModal.classList.contains('hidden')) {
+        renderAuditModalContent();
+      }
 
       // Refresh header & sidebar stats with localized labels
       updateHeaderAndSidebarStats();
 
-      // Refresh map markers popups & charts
-      refreshMapMarkers();
+      // Check if an event popup is currently open on the map
+      let openEventId = null;
+      if (AppState.markersById) {
+        for (const id in AppState.markersById) {
+          const m = AppState.markersById[id];
+          if (m && m.isPopupOpen && m.isPopupOpen()) {
+            openEventId = id;
+            break;
+          }
+        }
+      }
+
+      // Refresh map markers without resetting zoom
+      refreshMapMarkers(false);
+
+      // If an event popup was open, reopen it with newly localized content
+      if (openEventId && AppState.markersById && AppState.markersById[openEventId]) {
+        AppState.markersById[openEventId].openPopup();
+      }
+
       renderTablePage(AppState.tablePage);
       if (AppState.currentView === 'analytics') {
         updateCharts();
@@ -1366,7 +1388,7 @@
                 INA-CoastalFlood is curated through automated NLP web-mining. While systematic filters are applied, articles that do not report an actual coastal flood event (such as citizen protests or demonstrations regarding flooding, government policy debates, or seawall/breakwater construction plans without actual flood inundation) may occasionally be captured.
               </p>
               <p class="text-amber-900 text-[11px] leading-relaxed">
-                If you identify an archived news report that is inaccurate or not an actual coastal flood event, please mark it directly in the event popup menu on the map (click any event marker and use the <strong>Bukan Event</strong> button), or report the <strong>Event ID</strong> and link via email to:
+                If you identify an archived news report that is inaccurate or not an actual coastal flood event, please mark it directly in the event popup menu on the map (click any event marker and use the <strong>Not an Event</strong> button), or report the <strong>Event ID</strong> and link via email to:
               </p>
               <div class="pt-1 flex flex-wrap gap-2 text-[11px] font-mono">
                 <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Data%20Correction" class="px-2.5 py-1 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg text-amber-950 font-semibold flex items-center gap-1.5 transition shadow-2xs">
@@ -1602,7 +1624,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=1244.202610211728')
+        fetch('data/events.json?v=1244.202610211745')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -2309,24 +2331,28 @@
       const isNotRob = verifiedTier === 'not_rob';
       const isConfirmed = verifiedTier === 'confirmed' || verifiedTier === 'probable' || verifiedTier === 'possible';
 
+      const isEnglish = AppState.lang === 'en';
+
       // Header Badge logic
       let badgeClass = 'bg-cyan-100 text-cyan-800 border-cyan-200';
       let badgeLabel = (e.hazard === 'tide_wave')
-        ? '🌊 ROB + GELOMBANG'
-        : (e.hazard === 'high_wave' ? '🌊 GELOMBANG TINGGI' : '🌊 BANJIR ROB');
+        ? (isEnglish ? '🌊 ROB + WAVES' : '🌊 ROB + GELOMBANG')
+        : (e.hazard === 'high_wave'
+            ? (isEnglish ? '🌊 HIGH WAVE' : '🌊 GELOMBANG TINGGI')
+            : (isEnglish ? '🌊 TIDAL FLOOD' : '🌊 BANJIR ROB'));
 
       if (isNotRob) {
         badgeClass = 'bg-red-100 text-red-800 border-red-300 font-bold';
-        badgeLabel = '⚠️ BUKAN EVENT (AUDIT)';
+        badgeLabel = isEnglish ? '⚠️ NOT AN EVENT (AUDIT)' : '⚠️ BUKAN EVENT (AUDIT)';
       } else if (isConfirmed) {
         badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
-        badgeLabel = '✓ EVENT BENAR (QC)';
+        badgeLabel = isEnglish ? '✓ VERIFIED EVENT (QC)' : '✓ EVENT BENAR (QC)';
       } else if (e.hazard === 'tide_wave') {
         badgeClass = 'bg-purple-100 text-purple-800 border-purple-200 font-bold';
-        badgeLabel = '🌊 ROB + GELOMBANG';
+        badgeLabel = isEnglish ? '🌊 ROB + WAVES' : '🌊 ROB + GELOMBANG';
       } else if (e.hazard === 'high_wave') {
         badgeClass = 'bg-orange-100 text-orange-800 border-orange-200 font-bold';
-        badgeLabel = '🌊 GELOMBANG TINGGI';
+        badgeLabel = isEnglish ? '🌊 HIGH WAVE' : '🌊 GELOMBANG TINGGI';
       }
 
       // Build Tide Station & Water Level Anomaly Box
@@ -2459,18 +2485,18 @@
             <div class="flex items-center justify-between">
               <span class="font-bold text-red-800 flex items-center gap-1">
                 <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
-                ${AppState.lang === 'en' ? 'Flagged: Bukan Event / Inaccurate' : 'Ditandai: Bukan Event'}
+                ${isEnglish ? 'Flagged: Not an Event / Inaccurate' : 'Ditandai: Bukan Event'}
               </span>
               <button type="button" onclick="unflagEvent('${e.id}')" class="text-slate-500 hover:text-red-700 font-semibold underline text-[9px] cursor-pointer">
-                ${AppState.lang === 'en' ? 'Reset' : 'Batalkan'}
+                ${isEnglish ? 'Reset' : 'Batalkan'}
               </button>
             </div>
             <p class="text-red-900 font-medium bg-white/90 p-1.5 rounded border border-red-100 text-[10px] leading-relaxed">
-              "${existingAudit.reason || existingAudit.audit_reason || 'Bukan event'}"
+              "${existingAudit.reason || existingAudit.audit_reason || (isEnglish ? 'Not an event' : 'Bukan event')}"
             </p>
             <div class="flex justify-end">
               <button type="button" onclick="openFlagConfirmModal('${e.id}')" class="text-red-700 hover:text-red-900 font-semibold underline text-[9px] flex items-center gap-1 cursor-pointer">
-                <i class="fa-solid fa-pen-to-square text-[8px]"></i> ${AppState.lang === 'en' ? 'Edit Category' : 'Ubah Kategori'}
+                <i class="fa-solid fa-pen-to-square text-[8px]"></i> ${isEnglish ? 'Edit Category' : 'Ubah Kategori'}
               </button>
             </div>
           </div>
@@ -2480,10 +2506,10 @@
           <div class="mt-1.5 p-1.5 px-2 rounded-lg bg-emerald-50 border border-emerald-200 text-[10px] flex items-center justify-between">
             <span class="font-semibold text-emerald-900 flex items-center gap-1">
               <i class="fa-solid fa-circle-check text-emerald-600"></i>
-              <span>QC: <strong>Event Benar</strong></span>
+              <span>QC: <strong>${isEnglish ? 'Verified Event' : 'Event Benar'}</strong></span>
             </span>
             <button type="button" onclick="unflagEvent('${e.id}')" class="text-slate-500 hover:text-red-700 font-semibold underline text-[9px] cursor-pointer">
-              ${AppState.lang === 'en' ? 'Reset' : 'Batalkan'}
+              ${isEnglish ? 'Reset' : 'Batalkan'}
             </button>
           </div>
         `;
@@ -2491,7 +2517,7 @@
         qcStatusDetailHtml = `
           <div class="text-[9px] text-slate-400 text-center pt-0.5 flex items-center justify-center gap-1">
             <i class="fa-regular fa-hand-pointer text-cyan-600 text-[8px]"></i>
-            <span>${AppState.lang === 'en' ? 'Click a button above for instant 1-click QC' : 'Klik tombol di atas untuk 1-klik simpan verifikasi QC'}</span>
+            <span>${isEnglish ? 'Click a button above for instant 1-click QC' : 'Klik tombol di atas untuk 1-klik simpan verifikasi QC'}</span>
           </div>
         `;
       }
@@ -2502,22 +2528,22 @@
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
                 <i class="fa-solid fa-clipboard-check text-cyan-600"></i>
-                <span>Verifikasi Kejadian (Data Training QC):</span>
+                <span>${isEnglish ? 'Event Verification (Training Data QC):' : 'Verifikasi Kejadian (Data Training QC):'}</span>
               </span>
-              ${isCurated ? `<span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-100 text-cyan-800 border border-cyan-200">CURATED</span>` : ''}
+              ${isCurated ? `<span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-100 text-cyan-800 border border-cyan-200">${isEnglish ? 'CURATED' : 'TERKURASI'}</span>` : ''}
             </div>
 
             <!-- 2 1-Click Verification Toggle Buttons -->
             <div class="grid grid-cols-2 gap-2">
-              <button type="button" onclick="setVerifiedStatus('${e.id}', 'confirmed')" title="Verifikasi sebagai Event Benar"
+              <button type="button" onclick="setVerifiedStatus('${e.id}', 'confirmed')" title="${isEnglish ? 'Verify as Confirmed Event' : 'Verifikasi sebagai Event Benar'}"
                 class="py-2 px-2 rounded-lg text-center font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${btnEventBenarClass}">
                 <i class="fa-solid fa-circle-check text-sm ${isConfirmed ? 'text-white' : 'text-emerald-600'}"></i>
-                <span>Event Benar</span>
+                <span>${isEnglish ? 'Verified Event' : 'Event Benar'}</span>
               </button>
-              <button type="button" onclick="openFlagConfirmModal('${e.id}')" title="Tandai Bukan Event (Pilih Alasan)"
+              <button type="button" onclick="openFlagConfirmModal('${e.id}')" title="${isEnglish ? 'Mark as Not an Event (Choose reason)' : 'Tandai Bukan Event (Pilih Alasan)'}"
                 class="py-2 px-2 rounded-lg text-center font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${btnBukanEventClass}">
                 <i class="fa-solid fa-triangle-exclamation text-sm ${isNotRob ? 'text-white' : 'text-red-600'}"></i>
-                <span>Bukan Event</span>
+                <span>${isEnglish ? 'Not an Event' : 'Bukan Event'}</span>
               </button>
             </div>
 
@@ -2529,7 +2555,7 @@
       // Multi-article list rendering
       const articles = (e.articles && e.articles.length > 0)
         ? e.articles
-        : (e.url ? [{ title: e.title || 'Laporan Banjir Rob', url: e.url, date: e.date_start, domain: '' }] : []);
+        : (e.url ? [{ title: e.title || (isEnglish ? 'Coastal Flood Report' : 'Laporan Banjir Rob'), url: e.url, date: e.date_start, domain: '' }] : []);
 
       let articlesSectionHtml = '';
       if (articles.length > 0) {
@@ -2540,7 +2566,7 @@
           <a href="${art.url}" target="_blank" rel="noopener noreferrer" 
             class="block p-2.5 rounded-lg bg-slate-50 hover:bg-cyan-50/70 border border-slate-200/90 hover:border-cyan-300 transition group text-left">
             <div class="font-semibold text-slate-800 group-hover:text-cyan-900 leading-snug text-[12px] flex items-start justify-between gap-1.5">
-              <span>${art.title || 'Buka Berita Asli'}</span>
+              <span>${art.title || (isEnglish ? 'Open Original News Source' : 'Buka Berita Asli')}</span>
               <i class="fa-solid fa-arrow-up-right-from-square text-[9.5px] text-slate-400 group-hover:text-cyan-600 mt-0.5 shrink-0"></i>
             </div>
             <div class="flex items-center gap-2 mt-1.5 text-[10px] text-slate-500 font-mono">
@@ -2556,9 +2582,9 @@
             <div class="flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider">
               <span class="flex items-center gap-1 text-slate-700">
                 <i class="fa-regular fa-newspaper text-cyan-600"></i>
-                <span>${dict.popup_headline} (${articles.length} artikel):</span>
+                <span>${dict.popup_headline} (${articles.length} ${isEnglish ? 'articles' : 'artikel'}):</span>
               </span>
-              ${e.n_domains > 1 ? `<span class="text-[9px] font-mono text-slate-400 lowercase font-normal">(${e.n_domains} independent domains)</span>` : ''}
+              ${e.n_domains > 1 ? `<span class="text-[9px] font-mono text-slate-400 lowercase font-normal">(${e.n_domains} ${isEnglish ? 'independent domains' : 'domain independen'})</span>` : ''}
             </div>
             <div class="space-y-1.5">
               ${initialArticles.map((art, idx) => renderArticleItem(art, idx)).join('')}
@@ -2569,7 +2595,7 @@
               </div>
               <button type="button" onclick="togglePopupArticles('${e.id}')" id="btn-toggle-articles-${e.id}"
                 class="w-full py-1.5 px-3 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-200 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer">
-                <span>Tampilkan ${extraArticles.length} berita lainnya</span>
+                <span>${isEnglish ? `Show ${extraArticles.length} more articles` : `Tampilkan ${extraArticles.length} berita lainnya`}</span>
                 <i class="fa-solid fa-chevron-down text-[9px]"></i>
               </button>
             ` : ''}
@@ -2627,10 +2653,10 @@
 
             <!-- Metadata details -->
             <div class="text-[10px] text-slate-500 space-y-0.5 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-              <div><strong>Jenis Bahaya:</strong> <span class="font-semibold ${e.hazard === 'tide_wave' ? 'text-purple-700' : (e.hazard === 'high_wave' ? 'text-orange-700' : 'text-cyan-700')}">${e.hazard === 'tide_wave' ? 'Rob + Gelombang (Compound Tide-Wave)' : (e.hazard === 'high_wave' ? 'Gelombang Tinggi' : 'Banjir Rob')}</span></div>
+              <div><strong>${isEnglish ? 'Hazard Type:' : 'Jenis Bahaya:'}</strong> <span class="font-semibold ${e.hazard === 'tide_wave' ? 'text-purple-700' : (e.hazard === 'high_wave' ? 'text-orange-700' : 'text-cyan-700')}">${e.hazard === 'tide_wave' ? (isEnglish ? 'Rob + Waves (Compound Tide-Wave)' : 'Rob + Gelombang (Compound Tide-Wave)') : (e.hazard === 'high_wave' ? (isEnglish ? 'High Wave / Swell' : 'Gelombang Tinggi') : (isEnglish ? 'Tidal Flood (Rob)' : 'Banjir Rob'))}</span></div>
               <div><strong>${dict.popup_region}</strong> ${e.region_label}</div>
-              <div><strong>${dict.popup_terms}</strong> <code class="text-cyan-800">${e.terms || 'banjir rob'}</code></div>
-              <div><strong>${dict.popup_source}</strong> ${e.n_articles} articles (${e.n_domains} independent domains)</div>
+              <div><strong>${dict.popup_terms}</strong> <code class="text-cyan-800">${e.terms || (isEnglish ? 'tidal flood' : 'banjir rob')}</code></div>
+              <div><strong>${dict.popup_source}</strong> ${e.n_articles} ${isEnglish ? 'articles' : 'artikel'} (${e.n_domains} ${isEnglish ? 'independent domains' : 'domain independen'})</div>
             </div>
 
             <!-- Verification & Audit QC Section -->
@@ -2638,10 +2664,10 @@
 
             <!-- Footer with ID and Email Report Fallback -->
             <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
-              <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Laporan%20Kejadian%20${e.id}&body=Event%20ID:%20${e.id}%0ALokasi:%20${encodeURIComponent(e.place)}%0ATanggal:%20${e.date_start}%0AJudul%20Berita:%20${encodeURIComponent(e.title || '')}%0ATautan:%20${encodeURIComponent(e.url || '')}%0A%0ACatatan%20(misal%20bukan%20banjir%20rob,%20berita%20demo,%20atau%20proyek%20tanggul):%20" 
+              <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20${isEnglish ? 'Report%20Event' : 'Laporan%20Kejadian'}%20${e.id}&body=Event%20ID:%20${e.id}%0A${isEnglish ? 'Location' : 'Lokasi'}:%20${encodeURIComponent(e.place)}%0A${isEnglish ? 'Date' : 'Tanggal'}:%20${e.date_start}%0A${isEnglish ? 'Title' : 'Judul%20Berita'}:%20${encodeURIComponent(e.title || '')}%0A${isEnglish ? 'URL' : 'Tautan'}:%20${encodeURIComponent(e.url || '')}%0A%0A${isEnglish ? 'Notes%20(e.g.%20not%20a%20flood,%20protest,%20or%20construction%20project)' : 'Catatan%20(misal%20bukan%20banjir%20rob,%20berita%20demo,%20atau%20proyek%20tanggul)'}:%20" 
                 class="text-slate-400 hover:text-amber-700 flex items-center gap-1 transition" title="${dict.popup_report_issue}">
                 <i class="fa-regular fa-envelope text-[9px] text-amber-500"></i>
-                <span>Email koreksi</span>
+                <span>${isEnglish ? 'Email correction' : 'Email koreksi'}</span>
               </a>
               <span class="text-slate-300 font-mono text-[9px]">#${e.id}</span>
             </div>
@@ -2656,14 +2682,15 @@
       const el = document.getElementById(`extra-articles-${eventId}`);
       const btn = document.getElementById(`btn-toggle-articles-${eventId}`);
       if (!el || !btn) return;
+      const isEnglish = AppState.lang === 'en';
       const isHidden = el.classList.contains('hidden');
       if (isHidden) {
         el.classList.remove('hidden');
-        btn.innerHTML = `<span>Sembunyikan</span> <i class="fa-solid fa-chevron-up text-[9px]"></i>`;
+        btn.innerHTML = `<span>${isEnglish ? 'Hide' : 'Sembunyikan'}</span> <i class="fa-solid fa-chevron-up text-[9px]"></i>`;
       } else {
         el.classList.add('hidden');
         const count = el.children.length;
-        btn.innerHTML = `<span>Tampilkan ${count} berita lainnya</span> <i class="fa-solid fa-chevron-down text-[9px]"></i>`;
+        btn.innerHTML = `<span>${isEnglish ? `Show ${count} more articles` : `Tampilkan ${count} berita lainnya`}</span> <i class="fa-solid fa-chevron-down text-[9px]"></i>`;
       }
     }
 
@@ -3012,40 +3039,27 @@
           let eventBenarBadgeHtml = '';
           if (verTier === 'confirmed') {
             eventBenarBadgeHtml = `
-              <button onclick="openFlagConfirmModal('${e.id}')" title="Diverifikasi sebagai Event Benar (Klik untuk ubah)" 
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200 transition cursor-pointer">
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
                 <i class="fa-solid fa-circle-check text-emerald-600"></i>
                 <span>${AppState.lang === 'en' ? 'Verified Event' : 'Event Benar'}</span>
-              </button>
+              </span>
             `;
           } else if (verTier === 'not_rob') {
             eventBenarBadgeHtml = `
-              <button onclick="openFlagConfirmModal('${e.id}')" title="Bukan Event: ${rowAudit.reason || rowAudit.audit_reason || 'Bukan event'} (Klik untuk ubah)" 
-                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-red-100 text-red-800 border border-red-300 hover:bg-red-200 transition cursor-pointer">
+              <span title="${rowAudit.reason || rowAudit.audit_reason || (AppState.lang === 'en' ? 'Not an event' : 'Bukan event')}" 
+                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-red-100 text-red-800 border border-red-300">
                 <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
                 <span>${AppState.lang === 'en' ? 'Not an Event' : 'Bukan Event'}</span>
-              </button>
+              </span>
             `;
           } else {
             eventBenarBadgeHtml = `
-              <div class="inline-flex items-center gap-1">
-                <button onclick="setVerifiedStatus('${e.id}', 'confirmed')" title="Tandai sebagai Event Benar" 
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10.5px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition cursor-pointer">
-                  <i class="fa-solid fa-check text-emerald-600"></i>
-                  <span>${AppState.lang === 'en' ? 'Valid' : 'Benar'}</span>
-                </button>
-                <button onclick="openFlagConfirmModal('${e.id}')" title="Tandai sebagai Bukan Event" 
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10.5px] font-medium text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition cursor-pointer">
-                  <i class="fa-solid fa-xmark text-red-500"></i>
-                  <span>${AppState.lang === 'en' ? 'Invalid' : 'Bukan'}</span>
-                </button>
-              </div>
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] text-slate-400 bg-slate-100 border border-slate-200 font-medium">
+                <i class="fa-regular fa-clock text-slate-400"></i>
+                <span>${AppState.lang === 'en' ? 'Unreviewed' : 'Belum Verifikasi'}</span>
+              </span>
             `;
           }
-
-          const flagReasonTooltip = isRowCurated 
-            ? (verTier === 'not_rob' ? `Bukan Event: ${rowAudit.reason || rowAudit.audit_reason || 'Audit QC'}` : `Event Benar (QC Verified)`) 
-            : (AppState.lang === 'en' ? 'Verify Event / Mark Not Event' : 'Verifikasi Event / Tandai Bukan Event');
 
           let rowBgClass = '';
           if (isRowCurated) {
@@ -3060,7 +3074,7 @@
               </td>
               <td class="py-2 px-3 whitespace-nowrap text-slate-600">${e.date_start}</td>
               <td class="py-2 px-3 font-medium text-slate-900">
-                ${e.place}${(!e.lat || !e.lon) ? ' <span class="ml-1 text-[9.5px] text-amber-700 bg-amber-50 border border-amber-200 px-1 py-0.2 rounded font-normal italic">arah kawasan</span>' : ''}
+                ${e.place}${(!e.lat || !e.lon) ? ` <span class="ml-1 text-[9.5px] text-amber-700 bg-amber-50 border border-amber-200 px-1 py-0.2 rounded font-normal italic">${AppState.lang === 'en' ? 'regional approx.' : 'arah kawasan'}</span>` : ''}
               </td>
               <td class="py-2 px-3 text-slate-600">${e.province}</td>
               <td class="py-2 px-3 text-slate-600">${e.region_label}</td>
@@ -3081,34 +3095,30 @@
                   : '<span class="text-slate-400 text-xs">-</span>'}
               </td>
               <td class="py-2.5 px-3 max-w-xs">
-                <div class="text-slate-800 font-medium line-clamp-2" title="${e.title}">${e.title || 'Coastal Flood Report'}</div>
+                <div class="text-slate-800 font-medium line-clamp-2" title="${e.title}">${e.title || (AppState.lang === 'en' ? 'Coastal Flood Report' : 'Laporan Kejadian')}</div>
                 <div class="mt-1 flex items-center gap-1.5">
-                  <button onclick="focusMapEvent('${e.id}')" title="Buka daftar lengkap sumber berita di pop-up peta" 
+                  <button onclick="focusMapEvent('${e.id}')" title="${AppState.lang === 'en' ? 'View all news sources in map popup' : 'Buka daftar lengkap sumber berita di pop-up peta'}" 
                     class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-200 text-[10px] font-semibold transition cursor-pointer">
                     <i class="fa-regular fa-newspaper text-cyan-600"></i>
-                    <span>${e.n_articles || (e.articles ? e.articles.length : 1)} artikel</span>
+                    <span>${e.n_articles || (e.articles ? e.articles.length : 1)} ${AppState.lang === 'en' ? 'articles' : 'artikel'}</span>
                   </button>
-                  ${(e.n_domains && e.n_domains > 1) ? `<span class="text-[9.5px] text-slate-400">(${e.n_domains} domain)</span>` : ''}
+                  ${(e.n_domains && e.n_domains > 1) ? `<span class="text-[9.5px] text-slate-400">(${e.n_domains} ${AppState.lang === 'en' ? 'domains' : 'domain'})</span>` : ''}
                 </div>
               </td>
               <td class="py-2 px-3 whitespace-nowrap">
                 ${eventBenarBadgeHtml}
               </td>
               <td class="py-2 px-3 text-center whitespace-nowrap space-x-1">
-                <button onclick="focusMapEvent('${e.id}')" title="Buka detail & semua berita di peta" 
+                <button onclick="focusMapEvent('${e.id}')" title="${AppState.lang === 'en' ? 'Open details & all news sources on map' : 'Buka detail & semua berita di peta'}" 
                   class="px-2 py-1 bg-slate-100 hover:bg-cyan-50 hover:text-cyan-700 rounded text-slate-600 transition">
                   <i class="fa-solid fa-map-location-dot"></i>
                 </button>
                 ${e.url ? `
-                  <a href="${e.url}" target="_blank" rel="noopener noreferrer" title="Buka Sumber Berita Pertama" 
+                  <a href="${e.url}" target="_blank" rel="noopener noreferrer" title="${AppState.lang === 'en' ? 'Open first news source' : 'Buka Sumber Berita Pertama'}" 
                     class="inline-block px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i>
                   </a>
                 ` : ''}
-                <button onclick="openFlagConfirmModal('${e.id}')" title="${flagReasonTooltip}" 
-                  class="inline-block px-2 py-1 ${isRowCurated ? (verTier === 'not_rob' ? 'bg-red-100 text-red-700 border border-red-300 font-bold' : 'bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold') : 'bg-slate-100 hover:bg-amber-50 hover:text-amber-700 text-slate-400'} rounded transition">
-                  <i class="${isRowCurated ? (verTier === 'not_rob' ? 'fa-solid fa-flag text-red-600' : 'fa-solid fa-check text-emerald-600') : 'fa-solid fa-sliders'}"></i>
-                </button>
               </td>
             </tr>
           `;
@@ -3298,7 +3308,8 @@
 
       if (!AppState.flaggedEvents) AppState.flaggedEvents = {};
 
-      const reasonText = 'Manual QC: Verified as Event Benar';
+      const isEnglish = AppState.lang === 'en';
+      const reasonText = isEnglish ? 'Manual QC: Verified as Confirmed Event' : 'QC Manual: Terverifikasi Event Benar';
 
       AppState.flaggedEvents[eventId] = {
         id: eventId,
@@ -3333,7 +3344,7 @@
         renderAuditModalContent();
       }
 
-      showToast(AppState.lang === 'en' ? `✓ #${eventId} verified as confirmed event!` : `✓ #${eventId} diverifikasi sebagai Event Benar!`);
+      showToast(isEnglish ? `✓ #${eventId} verified as confirmed event!` : `✓ #${eventId} diverifikasi sebagai Event Benar!`);
     }
 
     const setVerifiedTier = setVerifiedStatus;
@@ -3346,6 +3357,147 @@
       }
     }
 
+    const FLAG_PRESET_CATEGORIES = [
+      { 
+        emoji: '🏗️', 
+        id_title: 'Proyek / Tanggul / Pembangunan', 
+        id_reason: 'Proyek / Tanggul / Pembangunan (Tidak Ada Banjir)', 
+        en_title: 'Project / Seawall / Construction', 
+        en_reason: 'Project / Seawall / Construction (No active flood)' 
+      },
+      { 
+        emoji: '🛡️', 
+        id_title: 'Preventif / Mitigasi / Siaga Pompa', 
+        id_reason: 'Langkah Preventif / Mitigasi / Siaga Operasional', 
+        en_title: 'Mitigation / Precautionary / Pump Standby', 
+        en_reason: 'Precautionary / Mitigation / Pump Standby' 
+      },
+      { 
+        emoji: '🎓', 
+        id_title: 'Edukasi / Kajian Pakar / Riset', 
+        id_reason: 'Edukasi / Kajian Pakar / Opini (Bukan Kejadian)', 
+        en_title: 'Education / Academic Research / Opinion', 
+        en_reason: 'Education / Academic Research / Opinion (Not an event)' 
+      },
+      { 
+        emoji: '📸', 
+        id_title: 'Dokumentasi / Kronis Menahun', 
+        id_reason: 'Dokumentasi Jurnalistik / Profil Kronis Menahun', 
+        en_title: 'Journalism / Chronic Profile', 
+        en_reason: 'Journalistic Documentary / Chronic Flood Profile' 
+      },
+      { 
+        emoji: '👔', 
+        id_title: 'Pernyataan Pejabat / Rencana Pemda', 
+        id_reason: 'Pernyataan Pejabat / Kebijakan / Program Pemerintah', 
+        en_title: 'Official Statement / Gov Policy', 
+        en_reason: 'Official Statement / Gov Policy & Programs' 
+      },
+      { 
+        emoji: '⚠️', 
+        id_title: 'Peringatan BMKG (Baru Prediksi)', 
+        id_reason: 'Peringatan Dini / Prediksi BMKG (Belum Terjadi)', 
+        en_title: 'BMKG Early Warning / Forecast Only', 
+        en_reason: 'BMKG Early Warning / Forecast (Not yet occurred)' 
+      },
+      { 
+        emoji: '🌧️', 
+        id_title: 'Banjir Hujan / Kali / Sungai', 
+        id_reason: 'Banjir Hujan / Luapan Kali / Abrasi (Bukan Rob)', 
+        en_title: 'Rain / Riverine Flood (Not Rob)', 
+        en_reason: 'Pluvial Rain / River Overflow / Coastal Erosion (Not Rob)' 
+      },
+      { 
+        emoji: '📦', 
+        id_title: 'Baksos / Sembako / Bantuan', 
+        id_reason: 'Bantuan Sosial / Sembako / CSR Pasca-Banjir', 
+        en_title: 'Social Aid / Relief Supplies', 
+        en_reason: 'Social Aid / Relief Supplies / Post-Flood CSR' 
+      },
+      { 
+        emoji: '📢', 
+        id_title: 'Demo / Protes / Keluhan Warga', 
+        id_reason: 'Demo / Protes / Tuntutan Warga', 
+        en_title: 'Protest / Resident Demonstration', 
+        en_reason: 'Protest / Resident Demonstration / Demands' 
+      },
+      { 
+        emoji: '🔗', 
+        id_title: 'Berita Gak Bisa Diakses / 404', 
+        id_reason: 'Berita Tidak Bisa Diakses / Link Mati', 
+        en_title: 'Broken Link / Inaccessible (404)', 
+        en_reason: 'News Link Inaccessible / Dead URL (404)' 
+      },
+      { 
+        emoji: '📍', 
+        id_title: 'Salah Lokasi / Salah Tanggal', 
+        id_reason: 'Lokasi / Tanggal Kejadian Tidak Tepat', 
+        en_title: 'Wrong Location / Date', 
+        en_reason: 'Inaccurate Event Location / Date' 
+      },
+      { 
+        emoji: '❌', 
+        id_title: 'Pokoknya Bukan Event (Lainnya)', 
+        id_reason: 'Pokoknya Bukan Banjir Rob (Perlu Analisis Lanjut)', 
+        en_title: 'Not an Event (Other / Unclassified)', 
+        en_reason: 'Not a Coastal Flood Event (Needs further review)' 
+      }
+    ];
+
+    function renderFlagConfirmModal() {
+      const isEnglish = AppState.lang === 'en';
+
+      const titleEl = document.getElementById('flag-modal-title');
+      if (titleEl) titleEl.textContent = isEnglish ? 'Mark as Not an Event / Inaccurate News' : 'Tandai Bukan Event / Berita Tidak Akurat';
+
+      const subtitleEl = document.getElementById('flag-modal-subtitle');
+      if (subtitleEl) subtitleEl.textContent = isEnglish ? 'Click any category below — auto-saved instantly!' : 'Klik salah satu kategori di bawah — langsung otomatis tersimpan!';
+
+      const urlTextEl = document.getElementById('flag-modal-event-url-text');
+      if (urlTextEl) urlTextEl.textContent = isEnglish ? 'Check original news article' : 'Periksa tautan berita asli';
+
+      const labelCatEl = document.getElementById('flag-modal-label-categories');
+      if (labelCatEl) labelCatEl.textContent = isEnglish ? 'Select Reason Category (1-Click Save):' : 'Pilih Kategori Alasan (1-Klik Simpan):';
+
+      const oneClickTextEl = document.getElementById('flag-modal-oneclick-text');
+      if (oneClickTextEl) oneClickTextEl.textContent = isEnglish ? '⚡ 1-Click Instant Save' : '⚡ Klik Langsung Simpan';
+
+      const labelNotesEl = document.getElementById('flag-modal-label-notes');
+      if (labelNotesEl) labelNotesEl.textContent = isEnglish ? 'Additional Notes (Optional):' : 'Catatan Tambahan (Opsional):';
+
+      const reasonInput = document.getElementById('flag-reason-input');
+      if (reasonInput) reasonInput.placeholder = isEnglish ? 'Click a category above or type additional notes...' : 'Klik kategori di atas atau ketik catatan tambahan bila perlu...';
+
+      const btnCancel = document.getElementById('flag-modal-btn-cancel');
+      if (btnCancel) btnCancel.textContent = isEnglish ? 'Cancel' : 'Batal';
+
+      const btnSubmitText = document.getElementById('flag-modal-btn-submit-text');
+      if (btnSubmitText) btnSubmitText.textContent = isEnglish ? 'Save & Mark as Not an Event' : 'Simpan & Tandai Bukan Event';
+
+      // Populate preset buttons container
+      const container = document.getElementById('flag-preset-buttons');
+      if (container) {
+        const currentReason = (reasonInput ? reasonInput.value : '').trim();
+        container.innerHTML = FLAG_PRESET_CATEGORIES.map(cat => {
+          const reasonVal = isEnglish ? cat.en_reason : cat.id_reason;
+          const titleVal = isEnglish ? cat.en_title : cat.id_title;
+          const isMatch = currentReason && (
+            currentReason === cat.id_reason || 
+            currentReason === cat.en_reason || 
+            currentReason === cat.id_title || 
+            currentReason === cat.en_title
+          );
+          return `
+            <button type="button" onclick="setFlagPreset(this)" data-reason="${reasonVal}" 
+              class="preset-btn p-2 rounded-xl border border-slate-200 hover:border-red-400 hover:bg-red-50/60 text-left transition flex items-center gap-2 group cursor-pointer ${isMatch ? 'bg-red-200 border-red-500 font-bold ring-1 ring-red-400' : 'bg-slate-50'}">
+              <span class="text-base shrink-0">${cat.emoji}</span>
+              <span class="text-[11px] font-semibold text-slate-700 group-hover:text-red-900 leading-tight">${titleVal}</span>
+            </button>
+          `;
+        }).join('');
+      }
+    }
+
     function openFlagConfirmModal(eventId, chkEl = null) {
       AppState.pendingFlagEventId = eventId;
       AppState.pendingFlagCheckbox = chkEl;
@@ -3353,16 +3505,17 @@
       const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
       if (!ev) return;
 
+      const isEnglish = AppState.lang === 'en';
       const existingFlag = AppState.flaggedEvents ? AppState.flaggedEvents[eventId] : null;
 
       const idEl = document.getElementById('flag-modal-event-id');
       if (idEl) idEl.textContent = `#${ev.id}`;
       const dateEl = document.getElementById('flag-modal-event-date');
-      if (dateEl) dateEl.textContent = `📅 ${ev.date_start}${ev.days > 1 ? ` (${ev.days} hr)` : ''}`;
+      if (dateEl) dateEl.textContent = `📅 ${ev.date_start}${ev.days > 1 ? ` (${ev.days} ${isEnglish ? 'days' : 'hr'})` : ''}`;
       const placeEl = document.getElementById('flag-modal-event-place');
       if (placeEl) placeEl.textContent = `📍 ${ev.place}, ${ev.province}`;
       const titleEl = document.getElementById('flag-modal-event-title');
-      if (titleEl) titleEl.textContent = `"${ev.title || 'Laporan Kejadian'}"`;
+      if (titleEl) titleEl.textContent = `"${ev.title || (isEnglish ? 'Event Report' : 'Laporan Kejadian')}"`;
 
       const urlEl = document.getElementById('flag-modal-event-url');
       if (urlEl) {
@@ -3391,15 +3544,8 @@
         }
       }
 
-      // Reset and highlight matching preset button style
-      document.querySelectorAll('#flag-preset-buttons .preset-btn').forEach(btn => {
-        const btnReason = btn.getAttribute('data-reason') || '';
-        if (currentReason && btnReason === currentReason) {
-          btn.classList.add('bg-red-200', 'border-red-500', 'font-bold', 'ring-1', 'ring-red-400');
-        } else {
-          btn.classList.remove('bg-red-200', 'border-red-500', 'font-bold', 'ring-1', 'ring-red-400');
-        }
-      });
+      // Render localized elements & buttons
+      renderFlagConfirmModal();
 
       toggleModal('modal-flag-confirm', true);
     }
@@ -3449,8 +3595,10 @@
       const eventId = AppState.pendingFlagEventId;
       if (!eventId) return;
 
+      const isEnglish = AppState.lang === 'en';
       const reasonInput = document.getElementById('flag-reason-input');
-      const reasonText = (reasonInput ? reasonInput.value : '').trim() || 'Berita tidak akurat / bukan rob';
+      const defaultReason = isEnglish ? 'Inaccurate news / not a coastal flood event' : 'Berita tidak akurat / bukan rob';
+      const reasonText = (reasonInput ? reasonInput.value : '').trim() || defaultReason;
 
       const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
 
@@ -3493,7 +3641,7 @@
         renderAuditModalContent();
       }
 
-      showToast(AppState.lang === 'en' ? `✓ Event #${eventId} marked as not rob.` : `✓ Kejadian #${eventId} ditandai sebagai BUKAN ROB.`);
+      showToast(isEnglish ? `✓ Event #${eventId} marked as not an event.` : `✓ Kejadian #${eventId} ditandai sebagai BUKAN ROB.`);
     }
 
     function unflagEvent(eventId) {
@@ -3555,6 +3703,42 @@
       const container = document.getElementById('audit-modal-table-container');
       if (!container) return;
 
+      const isEnglish = AppState.lang === 'en';
+
+      // Update static action bar and header texts in modal
+      const titleEl = document.getElementById('audit-modal-title');
+      if (titleEl) titleEl.textContent = isEnglish ? 'Data QC & Audit Registry' : 'Daftar Audit & Kurasi Data (QC)';
+
+      const subtitleEl = document.getElementById('audit-modal-subtitle');
+      if (subtitleEl) subtitleEl.textContent = isEnglish ? 'Event verification & inaccurate report flagging for ground-truth dataset' : 'Verifikasi kejadian & penandaan berita tidak akurat untuk dataset ground-truth';
+
+      const tabAllEl = document.getElementById('audit-tab-all-text');
+      if (tabAllEl) tabAllEl.textContent = isEnglish ? 'All' : 'Semua';
+
+      const tabConfEl = document.getElementById('audit-tab-conf-text');
+      if (tabConfEl) tabConfEl.textContent = isEnglish ? '🟢 Verified Event' : '🟢 Event Benar';
+
+      const tabNotRobEl = document.getElementById('audit-tab-notrob-text');
+      if (tabNotRobEl) tabNotRobEl.textContent = isEnglish ? '🔴 Not an Event' : '🔴 Bukan Event';
+
+      const btnImportEl = document.getElementById('audit-btn-import-text');
+      if (btnImportEl) btnImportEl.textContent = isEnglish ? 'Import CSV' : 'Impor CSV';
+
+      const btnReloadEl = document.getElementById('audit-btn-reload-text');
+      if (btnReloadEl) btnReloadEl.textContent = isEnglish ? 'Reload Catalogue' : 'Muat dari Katalog';
+
+      const btnCopyEl = document.getElementById('audit-btn-copy-text');
+      if (btnCopyEl) btnCopyEl.textContent = isEnglish ? 'Copy IDs' : 'Salin ID';
+
+      const btnExportEl = document.getElementById('audit-btn-export-text');
+      if (btnExportEl) btnExportEl.textContent = isEnglish ? 'Download Training CSV' : 'Unduh CSV Data Training';
+
+      const footerNoteEl = document.getElementById('audit-modal-footer-note');
+      if (footerNoteEl) footerNoteEl.textContent = isEnglish ? 'Stored in local browser (localStorage). Export CSV to train / retrain Python classifiers.' : 'Tersimpan di browser lokal (localStorage). Ekspor CSV untuk melatih / retrain classifier Python.';
+
+      const btnCloseEl = document.getElementById('audit-modal-btn-close');
+      if (btnCloseEl) btnCloseEl.textContent = isEnglish ? 'Close' : 'Tutup';
+
       const currentFilter = AppState.auditFilterTier || 'all';
       updateFlaggedUI();
 
@@ -3590,15 +3774,18 @@
             <div class="flex items-start gap-2.5">
               <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base mt-0.5 shrink-0"></i>
               <div>
-                <p class="font-bold text-amber-900">Perhatian: Ada ${unexportedCount} review/flag yang belum diekspor ke CSV!</p>
+                <p class="font-bold text-amber-900">${isEnglish ? `Attention: ${unexportedCount} reviews/flags not yet exported to CSV!` : `Perhatian: Ada ${unexportedCount} review/flag yang belum diekspor ke CSV!`}</p>
                 <p class="text-[11px] text-amber-800 leading-snug">
-                  Data review baru tersimpan di browser ini. Klik tombol <strong>"Ekspor CSV"</strong> lalu simpan file di <code>data/processed/dashboard_audit_&lt;tanggal&gt;.csv</code> agar tersimpan permanen di repository dan tidak hilang saat cache dibersihkan.
+                  ${isEnglish 
+                    ? `Review data is currently saved only in this browser. Click <strong>"Export CSV"</strong> and save to <code>data/processed/dashboard_audit_&lt;date&gt;.csv</code> so changes persist permanently in the repository.`
+                    : `Data review baru tersimpan di browser ini. Klik tombol <strong>"Ekspor CSV"</strong> lalu simpan file di <code>data/processed/dashboard_audit_&lt;tanggal&gt;.csv</code> agar tersimpan permanen di repository dan tidak hilang saat cache dibersihkan.`
+                  }
                 </p>
               </div>
             </div>
             <button onclick="exportFlaggedToCSV()" class="self-start sm:self-center shrink-0 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer">
               <i class="fa-solid fa-file-arrow-down"></i>
-              <span>Ekspor CSV</span>
+              <span>${isEnglish ? 'Export CSV' : 'Ekspor CSV'}</span>
             </button>
           </div>
         `;
@@ -3609,9 +3796,12 @@
           ${warningBannerHtml}
           <div class="text-center py-12 text-slate-400">
             <i class="fa-regular fa-clipboard text-4xl text-slate-300 mb-3 block"></i>
-            <p class="font-bold text-slate-700 text-sm">Belum ada kejadian yang ditinjau atau diverifikasi.</p>
+            <p class="font-bold text-slate-700 text-sm">${isEnglish ? 'No events reviewed or verified yet.' : 'Belum ada kejadian yang ditinjau atau diverifikasi.'}</p>
             <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
-              Buka popup kejadian di peta lalu klik tombol verifikasi (🟢 Event Benar / 🔴 Bukan Event) untuk mulai kurasi data training.
+              ${isEnglish
+                ? 'Open an event popup on the map and click a verification button (🟢 Verified Event / 🔴 Not an Event) to begin curating training data.'
+                : 'Buka popup kejadian di peta lalu klik tombol verifikasi (🟢 Event Benar / 🔴 Bukan Event) untuk mulai kurasi data training.'
+              }
             </p>
           </div>
         `;
@@ -3631,8 +3821,8 @@
         container.innerHTML = `
           ${warningBannerHtml}
           <div class="text-center py-8 text-slate-400">
-            <p class="font-bold text-slate-700 text-sm">Tidak ada data untuk kategori ini.</p>
-            <button onclick="filterAuditModalTable('all')" class="mt-2 text-xs font-semibold text-cyan-600 underline">Tampilkan Semua Data</button>
+            <p class="font-bold text-slate-700 text-sm">${isEnglish ? 'No data for this category.' : 'Tidak ada data untuk kategori ini.'}</p>
+            <button onclick="filterAuditModalTable('all')" class="mt-2 text-xs font-semibold text-cyan-600 underline">${isEnglish ? 'Show All Data' : 'Tampilkan Semua Data'}</button>
           </div>
         `;
         return;
@@ -3644,16 +3834,17 @@
         const dateStr = f.date_start || ev.date_start || '-';
         const placeStr = f.place || ev.place || '-';
         const provStr = f.province || ev.province || '';
-        const titleStr = f.title || ev.title || 'Laporan Kejadian';
+        const titleStr = f.title || ev.title || (isEnglish ? 'Event Report' : 'Laporan Kejadian');
         const urlStr = f.url || ev.url || '';
         const vTier = f.verified_tier || (f.audit_status === 'INACCURATE' ? 'not_rob' : f.audit_status ? f.audit_status.toLowerCase() : 'not_rob');
-        const reasonStr = f.audit_reason || f.reason || 'Diverifikasi manual';
+        const defaultReason = isEnglish ? 'Manual verification' : 'Diverifikasi manual';
+        const reasonStr = f.audit_reason || f.reason || defaultReason;
 
         let badgeHtml = '';
         if (vTier === 'not_rob') {
-          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-800 text-[11px] font-bold">🔴 Bukan Event: ${reasonStr}</span>`;
+          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-800 text-[11px] font-bold">🔴 ${isEnglish ? 'Not an Event' : 'Bukan Event'}: ${reasonStr}</span>`;
         } else {
-          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">🟢 Event Benar (QC Verified)</span>`;
+          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">🟢 ${isEnglish ? 'Verified Event (QC)' : 'Event Benar (QC Verified)'}</span>`;
         }
 
         return `
@@ -3668,7 +3859,7 @@
               <div class="text-slate-800 font-medium line-clamp-2" title="${titleStr}">"${titleStr}"</div>
               ${urlStr ? `
                 <a href="${urlStr}" target="_blank" rel="noopener noreferrer" class="text-cyan-700 hover:underline text-[10px] inline-flex items-center gap-1 mt-0.5 font-medium">
-                  <span>Buka Berita</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  <span>${isEnglish ? 'Open Article' : 'Buka Berita'}</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               ` : ''}
             </td>
@@ -3676,15 +3867,15 @@
               ${badgeHtml}
             </td>
             <td class="py-2.5 px-3 whitespace-nowrap text-center space-x-1">
-              <button onclick="focusMapEvent('${id}'); toggleModal('modal-audit', false);" title="Lihat di Peta" 
+              <button onclick="focusMapEvent('${id}'); toggleModal('modal-audit', false);" title="${isEnglish ? 'View on Map' : 'Lihat di Peta'}" 
                 class="px-2 py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 rounded font-semibold transition text-xs">
-                <i class="fa-solid fa-location-dot"></i> Peta
+                <i class="fa-solid fa-location-dot"></i> ${isEnglish ? 'Map' : 'Peta'}
               </button>
-              <button onclick="${vTier === 'not_rob' ? `openFlagConfirmModal('${id}')` : `focusMapEvent('${id}'); toggleModal('modal-audit', false);`}" title="Ubah Verifikasi" 
+              <button onclick="${vTier === 'not_rob' ? `openFlagConfirmModal('${id}')` : `focusMapEvent('${id}'); toggleModal('modal-audit', false);`}" title="${isEnglish ? 'Edit Verification' : 'Ubah Verifikasi'}" 
                 class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition text-xs">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
-              <button onclick="unflagEvent('${id}')" title="Reset / Hapus dari Daftar" 
+              <button onclick="unflagEvent('${id}')" title="${isEnglish ? 'Reset / Remove from list' : 'Reset / Hapus dari Daftar'}" 
                 class="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded transition text-xs">
                 <i class="fa-regular fa-trash-can"></i>
               </button>
@@ -3700,11 +3891,11 @@
             <thead class="bg-slate-100 text-slate-700 font-semibold text-[11px] border-b border-slate-200">
               <tr>
                 <th class="py-2.5 px-3">ID</th>
-                <th class="py-2.5 px-3">Tanggal</th>
-                <th class="py-2.5 px-3">Lokasi</th>
-                <th class="py-2.5 px-3">Berita</th>
-                <th class="py-2.5 px-3">Status Verifikasi QC</th>
-                <th class="py-2.5 px-3 text-center">Aksi</th>
+                <th class="py-2.5 px-3">${isEnglish ? 'Date' : 'Tanggal'}</th>
+                <th class="py-2.5 px-3">${isEnglish ? 'Location' : 'Lokasi'}</th>
+                <th class="py-2.5 px-3">${isEnglish ? 'News Headline' : 'Berita'}</th>
+                <th class="py-2.5 px-3">${isEnglish ? 'QC Verification Status' : 'Status Verifikasi QC'}</th>
+                <th class="py-2.5 px-3 text-center">${isEnglish ? 'Actions' : 'Aksi'}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 text-[11px]">
