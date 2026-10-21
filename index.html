@@ -124,7 +124,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=1244.202610211722"></script>
+  <script src="data/events.js?v=1244.202610211728"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -394,6 +394,7 @@
           <select id="filter-hazard" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700 text-xs">
             <option value="rob" data-i18n="hazard_rob" selected>Banjir Rob (Tidal Flood)</option>
             <option value="all" data-i18n="hazard_all">Semua Tipe (All Hazards)</option>
+            <option value="tide_wave" data-i18n="hazard_tide_wave">Rob + Gelombang (Tide-Wave)</option>
             <option value="high_wave" data-i18n="hazard_high_wave">Gelombang Tinggi (High Wave)</option>
           </select>
         </div>
@@ -993,6 +994,7 @@
         stat_total: "Total Events:",
         stat_total_all: "Total Events:",
         stat_total_rob: "Total Tidal Floods:",
+        stat_total_tide_wave: "Total Rob + Waves:",
         stat_total_high_wave: "Total High Waves:",
         stat_active: "Active Shown:",
         stat_max_depth: "Max Inundation:",
@@ -1027,6 +1029,7 @@
         hazard_type: "Hazard Type",
         hazard_all: "All Hazards",
         hazard_rob: "Tidal Flood (Rob)",
+        hazard_tide_wave: "Rob + Waves (Compound)",
         hazard_high_wave: "High Wave / Swell",
         depth_filter: "Water Depth",
         depth_all: "All Events",
@@ -1040,6 +1043,7 @@
         legend_title: "Hazard Classification",
         legend_toggle: "Legend",
         legend_rob: "Banjir Rob (Tidal Flood)",
+        legend_tide_wave: "Rob + Waves (Compound Tide-Wave)",
         legend_high_wave: "Gelombang Tinggi (High Wave)",
         legend_confirmed: "Event Benar (Verified)",
         legend_flagged: "Bukan Event (Flagged)",
@@ -1120,6 +1124,7 @@
         stat_total: "Total Kejadian:",
         stat_total_all: "Total Semua Kejadian:",
         stat_total_rob: "Total Banjir Rob:",
+        stat_total_tide_wave: "Total Rob + Gelombang:",
         stat_total_high_wave: "Total Gelombang Tinggi:",
         stat_active: "Aktif Tampil:",
         stat_max_depth: "Maks. Genangan:",
@@ -1154,6 +1159,7 @@
         hazard_type: "Jenis Bahaya",
         hazard_all: "Semua Bahaya",
         hazard_rob: "Banjir Rob (Tidal Flood)",
+        hazard_tide_wave: "Rob + Gelombang (Compound)",
         hazard_high_wave: "Gelombang Tinggi",
         depth_filter: "Tinggi Genangan",
         depth_all: "Semua Kejadian",
@@ -1167,6 +1173,7 @@
         legend_title: "Klasifikasi Jenis Bahaya",
         legend_toggle: "Legenda",
         legend_rob: "Banjir Rob (Tidal Flood)",
+        legend_tide_wave: "Rob + Gelombang (Compound Tide-Wave)",
         legend_high_wave: "Gelombang Tinggi (High Wave)",
         legend_confirmed: "Event Benar (Terverifikasi)",
         legend_flagged: "Bukan Event (Ditandai)",
@@ -1595,7 +1602,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=1244.202610211722')
+        fetch('data/events.json?v=1244.202610211728')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -2123,6 +2130,8 @@
       let baseEvents = AppState.allEvents;
       if (hazardVal === 'rob') {
         baseEvents = AppState.allEvents.filter(e => (!e.hazard || e.hazard === 'rob'));
+      } else if (hazardVal === 'tide_wave') {
+        baseEvents = AppState.allEvents.filter(e => e.hazard === 'tide_wave');
       } else if (hazardVal === 'high_wave') {
         baseEvents = AppState.allEvents.filter(e => e.hazard === 'high_wave');
       }
@@ -2137,6 +2146,8 @@
       if (elLabelTotal) {
         if (hazardVal === 'rob') {
           elLabelTotal.textContent = dict.stat_total_rob || (AppState.lang === 'id' ? 'Total Banjir Rob:' : 'Total Tidal Floods:');
+        } else if (hazardVal === 'tide_wave') {
+          elLabelTotal.textContent = dict.stat_total_tide_wave || (AppState.lang === 'id' ? 'Total Rob + Gelombang:' : 'Total Rob + Waves:');
         } else if (hazardVal === 'high_wave') {
           elLabelTotal.textContent = dict.stat_total_high_wave || (AppState.lang === 'id' ? 'Total Gelombang Tinggi:' : 'Total High Waves:');
         } else {
@@ -2210,8 +2221,9 @@
           anchor: [7, 7]
         };
       } else {
-        const isHighWave = e.hazard === 'high_wave';
-        const pinColor = isHighWave ? '#ea580c' : '#0284c7';
+        const pinColor = (e.hazard === 'tide_wave')
+          ? '#9333ea'
+          : (e.hazard === 'high_wave' ? '#ea580c' : '#0284c7');
         return {
           html: `<div style="background-color: ${pinColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.35);"></div>`,
           size: [12, 12],
@@ -2299,7 +2311,9 @@
 
       // Header Badge logic
       let badgeClass = 'bg-cyan-100 text-cyan-800 border-cyan-200';
-      let badgeLabel = (e.hazard === 'high_wave') ? '🌊 GELOMBANG TINGGI' : '🌊 BANJIR ROB';
+      let badgeLabel = (e.hazard === 'tide_wave')
+        ? '🌊 ROB + GELOMBANG'
+        : (e.hazard === 'high_wave' ? '🌊 GELOMBANG TINGGI' : '🌊 BANJIR ROB');
 
       if (isNotRob) {
         badgeClass = 'bg-red-100 text-red-800 border-red-300 font-bold';
@@ -2307,6 +2321,9 @@
       } else if (isConfirmed) {
         badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
         badgeLabel = '✓ EVENT BENAR (QC)';
+      } else if (e.hazard === 'tide_wave') {
+        badgeClass = 'bg-purple-100 text-purple-800 border-purple-200 font-bold';
+        badgeLabel = '🌊 ROB + GELOMBANG';
       } else if (e.hazard === 'high_wave') {
         badgeClass = 'bg-orange-100 text-orange-800 border-orange-200 font-bold';
         badgeLabel = '🌊 GELOMBANG TINGGI';
@@ -2610,7 +2627,7 @@
 
             <!-- Metadata details -->
             <div class="text-[10px] text-slate-500 space-y-0.5 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-              <div><strong>Jenis Bahaya:</strong> <span class="font-semibold ${e.hazard === 'high_wave' ? 'text-orange-700' : 'text-cyan-700'}">${e.hazard === 'high_wave' ? 'Gelombang Tinggi' : 'Banjir Rob'}</span></div>
+              <div><strong>Jenis Bahaya:</strong> <span class="font-semibold ${e.hazard === 'tide_wave' ? 'text-purple-700' : (e.hazard === 'high_wave' ? 'text-orange-700' : 'text-cyan-700')}">${e.hazard === 'tide_wave' ? 'Rob + Gelombang (Compound Tide-Wave)' : (e.hazard === 'high_wave' ? 'Gelombang Tinggi' : 'Banjir Rob')}</span></div>
               <div><strong>${dict.popup_region}</strong> ${e.region_label}</div>
               <div><strong>${dict.popup_terms}</strong> <code class="text-cyan-800">${e.terms || 'banjir rob'}</code></div>
               <div><strong>${dict.popup_source}</strong> ${e.n_articles} articles (${e.n_domains} independent domains)</div>
@@ -2745,13 +2762,13 @@
       const yearMap = {};
       const allYears = ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'];
       allYears.forEach(y => {
-        yearMap[y] = { rob: 0, high_wave: 0 };
+        yearMap[y] = { rob: 0, tide_wave: 0, high_wave: 0 };
       });
 
       events.forEach(e => {
         const y = e.date_start.substring(0, 4);
         if (yearMap[y]) {
-          const hz = (e.hazard === 'high_wave') ? 'high_wave' : 'rob';
+          const hz = (e.hazard === 'high_wave') ? 'high_wave' : ((e.hazard === 'tide_wave') ? 'tide_wave' : 'rob');
           yearMap[y][hz] = (yearMap[y][hz] || 0) + 1;
         }
       });
@@ -2767,6 +2784,11 @@
               label: AppState.lang === 'en' ? 'Tidal Flood (Rob)' : 'Banjir Rob',
               data: allYears.map(y => yearMap[y].rob),
               backgroundColor: '#0284c7',
+            },
+            {
+              label: AppState.lang === 'en' ? 'Rob + Waves (Compound)' : 'Rob + Gelombang',
+              data: allYears.map(y => yearMap[y].tide_wave),
+              backgroundColor: '#9333ea',
             },
             {
               label: AppState.lang === 'en' ? 'High Wave / Swell' : 'Gelombang Tinggi',
@@ -2977,12 +2999,15 @@
           const isRowCurated = !!rowAudit;
           const verTier = rowAudit ? (rowAudit.verified_tier || (rowAudit.audit_status === 'INACCURATE' ? 'not_rob' : rowAudit.audit_status ? rowAudit.audit_status.toLowerCase() : 'not_rob')) : null;
 
-          const hazardBadgeClass = (e.hazard === 'high_wave')
-            ? 'bg-orange-100 text-orange-800 font-semibold border border-orange-200'
-            : 'bg-sky-100 text-sky-800 font-semibold border border-sky-200';
-          const hazardDisplay = (e.hazard === 'high_wave')
-            ? (AppState.lang === 'en' ? '🌊 High Wave' : '🌊 Gelombang Tinggi')
-            : (AppState.lang === 'en' ? '🌊 Tidal Flood' : '🌊 Banjir Rob');
+          let hazardBadgeClass = 'bg-sky-100 text-sky-800 font-semibold border border-sky-200';
+          let hazardDisplay = AppState.lang === 'en' ? '🌊 Tidal Flood' : '🌊 Banjir Rob';
+          if (e.hazard === 'tide_wave') {
+            hazardBadgeClass = 'bg-purple-100 text-purple-800 font-semibold border border-purple-200';
+            hazardDisplay = AppState.lang === 'en' ? '🌊 Rob + Wave' : '🌊 Rob + Gelombang';
+          } else if (e.hazard === 'high_wave') {
+            hazardBadgeClass = 'bg-orange-100 text-orange-800 font-semibold border border-orange-200';
+            hazardDisplay = AppState.lang === 'en' ? '🌊 High Wave' : '🌊 Gelombang Tinggi';
+          }
 
           let eventBenarBadgeHtml = '';
           if (verTier === 'confirmed') {
