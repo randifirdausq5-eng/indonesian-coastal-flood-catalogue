@@ -124,7 +124,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=1244.202610211745"></script>
+  <script src="data/events.js?v=1244.202610211753"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -1302,27 +1302,32 @@
         renderAuditModalContent();
       }
 
+      // Update province dropdown first option ("All Provinces" vs "Semua Provinsi")
+      const provSelect = document.getElementById('filter-province');
+      if (provSelect) {
+        populateProvinceOptions(AppState.allEvents, provSelect.value);
+      }
+
       // Refresh header & sidebar stats with localized labels
       updateHeaderAndSidebarStats();
 
-      // Check if an event popup is currently open on the map
-      let openEventId = null;
+      // Directly update all marker popups in-place so open popup updates text on screen instantly without closing!
       if (AppState.markersById) {
-        for (const id in AppState.markersById) {
-          const m = AppState.markersById[id];
-          if (m && m.isPopupOpen && m.isPopupOpen()) {
-            openEventId = id;
-            break;
+        Object.keys(AppState.markersById).forEach(id => {
+          const marker = AppState.markersById[id];
+          const ev = AppState.allEvents.find(e => String(e.id) === String(id));
+          if (marker && ev) {
+            const newHtml = buildPopupContent(ev);
+            marker.setPopupContent(newHtml);
+            if (marker.isPopupOpen && marker.isPopupOpen()) {
+              const popup = marker.getPopup();
+              if (popup) {
+                popup.setContent(newHtml);
+                if (popup.update) popup.update();
+              }
+            }
           }
-        }
-      }
-
-      // Refresh map markers without resetting zoom
-      refreshMapMarkers(false);
-
-      // If an event popup was open, reopen it with newly localized content
-      if (openEventId && AppState.markersById && AppState.markersById[openEventId]) {
-        AppState.markersById[openEventId].openPopup();
+        });
       }
 
       renderTablePage(AppState.tablePage);
@@ -1624,7 +1629,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=1244.202610211745')
+        fetch('data/events.json?v=1244.202610211753')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -2319,6 +2324,110 @@
       }
     }
 
+    const FLAG_PRESET_CATEGORIES = [
+      { 
+        emoji: '🏗️', 
+        id_title: 'Proyek / Tanggul / Pembangunan', 
+        id_reason: 'Proyek / Tanggul / Pembangunan (Tidak Ada Banjir)', 
+        en_title: 'Project / Seawall / Construction', 
+        en_reason: 'Project / Seawall / Construction (No active flood)' 
+      },
+      { 
+        emoji: '🛡️', 
+        id_title: 'Preventif / Mitigasi / Siaga Pompa', 
+        id_reason: 'Langkah Preventif / Mitigasi / Siaga Operasional', 
+        en_title: 'Mitigation / Precautionary / Pump Standby', 
+        en_reason: 'Precautionary / Mitigation / Pump Standby' 
+      },
+      { 
+        emoji: '🎓', 
+        id_title: 'Edukasi / Kajian Pakar / Riset', 
+        id_reason: 'Edukasi / Kajian Pakar / Opini (Bukan Kejadian)', 
+        en_title: 'Education / Academic Research / Opinion', 
+        en_reason: 'Education / Academic Research / Opinion (Not an event)' 
+      },
+      { 
+        emoji: '📸', 
+        id_title: 'Dokumentasi / Kronis Menahun', 
+        id_reason: 'Dokumentasi Jurnalistik / Profil Kronis Menahun', 
+        en_title: 'Journalism / Chronic Profile', 
+        en_reason: 'Journalistic Documentary / Chronic Flood Profile' 
+      },
+      { 
+        emoji: '👔', 
+        id_title: 'Pernyataan Pejabat / Rencana Pemda', 
+        id_reason: 'Pernyataan Pejabat / Kebijakan / Program Pemerintah', 
+        en_title: 'Official Statement / Gov Policy', 
+        en_reason: 'Official Statement / Gov Policy & Programs' 
+      },
+      { 
+        emoji: '⚠️', 
+        id_title: 'Peringatan BMKG (Baru Prediksi)', 
+        id_reason: 'Peringatan Dini / Prediksi BMKG (Belum Terjadi)', 
+        en_title: 'BMKG Early Warning / Forecast Only', 
+        en_reason: 'BMKG Early Warning / Forecast (Not yet occurred)' 
+      },
+      { 
+        emoji: '🌧️', 
+        id_title: 'Banjir Hujan / Kali / Sungai', 
+        id_reason: 'Banjir Hujan / Luapan Kali / Abrasi (Bukan Rob)', 
+        en_title: 'Rain / Riverine Flood (Not Rob)', 
+        en_reason: 'Pluvial Rain / River Overflow / Coastal Erosion (Not Rob)' 
+      },
+      { 
+        emoji: '📦', 
+        id_title: 'Baksos / Sembako / Bantuan', 
+        id_reason: 'Bantuan Sosial / Sembako / CSR Pasca-Banjir', 
+        en_title: 'Social Aid / Relief Supplies', 
+        en_reason: 'Social Aid / Relief Supplies / Post-Flood CSR' 
+      },
+      { 
+        emoji: '📢', 
+        id_title: 'Demo / Protes / Keluhan Warga', 
+        id_reason: 'Demo / Protes / Tuntutan Warga', 
+        en_title: 'Protest / Resident Demonstration', 
+        en_reason: 'Protest / Resident Demonstration / Demands' 
+      },
+      { 
+        emoji: '🔗', 
+        id_title: 'Berita Gak Bisa Diakses / 404', 
+        id_reason: 'Berita Tidak Bisa Diakses / Link Mati', 
+        en_title: 'Broken Link / Inaccessible (404)', 
+        en_reason: 'News Link Inaccessible / Dead URL (404)' 
+      },
+      { 
+        emoji: '📍', 
+        id_title: 'Salah Lokasi / Salah Tanggal', 
+        id_reason: 'Lokasi / Tanggal Kejadian Tidak Tepat', 
+        en_title: 'Wrong Location / Date', 
+        en_reason: 'Inaccurate Event Location / Date' 
+      },
+      { 
+        emoji: '❌', 
+        id_title: 'Pokoknya Bukan Event (Lainnya)', 
+        id_reason: 'Pokoknya Bukan Banjir Rob (Perlu Analisis Lanjut)', 
+        en_title: 'Not an Event (Other / Unclassified)', 
+        en_reason: 'Not a Coastal Flood Event (Needs further review)' 
+      }
+    ];
+
+    function getLocalizedFlagReason(rawReason) {
+      if (!rawReason) return AppState.lang === 'en' ? 'Not an event' : 'Bukan event';
+      const match = FLAG_PRESET_CATEGORIES.find(c => 
+        c.id_reason === rawReason || c.en_reason === rawReason || c.id_title === rawReason || c.en_title === rawReason
+      );
+      if (match) {
+        return AppState.lang === 'en' ? match.en_reason : match.id_reason;
+      }
+      if (rawReason === 'Ditandai bukan rob' || rawReason === 'Manual QC: Marked as not rob' || rawReason === 'Berita tidak akurat / bukan rob' || rawReason === 'Inaccurate news / not a coastal flood event') {
+        return AppState.lang === 'en' ? 'Inaccurate news / not a coastal flood event' : 'Berita tidak akurat / bukan rob';
+      }
+      if (rawReason.startsWith('Manual QC: Verified') || rawReason.startsWith('QC Manual: Terverifikasi') || rawReason.startsWith('Verified as')) {
+        return AppState.lang === 'en' ? 'Manual QC: Verified as Confirmed Event' : 'QC Manual: Terverifikasi Event Benar';
+      }
+      return rawReason;
+    }
+
     // Build Popup HTML Content for Event
     function buildPopupContent(e) {
       const dict = I18N[AppState.lang];
@@ -2492,7 +2601,7 @@
               </button>
             </div>
             <p class="text-red-900 font-medium bg-white/90 p-1.5 rounded border border-red-100 text-[10px] leading-relaxed">
-              "${existingAudit.reason || existingAudit.audit_reason || (isEnglish ? 'Not an event' : 'Bukan event')}"
+              "${getLocalizedFlagReason(existingAudit.reason || existingAudit.audit_reason)}"
             </p>
             <div class="flex justify-end">
               <button type="button" onclick="openFlagConfirmModal('${e.id}')" class="text-red-700 hover:text-red-900 font-semibold underline text-[9px] flex items-center gap-1 cursor-pointer">
@@ -2654,7 +2763,7 @@
             <!-- Metadata details -->
             <div class="text-[10px] text-slate-500 space-y-0.5 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
               <div><strong>${isEnglish ? 'Hazard Type:' : 'Jenis Bahaya:'}</strong> <span class="font-semibold ${e.hazard === 'tide_wave' ? 'text-purple-700' : (e.hazard === 'high_wave' ? 'text-orange-700' : 'text-cyan-700')}">${e.hazard === 'tide_wave' ? (isEnglish ? 'Rob + Waves (Compound Tide-Wave)' : 'Rob + Gelombang (Compound Tide-Wave)') : (e.hazard === 'high_wave' ? (isEnglish ? 'High Wave / Swell' : 'Gelombang Tinggi') : (isEnglish ? 'Tidal Flood (Rob)' : 'Banjir Rob'))}</span></div>
-              <div><strong>${dict.popup_region}</strong> ${e.region_label}</div>
+              <div><strong>${dict.popup_region}</strong> ${dict['reg_' + e.region] || e.region_label || e.region}</div>
               <div><strong>${dict.popup_terms}</strong> <code class="text-cyan-800">${e.terms || (isEnglish ? 'tidal flood' : 'banjir rob')}</code></div>
               <div><strong>${dict.popup_source}</strong> ${e.n_articles} ${isEnglish ? 'articles' : 'artikel'} (${e.n_domains} ${isEnglish ? 'independent domains' : 'domain independen'})</div>
             </div>
@@ -3077,7 +3186,7 @@
                 ${e.place}${(!e.lat || !e.lon) ? ` <span class="ml-1 text-[9.5px] text-amber-700 bg-amber-50 border border-amber-200 px-1 py-0.2 rounded font-normal italic">${AppState.lang === 'en' ? 'regional approx.' : 'arah kawasan'}</span>` : ''}
               </td>
               <td class="py-2 px-3 text-slate-600">${e.province}</td>
-              <td class="py-2 px-3 text-slate-600">${e.region_label}</td>
+              <td class="py-2 px-3 text-slate-600">${dict['reg_' + e.region] || e.region_label || e.region}</td>
               <td class="py-2 px-3">
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${hazardBadgeClass}">${hazardDisplay}</span>
               </td>
@@ -3356,93 +3465,6 @@
         unflagEvent(eventId);
       }
     }
-
-    const FLAG_PRESET_CATEGORIES = [
-      { 
-        emoji: '🏗️', 
-        id_title: 'Proyek / Tanggul / Pembangunan', 
-        id_reason: 'Proyek / Tanggul / Pembangunan (Tidak Ada Banjir)', 
-        en_title: 'Project / Seawall / Construction', 
-        en_reason: 'Project / Seawall / Construction (No active flood)' 
-      },
-      { 
-        emoji: '🛡️', 
-        id_title: 'Preventif / Mitigasi / Siaga Pompa', 
-        id_reason: 'Langkah Preventif / Mitigasi / Siaga Operasional', 
-        en_title: 'Mitigation / Precautionary / Pump Standby', 
-        en_reason: 'Precautionary / Mitigation / Pump Standby' 
-      },
-      { 
-        emoji: '🎓', 
-        id_title: 'Edukasi / Kajian Pakar / Riset', 
-        id_reason: 'Edukasi / Kajian Pakar / Opini (Bukan Kejadian)', 
-        en_title: 'Education / Academic Research / Opinion', 
-        en_reason: 'Education / Academic Research / Opinion (Not an event)' 
-      },
-      { 
-        emoji: '📸', 
-        id_title: 'Dokumentasi / Kronis Menahun', 
-        id_reason: 'Dokumentasi Jurnalistik / Profil Kronis Menahun', 
-        en_title: 'Journalism / Chronic Profile', 
-        en_reason: 'Journalistic Documentary / Chronic Flood Profile' 
-      },
-      { 
-        emoji: '👔', 
-        id_title: 'Pernyataan Pejabat / Rencana Pemda', 
-        id_reason: 'Pernyataan Pejabat / Kebijakan / Program Pemerintah', 
-        en_title: 'Official Statement / Gov Policy', 
-        en_reason: 'Official Statement / Gov Policy & Programs' 
-      },
-      { 
-        emoji: '⚠️', 
-        id_title: 'Peringatan BMKG (Baru Prediksi)', 
-        id_reason: 'Peringatan Dini / Prediksi BMKG (Belum Terjadi)', 
-        en_title: 'BMKG Early Warning / Forecast Only', 
-        en_reason: 'BMKG Early Warning / Forecast (Not yet occurred)' 
-      },
-      { 
-        emoji: '🌧️', 
-        id_title: 'Banjir Hujan / Kali / Sungai', 
-        id_reason: 'Banjir Hujan / Luapan Kali / Abrasi (Bukan Rob)', 
-        en_title: 'Rain / Riverine Flood (Not Rob)', 
-        en_reason: 'Pluvial Rain / River Overflow / Coastal Erosion (Not Rob)' 
-      },
-      { 
-        emoji: '📦', 
-        id_title: 'Baksos / Sembako / Bantuan', 
-        id_reason: 'Bantuan Sosial / Sembako / CSR Pasca-Banjir', 
-        en_title: 'Social Aid / Relief Supplies', 
-        en_reason: 'Social Aid / Relief Supplies / Post-Flood CSR' 
-      },
-      { 
-        emoji: '📢', 
-        id_title: 'Demo / Protes / Keluhan Warga', 
-        id_reason: 'Demo / Protes / Tuntutan Warga', 
-        en_title: 'Protest / Resident Demonstration', 
-        en_reason: 'Protest / Resident Demonstration / Demands' 
-      },
-      { 
-        emoji: '🔗', 
-        id_title: 'Berita Gak Bisa Diakses / 404', 
-        id_reason: 'Berita Tidak Bisa Diakses / Link Mati', 
-        en_title: 'Broken Link / Inaccessible (404)', 
-        en_reason: 'News Link Inaccessible / Dead URL (404)' 
-      },
-      { 
-        emoji: '📍', 
-        id_title: 'Salah Lokasi / Salah Tanggal', 
-        id_reason: 'Lokasi / Tanggal Kejadian Tidak Tepat', 
-        en_title: 'Wrong Location / Date', 
-        en_reason: 'Inaccurate Event Location / Date' 
-      },
-      { 
-        emoji: '❌', 
-        id_title: 'Pokoknya Bukan Event (Lainnya)', 
-        id_reason: 'Pokoknya Bukan Banjir Rob (Perlu Analisis Lanjut)', 
-        en_title: 'Not an Event (Other / Unclassified)', 
-        en_reason: 'Not a Coastal Flood Event (Needs further review)' 
-      }
-    ];
 
     function renderFlagConfirmModal() {
       const isEnglish = AppState.lang === 'en';
