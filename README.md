@@ -10,7 +10,7 @@
 Aplikasi web ini menyajikan visualisasi spasial interaktif, penelusuran, dan dasbor analitik kejadian banjir rob pesisir (*coastal flooding*) di seluruh kepulauan Indonesia dari periode November 2015 hingga 2026.
 
 Proyek ini terisolasi di dalam folder `tools/web_catalogue/` untuk:
-1. Membaca langsung data katalog yang ditentukan di `config.yaml` (`rob.catalogue`, saat ini v4: `data/processed/rob_events_<cat>.csv`) dan koordinat pesisir (`data/processed/rob_places_latlon.csv`).
+1. Membaca langsung data katalog yang ditentukan di `config.yaml` (`rob.catalogue`, saat ini v5: `data/processed/rob_events_<cat>.csv`) dan koordinat pesisir (`data/processed/rob_places_latlon.csv`).
 2. Memanfaatkan modul ilmiah `src.regions` untuk menyaring false-positives (`drop_excluded`), koreksi penamaan tempat (`rob_event_place_overrides.csv`), dan batasan regional pesisir (*Pantura Jawa, Jawa Selatan, Sumatera Timur, Sumatera Barat, Kalimantan, Indonesia Timur*).
 3. Menjadi basis kode mandiri yang dapat di-push ke repositori GitHub terpisah untuk hosting **GitHub Pages** dan otomatisasi **GitHub Actions**.
 
@@ -61,7 +61,7 @@ tools/web_catalogue/
 │   ├── events.js                  # Dataset JavaScript bundle (window.ROB_EVENTS)
 │   └── summary.json               # Metadata ringkasan dan statistik agregat
 └── scripts/
-    └── export_events_json.py      # Skrip konversi dari katalog aktif (config.yaml rob.catalogue, saat ini v4)
+    └── export_events_json.py      # Skrip konversi dari katalog aktif (config.yaml rob.catalogue, saat ini v5)
 ```
 
 ---

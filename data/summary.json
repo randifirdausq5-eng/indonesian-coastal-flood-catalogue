@@ -1,11 +1,12 @@
 {
-  "total_events": 951,
-  "unique_places": 153,
+  "total_events": 1291,
+  "unique_places": 208,
   "unique_provinces": [
     "Aceh",
     "Bali",
     "Bangka Belitung",
     "Banten",
+    "Bengkulu",
     "DI Yogyakarta",
     "DKI Jakarta",
     "Gorontalo",
@@ -41,24 +42,24 @@
     "2026"
   ],
   "tier_counts": {
-    "probable": 646,
-    "confirmed": 76,
-    "possible": 229
+    "probable": 915,
+    "possible": 285,
+    "confirmed": 91
   },
   "region_counts": {
-    "sumatra_east": 99,
-    "java_north": 642,
-    "java_south": 54,
-    "east_indo": 85,
-    "kalimantan": 54,
-    "sumatra_west": 17
+    "java_north": 738,
+    "sumatra_west": 42,
+    "java_south": 114,
+    "sumatra_east": 170,
+    "east_indo": 147,
+    "kalimantan": 80
   },
   "hazard_counts": {
-    "rob": 909,
-    "high_wave": 42
+    "rob": 1113,
+    "high_wave": 178
   },
-  "tide_gauge_matches": 359,
-  "tide_gauge_anomalies": 171,
-  "satellite_sla_matches": 788,
-  "generated_at": "2026-10-20T10:22:36.793901"
+  "tide_gauge_matches": 417,
+  "tide_gauge_anomalies": 192,
+  "satellite_sla_matches": 961,
+  "generated_at": "2026-10-21T15:21:23.125963"
 }

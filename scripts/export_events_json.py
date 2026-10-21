@@ -568,12 +568,12 @@ def update_index_html(index_path: Path, total_events: int, rob_events: int = Non
 
 
 if __name__ == '__main__':
-    default_events = REPO_ROOT / "data/processed/rob_events_v4.csv"
+    default_events = REPO_ROOT / "data/processed/rob_events_v5.csv"
     default_places = REPO_ROOT / "data/processed/rob_places_latlon.csv"
     default_out = Path(__file__).resolve().parent.parent / "data"
 
-    parser = argparse.ArgumentParser(description="Export v4 rob catalogue with tide gauge anomalies for web dashboard")
-    parser.add_argument('--events', type=Path, default=default_events, help="Path to rob_events_v4.csv")
+    parser = argparse.ArgumentParser(description="Export v5 rob catalogue with tide gauge anomalies for web dashboard")
+    parser.add_argument('--events', type=Path, default=default_events, help="Path to rob_events_v5.csv")
     parser.add_argument('--places', type=Path, default=default_places, help="Path to rob_places_latlon.csv")
     parser.add_argument('--out', type=Path, default=default_out, help="Output directory for web data")
     parser.add_argument('--no-exclusions', action='store_true', help="Disable scientific exclusions filtering")
