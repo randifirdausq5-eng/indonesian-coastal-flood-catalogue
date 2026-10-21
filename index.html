@@ -124,7 +124,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=1291.202610211521"></script>
+  <script src="data/events.js?v=1291.202610211549"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -385,42 +385,31 @@
 
         <div class="h-px bg-slate-200"></div>
 
-        <!-- 2. Parameters (Hazard Type, Water Depth & Audit QC) -->
+        <!-- 2. Parameters (Water Depth & Audit QC) -->
         <div class="space-y-2">
           <label class="font-semibold text-slate-700 flex items-center justify-between">
-            <span><i class="fa-solid fa-ruler-vertical text-cyan-600 mr-1.5"></i> <span data-i18n="specific_parameters">Parameters</span></span>
+            <span><i class="fa-solid fa-sliders text-cyan-600 mr-1.5"></i> <span data-i18n="specific_parameters">Parameters</span></span>
           </label>
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="hazard_type">Hazard Type</label>
-              <select id="filter-hazard" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
-                <option value="rob" data-i18n="hazard_rob" selected>Tidal Flood (Rob)</option>
-                <option value="all" data-i18n="hazard_all">All Hazards</option>
-                <option value="high_wave" data-i18n="hazard_high_wave">High Wave / Swell</option>
-              </select>
-            </div>
-            <div>
               <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="depth_filter">Water Depth</label>
-              <select id="filter-depth" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
+              <select id="filter-depth" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700 text-xs">
                 <option value="all" data-i18n="depth_all">All Events</option>
                 <option value="reported" data-i18n="depth_reported">Depth Reported (cm)</option>
                 <option value="50">≥ 50 cm</option>
                 <option value="100">≥ 100 cm (Extreme)</option>
               </select>
             </div>
-          </div>
-          <!-- Audit QC Filter -->
-          <div class="pt-1">
-            <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1 flex items-center justify-between">
-              <span><i class="fa-solid fa-clipboard-check text-cyan-600 mr-1"></i> <span data-i18n="audit_filter_label">Audit / QC Filter</span></span>
-            </label>
-            <select id="filter-audit" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700 text-xs">
-              <option value="all">Semua Kejadian (All Events)</option>
-              <option value="unverified">⏳ Belum Ditinjau (Sisa Kurasi)</option>
-              <option value="verified">✅ Sudah Diverifikasi (Confirmed/Probable/Possible)</option>
-              <option value="flagged">🚫 Ditandai Bukan Rob / Inaccurate</option>
-              <option value="unflagged">🌊 Rob Bersih (Sembunyikan Bukan Rob)</option>
-            </select>
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1" data-i18n="audit_filter_label">Audit / QC Filter</label>
+              <select id="filter-audit" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700 text-xs">
+                <option value="all">Semua Kejadian (All Events)</option>
+                <option value="unverified">⏳ Belum Ditinjau (Sisa Kurasi)</option>
+                <option value="verified">✅ Sudah Diverifikasi (Event Benar)</option>
+                <option value="flagged">🚫 Ditandai Bukan Event / Inaccurate</option>
+                <option value="unflagged">🌊 Katalog Bersih (Sembunyikan Bukan Event)</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -439,27 +428,27 @@
             </button>
             <button onclick="setRegionFilter('java_north')" data-region="java_north" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_java_north">Java North Coast</span>
-              <span id="badge-javanorth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">765</span>
+              <span id="badge-javanorth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">738</span>
             </button>
             <button onclick="setRegionFilter('sumatra_east')" data-region="sumatra_east" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_sumatra_east">East Sumatra</span>
-              <span id="badge-sumatraeast-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">120</span>
+              <span id="badge-sumatraeast-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">170</span>
             </button>
             <button onclick="setRegionFilter('east_indo')" data-region="east_indo" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_east_indo">Eastern Indonesia</span>
-              <span id="badge-eastindo-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">91</span>
-            </button>
-            <button onclick="setRegionFilter('kalimantan')" data-region="kalimantan" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
-              <span data-i18n="reg_kalimantan">Kalimantan</span>
-              <span id="badge-kalimantan-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">58</span>
+              <span id="badge-eastindo-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">147</span>
             </button>
             <button onclick="setRegionFilter('java_south')" data-region="java_south" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_java_south">Java South Coast</span>
-              <span id="badge-javasouth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">56</span>
+              <span id="badge-javasouth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">114</span>
+            </button>
+            <button onclick="setRegionFilter('kalimantan')" data-region="kalimantan" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
+              <span data-i18n="reg_kalimantan">Kalimantan</span>
+              <span id="badge-kalimantan-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">80</span>
             </button>
             <button onclick="setRegionFilter('sumatra_west')" data-region="sumatra_west" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 col-span-2">
               <span data-i18n="reg_sumatra_west">West Sumatra</span>
-              <span id="badge-sumatrawest-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">21</span>
+              <span id="badge-sumatrawest-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">42</span>
             </button>
           </div>
 
@@ -474,33 +463,26 @@
 
         <div class="h-px bg-slate-200"></div>
 
-        <!-- 4. Confidence Tier -->
+        <!-- 4. Hazard Classification (Banjir Rob vs Gelombang Tinggi) -->
         <div class="space-y-2">
           <label class="font-semibold text-slate-700 flex items-center justify-between">
-            <span><i class="fa-solid fa-shield-halved text-cyan-600 mr-1.5"></i> <span data-i18n="confidence_tier">Confidence Tier</span></span>
-            <span class="text-[10px] text-slate-400" data-i18n="research_class">Research Class</span>
+            <span><i class="fa-solid fa-water text-cyan-600 mr-1.5"></i> <span data-i18n="hazard_classification">Hazard Type</span></span>
+            <span class="text-[10px] text-slate-400 font-mono">v5</span>
           </label>
           <div class="space-y-1.5">
-            <label class="flex items-center justify-between p-2 rounded-md border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50 cursor-pointer transition">
+            <label class="flex items-center justify-between p-2 rounded-md border border-cyan-200 bg-cyan-50/50 hover:bg-cyan-50 cursor-pointer transition">
               <div class="flex items-center gap-2">
-                <input type="checkbox" id="tier-confirmed" value="confirmed" checked onchange="applyFilters()" class="rounded text-emerald-600 focus:ring-emerald-500">
-                <span class="font-medium text-emerald-900" data-i18n="tier_confirmed_desc">Confirmed (Physically verified)</span>
+                <input type="checkbox" id="hazard-rob" value="rob" checked onchange="applyFilters()" class="rounded text-cyan-600 focus:ring-cyan-500">
+                <span class="font-medium text-cyan-900" data-i18n="hazard_rob_label">Banjir Rob (Tidal Flood)</span>
               </div>
-              <span id="count-tier-confirmed" class="font-mono text-[11px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.2 rounded">78</span>
+              <span id="count-hazard-rob" class="font-mono text-[11px] font-bold text-cyan-700 bg-cyan-100 px-1.5 py-0.2 rounded">1,113</span>
             </label>
-            <label class="flex items-center justify-between p-2 rounded-md border border-amber-200 bg-amber-50/50 hover:bg-amber-50 cursor-pointer transition">
+            <label class="flex items-center justify-between p-2 rounded-md border border-orange-200 bg-orange-50/50 hover:bg-orange-50 cursor-pointer transition">
               <div class="flex items-center gap-2">
-                <input type="checkbox" id="tier-probable" value="probable" checked onchange="applyFilters()" class="rounded text-amber-600 focus:ring-amber-500">
-                <span class="font-medium text-amber-900" data-i18n="tier_probable_desc">Probable (Explicit credible report)</span>
+                <input type="checkbox" id="hazard-high-wave" value="high_wave" checked onchange="applyFilters()" class="rounded text-orange-600 focus:ring-orange-500">
+                <span class="font-medium text-orange-900" data-i18n="hazard_high_wave_label">Gelombang Tinggi (High Wave)</span>
               </div>
-              <span id="count-tier-probable" class="font-mono text-[11px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">699</span>
-            </label>
-            <label class="flex items-center justify-between p-2 rounded-md border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer transition">
-              <div class="flex items-center gap-2">
-                <input type="checkbox" id="tier-possible" value="possible" checked onchange="applyFilters()" class="rounded text-slate-600 focus:ring-slate-500">
-                <span class="font-medium text-slate-800" data-i18n="tier_possible_desc">Possible (General / minor impact)</span>
-              </div>
-              <span id="count-tier-possible" class="font-mono text-[11px] font-bold text-slate-600 bg-slate-200 px-1.5 py-0.2 rounded">334</span>
+              <span id="count-hazard-high-wave" class="font-mono text-[11px] font-bold text-orange-700 bg-orange-100 px-1.5 py-0.2 rounded">178</span>
             </label>
           </div>
         </div>
@@ -758,7 +740,7 @@
               <th class="py-2.5 px-3" data-i18n="th_place">Location</th>
               <th class="py-2.5 px-3" data-i18n="th_province">Province</th>
               <th class="py-2.5 px-3" data-i18n="th_region">Region</th>
-              <th class="py-2.5 px-3" data-i18n="th_tier">Tier</th>
+              <th class="py-2.5 px-3" data-i18n="th_hazard">Hazard</th>
               <th class="py-2.5 px-3" data-i18n="th_depth">Depth</th>
               <th class="py-2.5 px-3" data-i18n="th_tg">BMKG Tide Anomaly</th>
               <th class="py-2.5 px-3" data-i18n="th_sat">Satellite SLA</th>
@@ -832,7 +814,7 @@
             <i class="fa-solid fa-triangle-exclamation text-xs"></i>
           </span>
           <div>
-            <h3 class="font-bold text-sm">Tandai Bukan Rob / Berita Tidak Akurat</h3>
+            <h3 class="font-bold text-sm">Tandai Bukan Event / Berita Tidak Akurat</h3>
             <p class="text-[10px] text-slate-400">Klik salah satu kategori di bawah — langsung otomatis tersimpan!</p>
           </div>
         </div>
@@ -903,7 +885,7 @@
               <span>📍</span> <span class="truncate font-medium">Salah Lokasi / Salah Tanggal</span>
             </button>
             <button type="button" data-reason="Pokoknya Bukan Banjir Rob (Perlu Analisis Lanjut)" onclick="setFlagPreset(this)" class="preset-btn text-left px-2.5 py-2 bg-red-50 hover:bg-red-100 border border-red-200 hover:border-red-400 rounded-lg text-[11px] text-red-800 font-bold hover:text-red-950 transition flex items-center gap-1.5 cursor-pointer">
-              <span>❌</span> <span class="truncate font-bold">Pokoknya Bukan Rob (Lainnya)</span>
+              <span>❌</span> <span class="truncate font-bold">Pokoknya Bukan Event (Lainnya)</span>
             </button>
           </div>
         </div>
@@ -922,7 +904,7 @@
         </button>
         <button type="button" onclick="submitFlagEvent()" class="px-4 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
           <i class="fa-solid fa-check"></i>
-          <span>Simpan & Tandai Bukan Rob</span>
+          <span>Simpan & Tandai Bukan Event</span>
         </button>
       </div>
     </div>
@@ -938,8 +920,8 @@
             <i class="fa-solid fa-clipboard-check text-sm"></i>
           </span>
           <div>
-            <h3 class="font-bold text-sm sm:text-base">Daftar Audit & Kurasi Data Training (QC)</h3>
-            <p class="text-[11px] text-slate-400">Verifikasi tier kejadian & penandaan berita tidak akurat untuk dataset ground-truth</p>
+            <h3 class="font-bold text-sm sm:text-base">Daftar Audit & Kurasi Data (QC)</h3>
+            <p class="text-[11px] text-slate-400">Verifikasi kejadian & penandaan berita tidak akurat untuk dataset ground-truth</p>
           </div>
         </div>
         <button onclick="toggleModal('modal-audit', false)" class="text-slate-400 hover:text-white text-lg">
@@ -955,16 +937,10 @@
             Semua (<span id="audit-filter-count-all">0</span>)
           </button>
           <button type="button" onclick="filterAuditModalTable('confirmed')" id="btn-audit-tab-confirmed" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition">
-            🟢 Confirmed (<span id="audit-filter-count-conf">0</span>)
-          </button>
-          <button type="button" onclick="filterAuditModalTable('probable')" id="btn-audit-tab-probable" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800 hover:bg-amber-200 transition">
-            🟡 Probable (<span id="audit-filter-count-prob">0</span>)
-          </button>
-          <button type="button" onclick="filterAuditModalTable('possible')" id="btn-audit-tab-possible" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-blue-100 text-blue-800 hover:bg-blue-200 transition">
-            🔵 Possible (<span id="audit-filter-count-poss">0</span>)
+            🟢 Event Benar (<span id="audit-filter-count-conf">0</span>)
           </button>
           <button type="button" onclick="filterAuditModalTable('not_rob')" id="btn-audit-tab-not_rob" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-red-100 text-red-800 hover:bg-red-200 transition">
-            🔴 Bukan Rob (<span id="audit-filter-count-notrob">0</span>)
+            🔴 Bukan Event (<span id="audit-filter-count-notrob">0</span>)
           </button>
         </div>
 
@@ -1054,11 +1030,10 @@
         reg_java_south: "Java South Coast",
         reg_sumatra_west: "West Sumatra",
         province_select: "Filter Specific Province",
-        confidence_tier: "Confidence Tier",
-        research_class: "Research Class",
-        tier_confirmed_desc: "Confirmed (Physically verified)",
-        tier_probable_desc: "Probable (Explicit credible report)",
-        tier_possible_desc: "Possible (General / minor impact)",
+        hazard_classification: "Hazard Type",
+        hazard_class_tag: "v5 Catalogue",
+        hazard_rob_label: "Banjir Rob (Tidal Flood)",
+        hazard_high_wave_label: "Gelombang Tinggi (High Wave)",
         specific_parameters: "Parameters",
         hazard_type: "Hazard Type",
         hazard_all: "All Hazards",
@@ -1073,11 +1048,12 @@
         hotspots_hint: "Click to zoom",
         focus_corridors: "Focus Region:",
         all_indonesia: "All Indonesia",
-        legend_title: "Confidence Tier Legend",
+        legend_title: "Hazard Classification",
         legend_toggle: "Legend",
-        legend_confirmed: "Confirmed (Verified physical impact)",
-        legend_probable: "Probable (Credible flood report)",
-        legend_possible: "Possible (Minor / potential impact)",
+        legend_rob: "Banjir Rob (Tidal Flood)",
+        legend_high_wave: "Gelombang Tinggi (High Wave)",
+        legend_confirmed: "Event Benar (Verified)",
+        legend_flagged: "Bukan Event (Flagged)",
         cluster_hint: "Cluster numbers show aggregate event counts at that spatial zoom level.",
         analytics_title: "Analytics Dashboard & Seasonal Variability",
         analytics_subtitle: "Real-time statistics dynamically responding to active filter controls in the sidebar.",
@@ -1107,7 +1083,7 @@
         th_place: "Location",
         th_province: "Province",
         th_region: "Region",
-        th_tier: "Tier",
+        th_hazard: "Hazard",
         th_depth: "Depth",
         th_tg: "BMKG Tide Anomaly",
         th_sat: "Satellite SLA (Grid)",
@@ -1137,7 +1113,7 @@
         popup_headline: "ARCHIVED NEWS HEADLINE:",
         popup_region: "Region:",
         popup_terms: "Terms:",
-        popup_reason: "Tier Reason:",
+        popup_hazard: "Hazard:",
         popup_source: "Sources:",
         popup_btn: "Open Original News Source",
         popup_report_issue: "Report inaccurate / non-flood article",
@@ -1154,7 +1130,7 @@
         stat_total: "Total Kejadian:",
         stat_total_all: "Total Semua Kejadian:",
         stat_total_rob: "Total Banjir Rob:",
-        stat_total_high_wave: "Total Gelombang Pasang:",
+        stat_total_high_wave: "Total Gelombang Tinggi:",
         stat_active: "Aktif Tampil:",
         stat_max_depth: "Maks. Genangan:",
         view_map: "Peta Spasial",
@@ -1180,16 +1156,15 @@
         reg_java_south: "Jawa Selatan",
         reg_sumatra_west: "Sumatera Barat",
         province_select: "Filter Spesifik Provinsi",
-        confidence_tier: "Tingkat Keyakinan",
-        research_class: "Klasifikasi Riset",
-        tier_confirmed_desc: "Confirmed (Terverifikasi fisik)",
-        tier_probable_desc: "Probable (Laporan rob kredibel)",
-        tier_possible_desc: "Possible (Dampak ringan / umum)",
+        hazard_classification: "Klasifikasi Bahaya",
+        hazard_class_tag: "Katalog v5",
+        hazard_rob_label: "Banjir Rob (Tidal Flood)",
+        hazard_high_wave_label: "Gelombang Tinggi (High Wave)",
         specific_parameters: "Parameter Khusus",
         hazard_type: "Jenis Bahaya",
         hazard_all: "Semua Bahaya",
-        hazard_rob: "Banjir Rob Murni",
-        hazard_high_wave: "Gelombang Pasang",
+        hazard_rob: "Banjir Rob (Tidal Flood)",
+        hazard_high_wave: "Gelombang Tinggi",
         depth_filter: "Tinggi Genangan",
         depth_all: "Semua Kejadian",
         depth_reported: "Ada Angka Genangan (cm)",
@@ -1199,11 +1174,12 @@
         hotspots_hint: "Klik untuk zoom",
         focus_corridors: "Fokus Kawasan:",
         all_indonesia: "Seluruh Indonesia",
-        legend_title: "Legenda Tingkat Keyakinan",
+        legend_title: "Klasifikasi Jenis Bahaya",
         legend_toggle: "Legenda",
-        legend_confirmed: "Confirmed (Dampak fisik terverifikasi)",
-        legend_probable: "Probable (Laporan rob kredibel)",
-        legend_possible: "Possible (Dampak ringan / indikasi)",
+        legend_rob: "Banjir Rob (Tidal Flood)",
+        legend_high_wave: "Gelombang Tinggi (High Wave)",
+        legend_confirmed: "Event Benar (Terverifikasi)",
+        legend_flagged: "Bukan Event (Ditandai)",
         cluster_hint: "Ukuran cluster angka menunjukkan kumpulan kejadian pada resolusi zoom tersebut.",
         analytics_title: "Dasbor Analitik & Variabilitas Kejadian Rob",
         analytics_subtitle: "Statistik real-time yang secara dinamis mengikuti filter aktif yang dipilih di sidebar.",
@@ -1233,7 +1209,7 @@
         th_place: "Lokasi",
         th_province: "Provinsi",
         th_region: "Wilayah",
-        th_tier: "Tingkat (Tier)",
+        th_hazard: "Bahaya",
         th_depth: "Genangan",
         th_tg: "Anomali Pasut BMKG",
         th_sat: "SLA Satelit (Grid)",
@@ -1263,7 +1239,7 @@
         popup_headline: "JUDUL BERITA ARSIP:",
         popup_region: "Wilayah:",
         popup_terms: "Istilah:",
-        popup_reason: "Alasan Tier:",
+        popup_hazard: "Bahaya:",
         popup_source: "Sumber:",
         popup_btn: "Buka Sumber Berita Asli",
         popup_report_issue: "Laporkan berita keliru / bukan rob",
@@ -1369,12 +1345,11 @@
           </div>
 
           <div>
-            <h4 class="font-bold text-slate-800 text-sm mb-1">2. Confidence Tier Classification</h4>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">2. Hazard Classification (Banjir Rob vs Gelombang Tinggi)</h4>
             <div class="p-3 bg-cyan-50 border border-cyan-200 rounded-xl">
               <ul class="list-disc pl-4 space-y-1 text-cyan-900 text-[11px]">
-                <li><strong>Confirmed:</strong> Events with measured physical impacts (e.g. resident evacuation, specific inundation water depth in cm, official agency reports, or verified across independent press domains).</li>
-                <li><strong>Probable:</strong> Explicit media reports of tidal flooding (rob) in a coastal settlement causing residential or road inundation.</li>
-                <li><strong>Possible:</strong> News reports of coastal flooding with generic impact wording or limited quantitative depth details.</li>
+                <li><strong>Banjir Rob (Tidal Flood):</strong> Coastal sea-water inundation events reported in coastal settlements, typically driven by spring tides and elevated sea levels.</li>
+                <li><strong>Gelombang Tinggi (High Wave / Coastal Erosion):</strong> Coastal events explicitly driven by ocean swells, high waves, or marine erosion along exposed coastlines.</li>
               </ul>
             </div>
           </div>
@@ -1390,10 +1365,10 @@
             <h4 class="font-bold text-slate-800 text-sm mb-1">4. Data Quality & Reporting Inaccurate Articles</h4>
             <div class="p-3.5 bg-amber-50/90 border border-amber-200 rounded-xl space-y-1.5">
               <p class="text-amber-900 text-[11px] leading-relaxed">
-                INA-CoastalFlood is curated through automated NLP web-mining. While multi-tiered filters are applied, articles that do not report an actual coastal flood event (such as citizen protests or demonstrations regarding flooding, government policy debates, or seawall/breakwater construction plans without actual flood inundation) may occasionally be captured.
+                INA-CoastalFlood is curated through automated NLP web-mining. While systematic filters are applied, articles that do not report an actual coastal flood event (such as citizen protests or demonstrations regarding flooding, government policy debates, or seawall/breakwater construction plans without actual flood inundation) may occasionally be captured.
               </p>
               <p class="text-amber-900 text-[11px] leading-relaxed">
-                If you identify an archived news report that is inaccurate or not an actual coastal flood event, please mark it directly in the event popup menu on the map (click any event marker and use the <strong>Bukan Rob</strong> button), or report the <strong>Event ID</strong> and link via email to:
+                If you identify an archived news report that is inaccurate or not an actual coastal flood event, please mark it directly in the event popup menu on the map (click any event marker and use the <strong>Bukan Event</strong> button), or report the <strong>Event ID</strong> and link via email to:
               </p>
               <div class="pt-1 flex flex-wrap gap-2 text-[11px] font-mono">
                 <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Data%20Correction" class="px-2.5 py-1 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg text-amber-950 font-semibold flex items-center gap-1.5 transition shadow-2xs">
@@ -1421,12 +1396,11 @@
           </div>
 
           <div>
-            <h4 class="font-bold text-slate-800 text-sm mb-1">2. Klasifikasi Tingkat Keyakinan (Confidence Tiers)</h4>
+            <h4 class="font-bold text-slate-800 text-sm mb-1">2. Klasifikasi Jenis Bahaya (Banjir Rob vs Gelombang Tinggi)</h4>
             <div class="p-3 bg-cyan-50 border border-cyan-200 rounded-xl">
               <ul class="list-disc pl-4 space-y-1 text-cyan-900 text-[11px]">
-                <li><strong>Confirmed (Terverifikasi):</strong> Kejadian dengan laporan dampak fisik terukur (misal evakuasi/pengungsian, tinggi genangan air spesifik dalam cm, laporan resmi instansi terkait, atau diliput oleh banyak domain media independen).</li>
-                <li><strong>Probable (Sangat Mungkin):</strong> Berita melaporkan banjir rob secara eksplisit di lokasi pemukiman/jalan pesisir yang relevan.</li>
-                <li><strong>Possible (Potensi/Ringan):</strong> Laporan rob dengan bahasa dampak yang lebih umum atau minim detail kuantitatif.</li>
+                <li><strong>Banjir Rob:</strong> Kejadian genangan air laut di kawasan permukiman atau pesisir yang dipicu pasang air laut tinggi.</li>
+                <li><strong>Gelombang Tinggi:</strong> Kejadian pesisir yang secara eksplisit dipicu oleh hempasan gelombang tinggi, swell samudra, atau abrasi pantai terbuka.</li>
               </ul>
             </div>
           </div>
@@ -1445,7 +1419,7 @@
                 Katalog INA-CoastalFlood dikurasi secara semi-otomatis melalui penelusuran web berita dan klasifikasi NLP. Meskipun filter bertingkat telah diterapkan, artikel yang bukan kejadian banjir rob nyata (misalnya berita aksi unjuk rasa/demo warga menuntut penanganan rob, perdebatan kebijakan, atau rencana pembangunan tanggul/proyek infrastruktur tanpa adanya genangan fisik) terkadang dapat lolos.
               </p>
               <p class="text-amber-900 text-[11px] leading-relaxed">
-                Jika Anda menemukan artikel atau data yang tidak tepat atau bukan kejadian rob sesungguhnya, silakan tandai langsung (please mark) pada menu popup kejadian di peta (klik titik kejadian lalu pilih tombol <strong>Bukan Rob</strong>), atau laporkan <strong>ID Kejadian</strong> dan tautannya via email ke:
+                Jika Anda menemukan artikel atau data yang tidak tepat atau bukan kejadian rob sesungguhnya, silakan tandai langsung (please mark) pada menu popup kejadian di peta (klik titik kejadian lalu pilih tombol <strong>Bukan Event</strong>), atau laporkan <strong>ID Kejadian</strong> dan tautannya via email ke:
               </p>
               <div class="pt-1 flex flex-wrap gap-2 text-[11px] font-mono">
                 <a href="mailto:randi.firdaus.q5@dc.tohoku.ac.jp?cc=randi.firdaus@bmkg.go.id&subject=[INA-CoastalFlood]%20Laporan%20Koreksi%20Data" class="px-2.5 py-1 bg-white hover:bg-amber-100 border border-amber-300 rounded-lg text-amber-950 font-semibold flex items-center gap-1.5 transition shadow-2xs">
@@ -1630,7 +1604,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=1291.202610211521')
+        fetch('data/events.json?v=1291.202610211549')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -1733,14 +1707,14 @@
       setBadge('badge-javasouth-reg', regCounts['java_south'] || 0);
       setBadge('badge-sumatrawest-reg', regCounts['sumatra_west'] || 0);
 
-      // Dynamically update Tier counts as well
-      const tierCounts = {};
+      // Dynamically update Hazard counts
+      const hazardCounts = {};
       events.forEach(e => {
-        tierCounts[e.tier] = (tierCounts[e.tier] || 0) + 1;
+        const hz = e.hazard || 'rob';
+        hazardCounts[hz] = (hazardCounts[hz] || 0) + 1;
       });
-      setBadge('count-tier-confirmed', tierCounts['confirmed'] || 0);
-      setBadge('count-tier-probable', tierCounts['probable'] || 0);
-      setBadge('count-tier-possible', tierCounts['possible'] || 0);
+      setBadge('count-hazard-rob', (hazardCounts['rob'] || 0).toLocaleString());
+      setBadge('count-hazard-high-wave', (hazardCounts['high_wave'] || 0).toLocaleString());
     }
 
     // Render Quick Hotspots in sidebar footer
@@ -2010,13 +1984,11 @@
       const yearVal = document.getElementById('filter-year').value;
       const monthVal = document.getElementById('filter-month').value;
       const provVal = document.getElementById('filter-province').value;
-      const hazardVal = document.getElementById('filter-hazard').value;
       const depthVal = document.getElementById('filter-depth').value;
 
-      // Tier checkboxes
-      const tierConfirmed = document.getElementById('tier-confirmed').checked;
-      const tierProbable = document.getElementById('tier-probable').checked;
-      const tierPossible = document.getElementById('tier-possible').checked;
+      // Hazard checkboxes
+      const showRob = document.getElementById('hazard-rob') ? document.getElementById('hazard-rob').checked : true;
+      const showHighWave = document.getElementById('hazard-high-wave') ? document.getElementById('hazard-high-wave').checked : true;
 
       // Toggle clear search button
       const clearBtn = document.getElementById('search-clear-btn');
@@ -2046,15 +2018,9 @@
           return false;
         }
 
-        // Confidence Tier filter
-        if (e.tier === 'confirmed' && !tierConfirmed) return false;
-        if (e.tier === 'probable' && !tierProbable) return false;
-        if (e.tier === 'possible' && !tierPossible) return false;
-
         // Hazard filter
-        if (hazardVal !== 'all' && e.hazard !== hazardVal) {
-          return false;
-        }
+        if (e.hazard === 'high_wave' && !showHighWave) return false;
+        if ((!e.hazard || e.hazard === 'rob') && !showRob) return false;
 
         // Depth filter
         if (depthVal === 'reported' && (e.depth_cm === null || e.depth_cm === undefined)) {
@@ -2080,11 +2046,11 @@
         if (auditVal === 'unverified' && isCurated) return false;
         if (auditVal === 'unflagged' && isNotRob) return false;
 
-        // Free search text (includes Event ID, place, regency, province, headline, terms, reason, tide station, audit reason)
+        // Free search text (includes Event ID, place, regency, province, headline, terms, tide station, audit reason)
         if (searchVal.length > 0) {
           const tgText = e.tg ? `${e.tg.station}` : '';
           const flagReason = (AppState.flaggedEvents && AppState.flaggedEvents[e.id]) ? AppState.flaggedEvents[e.id].reason : '';
-          const matchTarget = `${e.id} ${e.place} ${e.regency} ${e.province} ${e.title} ${e.terms} ${e.tier_reason} ${tgText} ${flagReason}`.toLowerCase();
+          const matchTarget = `${e.id} ${e.place} ${e.regency} ${e.province} ${e.title} ${e.terms} ${tgText} ${flagReason}`.toLowerCase();
           if (!matchTarget.includes(searchVal)) return false;
         }
 
@@ -2154,15 +2120,13 @@
       document.getElementById('filter-year').value = 'all';
       document.getElementById('filter-month').value = 'all';
       document.getElementById('filter-province').value = 'all';
-      document.getElementById('filter-hazard').value = 'rob';
       document.getElementById('filter-depth').value = 'all';
       if (document.getElementById('filter-audit')) {
         document.getElementById('filter-audit').value = 'all';
       }
 
-      document.getElementById('tier-confirmed').checked = true;
-      document.getElementById('tier-probable').checked = true;
-      document.getElementById('tier-possible').checked = true;
+      if (document.getElementById('hazard-rob')) document.getElementById('hazard-rob').checked = true;
+      if (document.getElementById('hazard-high-wave')) document.getElementById('hazard-high-wave').checked = true;
 
       setRegionFilter('all');
       if (AppState.map) {
@@ -2173,10 +2137,15 @@
 
     // Update Header & Sidebar Statistics
     function updateHeaderAndSidebarStats() {
-      const hazardVal = document.getElementById('filter-hazard') ? document.getElementById('filter-hazard').value : 'rob';
-      const baseEvents = (hazardVal === 'all')
-        ? AppState.allEvents
-        : AppState.allEvents.filter(e => e.hazard === hazardVal);
+      const showRob = document.getElementById('hazard-rob') ? document.getElementById('hazard-rob').checked : true;
+      const showHighWave = document.getElementById('hazard-high-wave') ? document.getElementById('hazard-high-wave').checked : true;
+
+      let baseEvents = AppState.allEvents;
+      if (showRob && !showHighWave) {
+        baseEvents = AppState.allEvents.filter(e => e.hazard === 'rob');
+      } else if (!showRob && showHighWave) {
+        baseEvents = AppState.allEvents.filter(e => e.hazard === 'high_wave');
+      }
 
       const total = baseEvents.length;
       const count = AppState.filteredEvents.length;
@@ -2186,10 +2155,10 @@
       // Dynamic header label for total events based on selected hazard
       const elLabelTotal = document.getElementById('label-stat-total');
       if (elLabelTotal) {
-        if (hazardVal === 'rob') {
+        if (showRob && !showHighWave) {
           elLabelTotal.textContent = dict.stat_total_rob || (AppState.lang === 'id' ? 'Total Banjir Rob:' : 'Total Tidal Floods:');
-        } else if (hazardVal === 'high_wave') {
-          elLabelTotal.textContent = dict.stat_total_high_wave || (AppState.lang === 'id' ? 'Total Gelombang Pasang:' : 'Total High Waves:');
+        } else if (!showRob && showHighWave) {
+          elLabelTotal.textContent = dict.stat_total_high_wave || (AppState.lang === 'id' ? 'Total Gelombang Tinggi:' : 'Total High Waves:');
         } else {
           elLabelTotal.textContent = dict.stat_total_all || (AppState.lang === 'id' ? 'Total Semua Kejadian:' : 'Total Events:');
         }
@@ -2201,7 +2170,6 @@
 
       const elTotal = document.getElementById('stat-total');
       if (elTotal) elTotal.textContent = total.toLocaleString();
-
 
       // Mobile Badges
       const elMobileBadge = document.getElementById('mobile-filter-badge');
@@ -2244,7 +2212,7 @@
       renderHotspots(baseEvents);
     }
 
-    // Helper to generate marker icon based on original or verified QC tier
+    // Helper to generate marker icon based on hazard and audit status
     function getMarkerIconConfig(e) {
       const f = (AppState.flaggedEvents && AppState.flaggedEvents[e.id]) ? AppState.flaggedEvents[e.id] : null;
       const verifiedTier = f ? (f.verified_tier || (f.audit_status === 'INACCURATE' ? 'not_rob' : f.audit_status ? f.audit_status.toLowerCase() : 'not_rob')) : null;
@@ -2255,28 +2223,15 @@
           size: [14, 14],
           anchor: [7, 7]
         };
-      } else if (verifiedTier === 'confirmed') {
+      } else if (verifiedTier === 'confirmed' || verifiedTier === 'probable' || verifiedTier === 'possible') {
         return {
           html: `<div style="background-color: #059669; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 8px rgba(5,150,105,0.9); display:flex; align-items:center; justify-content:center; color:white; font-size:8px; font-weight:bold;"><i class="fa-solid fa-check"></i></div>`,
           size: [14, 14],
           anchor: [7, 7]
         };
-      } else if (verifiedTier === 'probable') {
-        return {
-          html: `<div style="background-color: #d97706; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 8px rgba(217,119,6,0.9); display:flex; align-items:center; justify-content:center; color:white; font-size:8px; font-weight:bold;"><i class="fa-solid fa-check"></i></div>`,
-          size: [14, 14],
-          anchor: [7, 7]
-        };
-      } else if (verifiedTier === 'possible') {
-        return {
-          html: `<div style="background-color: #2563eb; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid white; box-shadow: 0 0 8px rgba(37,99,235,0.9); display:flex; align-items:center; justify-content:center; color:white; font-size:8px; font-weight:bold;"><i class="fa-solid fa-check"></i></div>`,
-          size: [14, 14],
-          anchor: [7, 7]
-        };
       } else {
-        let pinColor = '#2563eb'; // blue
-        if (e.tier === 'confirmed') pinColor = '#059669'; // emerald
-        else if (e.tier === 'probable') pinColor = '#d97706'; // amber
+        const isHighWave = e.hazard === 'high_wave';
+        const pinColor = isHighWave ? '#ea580c' : '#0284c7';
         return {
           html: `<div style="background-color: ${pinColor}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.35);"></div>`,
           size: [12, 12],
@@ -2359,28 +2314,22 @@
       const isCurated = !!existingAudit;
       const verifiedTier = existingAudit ? (existingAudit.verified_tier || (existingAudit.audit_status === 'INACCURATE' ? 'not_rob' : existingAudit.audit_status ? existingAudit.audit_status.toLowerCase() : 'not_rob')) : null;
 
-      // Header Badge logic
-      let badgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
-      let badgeLabel = e.tier_label;
+      const isNotRob = verifiedTier === 'not_rob';
+      const isConfirmed = verifiedTier === 'confirmed' || verifiedTier === 'probable' || verifiedTier === 'possible';
 
-      if (verifiedTier === 'not_rob') {
+      // Header Badge logic
+      let badgeClass = 'bg-cyan-100 text-cyan-800 border-cyan-200';
+      let badgeLabel = (e.hazard === 'high_wave') ? '🌊 GELOMBANG TINGGI' : '🌊 BANJIR ROB';
+
+      if (isNotRob) {
         badgeClass = 'bg-red-100 text-red-800 border-red-300 font-bold';
-        badgeLabel = '⚠️ BUKAN ROB (AUDIT)';
-      } else if (verifiedTier === 'confirmed') {
+        badgeLabel = '⚠️ BUKAN EVENT (AUDIT)';
+      } else if (isConfirmed) {
         badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-300 font-bold';
-        badgeLabel = '✓ VERIFIED: CONFIRMED';
-      } else if (verifiedTier === 'probable') {
-        badgeClass = 'bg-amber-100 text-amber-800 border-amber-300 font-bold';
-        badgeLabel = '✓ VERIFIED: PROBABLE';
-      } else if (verifiedTier === 'possible') {
-        badgeClass = 'bg-blue-100 text-blue-800 border-blue-300 font-bold';
-        badgeLabel = '✓ VERIFIED: POSSIBLE';
-      } else {
-        if (e.tier === 'confirmed') {
-          badgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
-        } else if (e.tier === 'probable') {
-          badgeClass = 'bg-amber-100 text-amber-800 border-amber-200';
-        }
+        badgeLabel = '✓ EVENT BENAR (QC)';
+      } else if (e.hazard === 'high_wave') {
+        badgeClass = 'bg-orange-100 text-orange-800 border-orange-200 font-bold';
+        badgeLabel = '🌊 GELOMBANG TINGGI';
       }
 
       // Build Tide Station & Water Level Anomaly Box
@@ -2483,7 +2432,7 @@
       }
 
       // Multi-event switcher for same coastal coordinates
-      const sameLocEvents = AppState.filteredEvents.filter(ev => ev.lat === e.lat && ev.lon === e.lon);
+      const sameLocEvents = AppState.filteredEvents.filter(ev => ev.lat === e.lat && ev.lon === e.lon && ev.lat !== null);
       let sameLocSwitcherHtml = '';
       if (sameLocEvents.length > 1) {
         sameLocSwitcherHtml = `
@@ -2497,31 +2446,14 @@
         `;
       }
 
-      // Tier Verification QC Toggle Buttons
-      const isConf = verifiedTier === 'confirmed' || (!isCurated && e.tier === 'confirmed');
-      const isProb = verifiedTier === 'probable' || (!isCurated && e.tier === 'probable');
-      const isPoss = verifiedTier === 'possible' || (!isCurated && e.tier === 'possible');
-      const isNotRob = verifiedTier === 'not_rob';
-
-      const hasManualConf = verifiedTier === 'confirmed';
-      const hasManualProb = verifiedTier === 'probable';
-      const hasManualPoss = verifiedTier === 'possible';
-
-      const btnConfClass = hasManualConf
+      // Verification QC Buttons (Event benar / Bukan event)
+      const btnEventBenarClass = isConfirmed
         ? 'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400 shadow-sm'
-        : (isConf && !isCurated ? 'bg-emerald-50 text-emerald-900 border border-emerald-300 font-semibold' : 'bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200');
+        : 'bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300';
 
-      const btnProbClass = hasManualProb
-        ? 'bg-amber-500 text-white font-bold ring-2 ring-amber-300 shadow-sm'
-        : (isProb && !isCurated ? 'bg-amber-50 text-amber-900 border border-amber-300 font-semibold' : 'bg-white hover:bg-amber-50 text-amber-800 border border-amber-200');
-
-      const btnPossClass = hasManualPoss
-        ? 'bg-blue-600 text-white font-bold ring-2 ring-blue-400 shadow-sm'
-        : (isPoss && !isCurated ? 'bg-blue-50 text-blue-900 border border-blue-300 font-semibold' : 'bg-white hover:bg-blue-50 text-blue-800 border border-blue-200');
-
-      const btnNotRobClass = isNotRob
+      const btnBukanEventClass = isNotRob
         ? 'bg-red-600 text-white font-bold ring-2 ring-red-400 shadow-sm'
-        : 'bg-white hover:bg-red-50 text-red-700 border border-red-200';
+        : 'bg-white hover:bg-red-50 text-red-700 border border-red-300';
 
       let qcStatusDetailHtml = '';
       if (isNotRob) {
@@ -2530,14 +2462,14 @@
             <div class="flex items-center justify-between">
               <span class="font-bold text-red-800 flex items-center gap-1">
                 <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
-                ${AppState.lang === 'en' ? 'Flagged: Not Rob / Inaccurate' : 'Ditandai: Bukan Banjir Rob'}
+                ${AppState.lang === 'en' ? 'Flagged: Bukan Event / Inaccurate' : 'Ditandai: Bukan Event'}
               </span>
               <button type="button" onclick="unflagEvent('${e.id}')" class="text-slate-500 hover:text-red-700 font-semibold underline text-[9px] cursor-pointer">
                 ${AppState.lang === 'en' ? 'Reset' : 'Batalkan'}
               </button>
             </div>
             <p class="text-red-900 font-medium bg-white/90 p-1.5 rounded border border-red-100 text-[10px] leading-relaxed">
-              "${existingAudit.reason || existingAudit.audit_reason || 'Bukan rob'}"
+              "${existingAudit.reason || existingAudit.audit_reason || 'Bukan event'}"
             </p>
             <div class="flex justify-end">
               <button type="button" onclick="openFlagConfirmModal('${e.id}')" class="text-red-700 hover:text-red-900 font-semibold underline text-[9px] flex items-center gap-1 cursor-pointer">
@@ -2546,12 +2478,12 @@
             </div>
           </div>
         `;
-      } else if (hasManualConf || hasManualProb || hasManualPoss) {
+      } else if (isConfirmed) {
         qcStatusDetailHtml = `
           <div class="mt-1.5 p-1.5 px-2 rounded-lg bg-emerald-50 border border-emerald-200 text-[10px] flex items-center justify-between">
             <span class="font-semibold text-emerald-900 flex items-center gap-1">
               <i class="fa-solid fa-circle-check text-emerald-600"></i>
-              <span>QC Manual: <strong class="uppercase font-mono">${verifiedTier}</strong></span>
+              <span>QC: <strong>Event Benar</strong></span>
             </span>
             <button type="button" onclick="unflagEvent('${e.id}')" class="text-slate-500 hover:text-red-700 font-semibold underline text-[9px] cursor-pointer">
               ${AppState.lang === 'en' ? 'Reset' : 'Batalkan'}
@@ -2562,7 +2494,7 @@
         qcStatusDetailHtml = `
           <div class="text-[9px] text-slate-400 text-center pt-0.5 flex items-center justify-center gap-1">
             <i class="fa-regular fa-hand-pointer text-cyan-600 text-[8px]"></i>
-            <span>${AppState.lang === 'en' ? 'Click a tier button above for instant 1-click QC' : 'Klik tombol tier di atas untuk 1-klik simpan verifikasi QC'}</span>
+            <span>${AppState.lang === 'en' ? 'Click a button above for instant 1-click QC' : 'Klik tombol di atas untuk 1-klik simpan verifikasi QC'}</span>
           </div>
         `;
       }
@@ -2572,33 +2504,23 @@
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
             <div class="flex items-center justify-between">
               <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
-                <i class="fa-solid fa-sliders text-cyan-600"></i>
-                <span>Verifikasi Tier (Data Training QC):</span>
+                <i class="fa-solid fa-clipboard-check text-cyan-600"></i>
+                <span>Verifikasi Kejadian (Data Training QC):</span>
               </span>
               ${isCurated ? `<span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-100 text-cyan-800 border border-cyan-200">CURATED</span>` : ''}
             </div>
 
-            <!-- 4 1-Click Verification Toggle Buttons -->
-            <div class="grid grid-cols-4 gap-1.5">
-              <button type="button" onclick="setVerifiedTier('${e.id}', 'confirmed')" title="Verifikasi sebagai Confirmed (Dampak/Genangan Nyata)"
-                class="py-2 px-1 rounded-lg text-center font-bold text-[10.5px] transition flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 ${btnConfClass}">
-                <span class="text-sm">🟢</span>
-                <span class="truncate">Confirmed</span>
+            <!-- 2 1-Click Verification Toggle Buttons -->
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setVerifiedStatus('${e.id}', 'confirmed')" title="Verifikasi sebagai Event Benar"
+                class="py-2 px-2 rounded-lg text-center font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${btnEventBenarClass}">
+                <i class="fa-solid fa-circle-check text-sm ${isConfirmed ? 'text-white' : 'text-emerald-600'}"></i>
+                <span>Event Benar</span>
               </button>
-              <button type="button" onclick="setVerifiedTier('${e.id}', 'probable')" title="Verifikasi sebagai Probable (Berita Rob Kredibel)"
-                class="py-2 px-1 rounded-lg text-center font-bold text-[10.5px] transition flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 ${btnProbClass}">
-                <span class="text-sm">🟡</span>
-                <span class="truncate">Probable</span>
-              </button>
-              <button type="button" onclick="setVerifiedTier('${e.id}', 'possible')" title="Verifikasi sebagai Possible (Indikasi Ringan / Umum)"
-                class="py-2 px-1 rounded-lg text-center font-bold text-[10.5px] transition flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 ${btnPossClass}">
-                <span class="text-sm">🔵</span>
-                <span class="truncate">Possible</span>
-              </button>
-              <button type="button" onclick="openFlagConfirmModal('${e.id}')" title="Tandai Bukan Rob / Berita Tidak Akurat (Pilih Alasan)"
-                class="py-2 px-1 rounded-lg text-center font-bold text-[10.5px] transition flex flex-col items-center justify-center gap-1 cursor-pointer active:scale-95 ${btnNotRobClass}">
-                <span class="text-sm">🔴</span>
-                <span class="truncate">Bukan Rob</span>
+              <button type="button" onclick="openFlagConfirmModal('${e.id}')" title="Tandai Bukan Event (Pilih Alasan)"
+                class="py-2 px-2 rounded-lg text-center font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${btnBukanEventClass}">
+                <i class="fa-solid fa-triangle-exclamation text-sm ${isNotRob ? 'text-white' : 'text-red-600'}"></i>
+                <span>Bukan Event</span>
               </button>
             </div>
 
@@ -2708,13 +2630,13 @@
 
             <!-- Metadata details -->
             <div class="text-[10px] text-slate-500 space-y-0.5 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+              <div><strong>Jenis Bahaya:</strong> <span class="font-semibold ${e.hazard === 'high_wave' ? 'text-orange-700' : 'text-cyan-700'}">${e.hazard === 'high_wave' ? 'Gelombang Tinggi' : 'Banjir Rob'}</span></div>
               <div><strong>${dict.popup_region}</strong> ${e.region_label}</div>
               <div><strong>${dict.popup_terms}</strong> <code class="text-cyan-800">${e.terms || 'banjir rob'}</code></div>
-              ${e.tier_reason ? `<div><strong>${dict.popup_reason}</strong> ${e.tier_reason}</div>` : ''}
               <div><strong>${dict.popup_source}</strong> ${e.n_articles} articles (${e.n_domains} independent domains)</div>
             </div>
 
-            <!-- Tier Verification & Audit QC Section -->
+            <!-- Verification & Audit QC Section -->
             ${qcSectionHtml}
 
             <!-- Footer with ID and Email Report Fallback -->
@@ -2757,12 +2679,21 @@
         closeMobileSidebar();
       }
       const marker = AppState.markersById ? AppState.markersById[eventId] : null;
-      const ev = AppState.allEvents.find(e => e.id === eventId);
+      const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
+      if (!ev) return;
+
+      if (!ev.lat || !ev.lon) {
+        showToast(AppState.lang === 'en'
+          ? `📍 Event #${eventId} (${ev.place}) is a regional direction without specific coastal coordinates.`
+          : `📍 Kejadian #${eventId} (${ev.place}) merupakan petunjuk arah kawasan pesisir tanpa koordinat titik spesifik.`);
+        return;
+      }
+
       if (marker && AppState.markerClusterGroup) {
         AppState.markerClusterGroup.zoomToShowLayer(marker, () => {
           marker.openPopup();
         });
-      } else if (ev && AppState.map) {
+      } else if (AppState.map) {
         AppState.map.setView([ev.lat, ev.lon], 12, { animate: true });
       }
     }
@@ -2834,13 +2765,14 @@
       const yearMap = {};
       const allYears = ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'];
       allYears.forEach(y => {
-        yearMap[y] = { confirmed: 0, probable: 0, possible: 0 };
+        yearMap[y] = { rob: 0, high_wave: 0 };
       });
 
       events.forEach(e => {
         const y = e.date_start.substring(0, 4);
         if (yearMap[y]) {
-          yearMap[y][e.tier] = (yearMap[y][e.tier] || 0) + 1;
+          const hz = (e.hazard === 'high_wave') ? 'high_wave' : 'rob';
+          yearMap[y][hz] = (yearMap[y][hz] || 0) + 1;
         }
       });
 
@@ -2852,19 +2784,14 @@
           labels: allYears,
           datasets: [
             {
-              label: 'Confirmed',
-              data: allYears.map(y => yearMap[y].confirmed),
-              backgroundColor: '#059669',
+              label: AppState.lang === 'en' ? 'Tidal Flood (Rob)' : 'Banjir Rob',
+              data: allYears.map(y => yearMap[y].rob),
+              backgroundColor: '#0284c7',
             },
             {
-              label: 'Probable',
-              data: allYears.map(y => yearMap[y].probable),
-              backgroundColor: '#d97706',
-            },
-            {
-              label: 'Possible',
-              data: allYears.map(y => yearMap[y].possible),
-              backgroundColor: '#64748b',
+              label: AppState.lang === 'en' ? 'High Wave / Swell' : 'Gelombang Tinggi',
+              data: allYears.map(y => yearMap[y].high_wave),
+              backgroundColor: '#ea580c',
             }
           ]
         },
@@ -3070,29 +2997,26 @@
           const isRowCurated = !!rowAudit;
           const verTier = rowAudit ? (rowAudit.verified_tier || (rowAudit.audit_status === 'INACCURATE' ? 'not_rob' : rowAudit.audit_status ? rowAudit.audit_status.toLowerCase() : 'not_rob')) : null;
 
-          let badgeClass = 'bg-blue-100 text-blue-800';
-          let tierDisplay = e.tier_label;
+          let badgeClass = 'bg-sky-100 text-sky-800 border border-sky-200';
+          let hazardDisplay = e.hazard === 'high_wave'
+            ? (AppState.lang === 'en' ? '🌊 High Wave' : '🌊 Gelombang Tinggi')
+            : (AppState.lang === 'en' ? '🌊 Tidal Flood' : '🌊 Banjir Rob');
 
           if (verTier === 'not_rob') {
             badgeClass = 'bg-red-100 text-red-800 font-bold border border-red-200';
-            tierDisplay = '⚠️ BUKAN ROB';
+            hazardDisplay = '⚠️ BUKAN EVENT';
           } else if (verTier === 'confirmed') {
             badgeClass = 'bg-emerald-100 text-emerald-800 font-bold border border-emerald-200';
-            tierDisplay = '✓ Confirmed';
-          } else if (verTier === 'probable') {
-            badgeClass = 'bg-amber-100 text-amber-800 font-bold border border-amber-200';
-            tierDisplay = '✓ Probable';
-          } else if (verTier === 'possible') {
-            badgeClass = 'bg-blue-100 text-blue-800 font-bold border border-blue-200';
-            tierDisplay = '✓ Possible';
+            hazardDisplay = '✓ EVENT BENAR';
           } else {
-            if (e.tier === 'confirmed') badgeClass = 'bg-emerald-100 text-emerald-800';
-            else if (e.tier === 'probable') badgeClass = 'bg-amber-100 text-amber-800';
+            if (e.hazard === 'high_wave') {
+              badgeClass = 'bg-orange-100 text-orange-800 font-semibold border border-orange-200';
+            }
           }
 
           const flagReasonTooltip = isRowCurated 
-            ? (verTier === 'not_rob' ? `Bukan Rob: ${rowAudit.reason || 'Audit QC'}` : `QC Verified: ${verTier.toUpperCase()}`) 
-            : 'Verifikasi Tier / Tandai Bukan Rob';
+            ? (verTier === 'not_rob' ? `Bukan Event: ${rowAudit.reason || rowAudit.audit_reason || 'Audit QC'}` : `Event Benar (QC Verified)`) 
+            : (AppState.lang === 'en' ? 'Verify Event / Mark Not Event' : 'Verifikasi Event / Tandai Bukan Event');
 
           let rowBgClass = '';
           if (isRowCurated) {
@@ -3106,11 +3030,13 @@
                 ${isRowCurated ? `<span class="ml-1 text-[9px] font-bold ${verTier === 'not_rob' ? 'text-red-600 bg-red-100' : 'text-emerald-700 bg-emerald-100'} px-1 py-0.2 rounded font-mono">${verTier === 'not_rob' ? 'FLAG' : 'QC'}</span>` : ''}
               </td>
               <td class="py-2 px-3 whitespace-nowrap text-slate-600">${e.date_start}</td>
-              <td class="py-2 px-3 font-medium text-slate-900">${e.place}</td>
+              <td class="py-2 px-3 font-medium text-slate-900">
+                ${e.place}${(!e.lat || !e.lon) ? ' <span class="ml-1 text-[9.5px] text-amber-700 bg-amber-50 border border-amber-200 px-1 py-0.2 rounded font-normal italic">arah kawasan</span>' : ''}
+              </td>
               <td class="py-2 px-3 text-slate-600">${e.province}</td>
               <td class="py-2 px-3 text-slate-600">${e.region_label}</td>
               <td class="py-2 px-3">
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeClass}">${tierDisplay}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeClass}">${hazardDisplay}</span>
               </td>
               <td class="py-2 px-3 font-mono font-medium text-cyan-900">${e.depth_cm ? `${e.depth_cm} cm` : '-'}</td>
               <td class="py-2 px-3 font-mono">
@@ -3297,16 +3223,12 @@
       const count = allEntries.length;
 
       let confCount = 0;
-      let probCount = 0;
-      let possCount = 0;
       let notRobCount = 0;
 
       allEntries.forEach(f => {
         const vTier = f.verified_tier || (f.audit_status === 'INACCURATE' ? 'not_rob' : f.audit_status ? f.audit_status.toLowerCase() : 'not_rob');
-        if (vTier === 'confirmed') confCount++;
-        else if (vTier === 'probable') probCount++;
-        else if (vTier === 'possible') possCount++;
-        else notRobCount++;
+        if (vTier === 'not_rob') notRobCount++;
+        else confCount++;
       });
 
       const badge = document.getElementById('audit-badge-count');
@@ -3330,16 +3252,12 @@
       if (elAll) elAll.textContent = count;
       const elConf = document.getElementById('audit-filter-count-conf');
       if (elConf) elConf.textContent = confCount;
-      const elProb = document.getElementById('audit-filter-count-prob');
-      if (elProb) elProb.textContent = probCount;
-      const elPoss = document.getElementById('audit-filter-count-poss');
-      if (elPoss) elPoss.textContent = possCount;
       const elNotRob = document.getElementById('audit-filter-count-notrob');
       if (elNotRob) elNotRob.textContent = notRobCount;
     }
 
-    function setVerifiedTier(eventId, newTier) {
-      if (newTier === 'not_rob') {
+    function setVerifiedStatus(eventId, newStatus) {
+      if (newStatus === 'not_rob') {
         openFlagConfirmModal(eventId);
         return;
       }
@@ -3349,9 +3267,7 @@
 
       if (!AppState.flaggedEvents) AppState.flaggedEvents = {};
 
-      const originalTier = ev.tier || 'unknown';
-      const auditStatus = newTier.toUpperCase();
-      const reasonText = `Manual QC: Verified as ${auditStatus}`;
+      const reasonText = 'Manual QC: Verified as Event Benar';
 
       AppState.flaggedEvents[eventId] = {
         id: eventId,
@@ -3366,9 +3282,9 @@
         terms: ev.terms || '',
         tg_station: ev.tg ? (ev.tg.station || '') : '',
         tg_anom_cm: ev.tg && ev.tg.anom_cm !== null && ev.tg.anom_cm !== undefined ? ev.tg.anom_cm : '',
-        original_tier: originalTier,
-        verified_tier: newTier,
-        audit_status: auditStatus,
+        original_tier: ev.tier || 'unknown',
+        verified_tier: 'confirmed',
+        audit_status: 'CONFIRMED',
         reason: reasonText,
         audit_reason: reasonText,
         flagged_at: new Date().toISOString()
@@ -3386,13 +3302,10 @@
         renderAuditModalContent();
       }
 
-      const tierLabels = {
-        confirmed: 'Confirmed (🟢 Dampak/Genangan Nyata)',
-        probable: 'Probable (🟡 Berita Rob Kredibel)',
-        possible: 'Possible (🔵 Indikasi Ringan)'
-      };
-      showToast(AppState.lang === 'en' ? `✓ #${eventId} verified as ${newTier.toUpperCase()}` : `✓ #${eventId} diverifikasi sebagai ${tierLabels[newTier] || newTier}!`);
+      showToast(AppState.lang === 'en' ? `✓ #${eventId} verified as confirmed event!` : `✓ #${eventId} diverifikasi sebagai Event Benar!`);
     }
+
+    const setVerifiedTier = setVerifiedStatus;
 
     function onPopupCheckboxChange(eventId, chkEl) {
       if (chkEl && chkEl.checked) {
@@ -3615,7 +3528,7 @@
       updateFlaggedUI();
 
       // Highlight active filter pill tab
-      const filterTabs = ['all', 'confirmed', 'probable', 'possible', 'not_rob'];
+      const filterTabs = ['all', 'confirmed', 'not_rob'];
       filterTabs.forEach(t => {
         const btn = document.getElementById(`btn-audit-tab-${t}`);
         if (!btn) return;
@@ -3624,8 +3537,6 @@
         } else {
           let idleClass = "bg-slate-100 text-slate-700 hover:bg-slate-200";
           if (t === 'confirmed') idleClass = "bg-emerald-50 text-emerald-800 hover:bg-emerald-100";
-          else if (t === 'probable') idleClass = "bg-amber-50 text-amber-800 hover:bg-amber-100";
-          else if (t === 'possible') idleClass = "bg-blue-50 text-blue-800 hover:bg-blue-100";
           else if (t === 'not_rob') idleClass = "bg-red-50 text-red-800 hover:bg-red-100";
           btn.className = `px-2.5 py-1 rounded-lg text-xs font-semibold ${idleClass} transition`;
         }
@@ -3669,7 +3580,7 @@
             <i class="fa-regular fa-clipboard text-4xl text-slate-300 mb-3 block"></i>
             <p class="font-bold text-slate-700 text-sm">Belum ada kejadian yang ditinjau atau diverifikasi.</p>
             <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
-              Buka popup kejadian di peta lalu klik tombol toggle tier (🟢 Confirmed / 🟡 Probable / 🔵 Possible / 🔴 Bukan Rob) untuk mulai kurasi data training.
+              Buka popup kejadian di peta lalu klik tombol verifikasi (🟢 Event Benar / 🔴 Bukan Event) untuk mulai kurasi data training.
             </p>
           </div>
         `;
@@ -3681,7 +3592,8 @@
         if (currentFilter === 'all') return true;
         const f = AppState.flaggedEvents[id] || {};
         const vTier = f.verified_tier || (f.audit_status === 'INACCURATE' ? 'not_rob' : f.audit_status ? f.audit_status.toLowerCase() : 'not_rob');
-        return vTier === currentFilter;
+        if (currentFilter === 'not_rob') return vTier === 'not_rob';
+        return vTier !== 'not_rob';
       });
 
       if (filteredIds.length === 0) {
@@ -3708,13 +3620,9 @@
 
         let badgeHtml = '';
         if (vTier === 'not_rob') {
-          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-800 text-[11px] font-bold">🔴 Bukan Rob: ${reasonStr}</span>`;
-        } else if (vTier === 'confirmed') {
-          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">🟢 Confirmed (Manual QC)</span>`;
-        } else if (vTier === 'probable') {
-          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold">🟡 Probable (Manual QC)</span>`;
-        } else if (vTier === 'possible') {
-          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-800 text-[11px] font-bold">🔵 Possible (Manual QC)</span>`;
+          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-800 text-[11px] font-bold">🔴 Bukan Event: ${reasonStr}</span>`;
+        } else {
+          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">🟢 Event Benar (QC Verified)</span>`;
         }
 
         return `

@@ -195,6 +195,9 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         places_by_place = places_clean.drop_duplicates(subset=['place_clean']).set_index('place_clean')
         for idx in merged[missing].index:
             p = merged.loc[idx, 'place_clean']
+            prov = merged.loc[idx, 'prov_clean']
+            if p == 'pesisir selatan' and prov != 'sumatera barat':
+                continue
             if p in places_by_place.index:
                 merged.loc[idx, 'lat'] = places_by_place.loc[p, 'lat']
                 merged.loc[idx, 'lon'] = places_by_place.loc[p, 'lon']
@@ -213,11 +216,10 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         merged.loc[gk_mask, 'lon'] = 110.5489
         merged.loc[gk_mask, 'regency'] = 'Gunungkidul (DI Yogyakarta)'
 
-    # Drop any remaining un-geocoded events
+    # Keep events even if lat/lon is unlocated (e.g. 3 regional "pesisir selatan" direction events)
     unlocated = merged['lat'].isna().sum()
     if unlocated > 0:
-        print(f"      Warning: Dropping {unlocated} events without valid coastal coordinates.")
-        merged = merged.dropna(subset=['lat', 'lon'])
+        print(f"      Notice: {unlocated} event(s) without point coordinates kept for table (not mapped on leaflet).")
 
     # Load tide gauge observations
     print("[4/6] Matching nearest BMKG tide gauge water level anomalies...")
@@ -254,7 +256,7 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
 
     hazard_display_map = {
         'rob': 'Banjir Rob',
-        'high_wave': 'Gelombang Pasang'
+        'high_wave': 'Gelombang Tinggi'
     }
 
     # Load screened article table for rich per-event article list
@@ -390,10 +392,10 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         terms = str(row['terms']).strip('"\' ') if pd.notna(row['terms']) else ''
         depth = float(row['depth_cm']) if pd.notna(row['depth_cm']) else None
         reg_code = str(row['region']).strip()
-        tier_code = str(row['tier']).strip().lower()
+        tier_code = str(row['tier']).strip().lower() if ('tier' in row and pd.notna(row['tier'])) else ''
         hazard_code = str(row['hazard']).strip()
-        ev_lat = round(float(row['lat']), 5)
-        ev_lon = round(float(row['lon']), 5)
+        ev_lat = round(float(row['lat']), 5) if pd.notna(row['lat']) else None
+        ev_lon = round(float(row['lon']), 5) if pd.notna(row['lon']) else None
 
         # Tide gauge match info
         tg_info = tg_data.get(ev_id, None)
@@ -403,7 +405,7 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         sat_info = None
         if sat_raw and sat_raw.get('sla_cm') is not None:
             dist_sat = None
-            if sat_raw.get('pixel_lat') is not None and sat_raw.get('pixel_lon') is not None:
+            if ev_lat is not None and ev_lon is not None and sat_raw.get('pixel_lat') is not None and sat_raw.get('pixel_lon') is not None:
                 dist_sat = haversine_km(ev_lat, ev_lon, sat_raw['pixel_lat'], sat_raw['pixel_lon'])
             sat_info = {
                 'sla_cm': sat_raw['sla_cm'],
@@ -456,8 +458,8 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
             'region': reg_code,
             'region_label': region_display_map.get(reg_code, reg_code.replace('_', ' ').title()),
             'tier': tier_code,
-            'tier_label': tier_display_map.get(tier_code, tier_code.title()),
-            'tier_reason': str(row['tier_reason']).strip() if pd.notna(row['tier_reason']) else '',
+            'tier_label': tier_display_map.get(tier_code, tier_code.title() if tier_code else ''),
+            'tier_reason': str(row['tier_reason']).strip() if ('tier_reason' in row and pd.notna(row['tier_reason'])) else '',
             'depth_cm': depth,
             'title': title,
             'terms': terms,
@@ -483,7 +485,8 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
 
     tier_counts = {}
     for r in records:
-        tier_counts[r['tier']] = tier_counts.get(r['tier'], 0) + 1
+        if r.get('tier'):
+            tier_counts[r['tier']] = tier_counts.get(r['tier'], 0) + 1
 
     region_counts = {}
     for r in records:
