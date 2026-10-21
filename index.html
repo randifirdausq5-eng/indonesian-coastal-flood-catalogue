@@ -124,7 +124,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=1274.202610211635"></script>
+  <script src="data/events.js?v=1274.202610211641"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -385,7 +385,22 @@
 
         <div class="h-px bg-slate-200"></div>
 
-        <!-- 2. Parameters (Water Depth & Audit QC) -->
+        <!-- 2. Hazard Type (Dropdown) -->
+        <div class="space-y-1.5">
+          <label class="font-semibold text-slate-700 flex items-center justify-between">
+            <span><i class="fa-solid fa-water text-cyan-600 mr-1.5"></i> <span data-i18n="hazard_type">Hazard Type</span></span>
+            <span class="text-[10px] text-slate-400 font-mono">v5</span>
+          </label>
+          <select id="filter-hazard" onchange="applyFilters()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700 text-xs">
+            <option value="rob" data-i18n="hazard_rob" selected>Banjir Rob (Tidal Flood)</option>
+            <option value="all" data-i18n="hazard_all">Semua Tipe (All Hazards)</option>
+            <option value="high_wave" data-i18n="hazard_high_wave">Gelombang Tinggi (High Wave)</option>
+          </select>
+        </div>
+
+        <div class="h-px bg-slate-200"></div>
+
+        <!-- 3. Parameters (Water Depth & Audit QC) -->
         <div class="space-y-2">
           <label class="font-semibold text-slate-700 flex items-center justify-between">
             <span><i class="fa-solid fa-sliders text-cyan-600 mr-1.5"></i> <span data-i18n="specific_parameters">Parameters</span></span>
@@ -415,7 +430,7 @@
 
         <div class="h-px bg-slate-200"></div>
 
-        <!-- 3. Coastal Region & Province -->
+        <!-- 4. Coastal Region & Province -->
         <div class="space-y-2.5">
           <label class="font-semibold text-slate-700 flex items-center justify-between">
             <span><i class="fa-solid fa-map-location-dot text-cyan-600 mr-1.5"></i> <span data-i18n="coastal_region">Coastal Region</span></span>
@@ -428,27 +443,27 @@
             </button>
             <button onclick="setRegionFilter('java_north')" data-region="java_north" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_java_north">Java North Coast</span>
-              <span id="badge-javanorth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">738</span>
+              <span id="badge-javanorth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">694</span>
             </button>
             <button onclick="setRegionFilter('sumatra_east')" data-region="sumatra_east" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_sumatra_east">East Sumatra</span>
-              <span id="badge-sumatraeast-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">170</span>
+              <span id="badge-sumatraeast-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">156</span>
             </button>
             <button onclick="setRegionFilter('east_indo')" data-region="east_indo" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_east_indo">Eastern Indonesia</span>
-              <span id="badge-eastindo-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">147</span>
+              <span id="badge-eastindo-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">95</span>
             </button>
             <button onclick="setRegionFilter('java_south')" data-region="java_south" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_java_south">Java South Coast</span>
-              <span id="badge-javasouth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">114</span>
+              <span id="badge-javasouth-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">50</span>
             </button>
             <button onclick="setRegionFilter('kalimantan')" data-region="kalimantan" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_kalimantan">Kalimantan</span>
-              <span id="badge-kalimantan-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">80</span>
+              <span id="badge-kalimantan-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">76</span>
             </button>
             <button onclick="setRegionFilter('sumatra_west')" data-region="sumatra_west" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 col-span-2">
               <span data-i18n="reg_sumatra_west">West Sumatra</span>
-              <span id="badge-sumatrawest-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">42</span>
+              <span id="badge-sumatrawest-reg" class="text-[10px] px-1.5 py-0.2 bg-slate-200 rounded-full font-mono">26</span>
             </button>
           </div>
 
@@ -458,32 +473,6 @@
             <select id="filter-province" onchange="onProvinceFilterChange()" class="w-full py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-cyan-500 font-medium text-slate-700">
               <option value="all">All Provinces (34)</option>
             </select>
-          </div>
-        </div>
-
-        <div class="h-px bg-slate-200"></div>
-
-        <!-- 4. Hazard Classification (Banjir Rob vs Gelombang Tinggi) -->
-        <div class="space-y-2">
-          <label class="font-semibold text-slate-700 flex items-center justify-between">
-            <span><i class="fa-solid fa-water text-cyan-600 mr-1.5"></i> <span data-i18n="hazard_classification">Hazard Type</span></span>
-            <span class="text-[10px] text-slate-400 font-mono">v5</span>
-          </label>
-          <div class="space-y-1.5">
-            <label class="flex items-center justify-between p-2 rounded-md border border-cyan-200 bg-cyan-50/50 hover:bg-cyan-50 cursor-pointer transition">
-              <div class="flex items-center gap-2">
-                <input type="checkbox" id="hazard-rob" value="rob" checked onchange="applyFilters()" class="rounded text-cyan-600 focus:ring-cyan-500">
-                <span class="font-medium text-cyan-900" data-i18n="hazard_rob_label">Banjir Rob (Tidal Flood)</span>
-              </div>
-              <span id="count-hazard-rob" class="font-mono text-[11px] font-bold text-cyan-700 bg-cyan-100 px-1.5 py-0.2 rounded">1,113</span>
-            </label>
-            <label class="flex items-center justify-between p-2 rounded-md border border-orange-200 bg-orange-50/50 hover:bg-orange-50 cursor-pointer transition">
-              <div class="flex items-center gap-2">
-                <input type="checkbox" id="hazard-high-wave" value="high_wave" checked onchange="applyFilters()" class="rounded text-orange-600 focus:ring-orange-500">
-                <span class="font-medium text-orange-900" data-i18n="hazard_high_wave_label">Gelombang Tinggi (High Wave)</span>
-              </div>
-              <span id="count-hazard-high-wave" class="font-mono text-[11px] font-bold text-orange-700 bg-orange-100 px-1.5 py-0.2 rounded">178</span>
-            </label>
           </div>
         </div>
 
@@ -1604,7 +1593,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=1274.202610211635')
+        fetch('data/events.json?v=1274.202610211641')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -1706,15 +1695,6 @@
       setBadge('badge-kalimantan-reg', regCounts['kalimantan'] || 0);
       setBadge('badge-javasouth-reg', regCounts['java_south'] || 0);
       setBadge('badge-sumatrawest-reg', regCounts['sumatra_west'] || 0);
-
-      // Dynamically update Hazard counts
-      const hazardCounts = {};
-      events.forEach(e => {
-        const hz = e.hazard || 'rob';
-        hazardCounts[hz] = (hazardCounts[hz] || 0) + 1;
-      });
-      setBadge('count-hazard-rob', (hazardCounts['rob'] || 0).toLocaleString());
-      setBadge('count-hazard-high-wave', (hazardCounts['high_wave'] || 0).toLocaleString());
     }
 
     // Render Quick Hotspots in sidebar footer
@@ -1984,11 +1964,8 @@
       const yearVal = document.getElementById('filter-year').value;
       const monthVal = document.getElementById('filter-month').value;
       const provVal = document.getElementById('filter-province').value;
+      const hazardVal = document.getElementById('filter-hazard') ? document.getElementById('filter-hazard').value : 'rob';
       const depthVal = document.getElementById('filter-depth').value;
-
-      // Hazard checkboxes
-      const showRob = document.getElementById('hazard-rob') ? document.getElementById('hazard-rob').checked : true;
-      const showHighWave = document.getElementById('hazard-high-wave') ? document.getElementById('hazard-high-wave').checked : true;
 
       // Toggle clear search button
       const clearBtn = document.getElementById('search-clear-btn');
@@ -2019,8 +1996,10 @@
         }
 
         // Hazard filter
-        if (e.hazard === 'high_wave' && !showHighWave) return false;
-        if ((!e.hazard || e.hazard === 'rob') && !showRob) return false;
+        if (hazardVal !== 'all') {
+          const eHazard = e.hazard || 'rob';
+          if (eHazard !== hazardVal) return false;
+        }
 
         // Depth filter
         if (depthVal === 'reported' && (e.depth_cm === null || e.depth_cm === undefined)) {
@@ -2120,13 +2099,13 @@
       document.getElementById('filter-year').value = 'all';
       document.getElementById('filter-month').value = 'all';
       document.getElementById('filter-province').value = 'all';
+      if (document.getElementById('filter-hazard')) {
+        document.getElementById('filter-hazard').value = 'rob';
+      }
       document.getElementById('filter-depth').value = 'all';
       if (document.getElementById('filter-audit')) {
         document.getElementById('filter-audit').value = 'all';
       }
-
-      if (document.getElementById('hazard-rob')) document.getElementById('hazard-rob').checked = true;
-      if (document.getElementById('hazard-high-wave')) document.getElementById('hazard-high-wave').checked = true;
 
       setRegionFilter('all');
       if (AppState.map) {
@@ -2137,13 +2116,12 @@
 
     // Update Header & Sidebar Statistics
     function updateHeaderAndSidebarStats() {
-      const showRob = document.getElementById('hazard-rob') ? document.getElementById('hazard-rob').checked : true;
-      const showHighWave = document.getElementById('hazard-high-wave') ? document.getElementById('hazard-high-wave').checked : true;
+      const hazardVal = document.getElementById('filter-hazard') ? document.getElementById('filter-hazard').value : 'rob';
 
       let baseEvents = AppState.allEvents;
-      if (showRob && !showHighWave) {
-        baseEvents = AppState.allEvents.filter(e => e.hazard === 'rob');
-      } else if (!showRob && showHighWave) {
+      if (hazardVal === 'rob') {
+        baseEvents = AppState.allEvents.filter(e => (!e.hazard || e.hazard === 'rob'));
+      } else if (hazardVal === 'high_wave') {
         baseEvents = AppState.allEvents.filter(e => e.hazard === 'high_wave');
       }
 
@@ -2155,9 +2133,9 @@
       // Dynamic header label for total events based on selected hazard
       const elLabelTotal = document.getElementById('label-stat-total');
       if (elLabelTotal) {
-        if (showRob && !showHighWave) {
+        if (hazardVal === 'rob') {
           elLabelTotal.textContent = dict.stat_total_rob || (AppState.lang === 'id' ? 'Total Banjir Rob:' : 'Total Tidal Floods:');
-        } else if (!showRob && showHighWave) {
+        } else if (hazardVal === 'high_wave') {
           elLabelTotal.textContent = dict.stat_total_high_wave || (AppState.lang === 'id' ? 'Total Gelombang Tinggi:' : 'Total High Waves:');
         } else {
           elLabelTotal.textContent = dict.stat_total_all || (AppState.lang === 'id' ? 'Total Semua Kejadian:' : 'Total Events:');
