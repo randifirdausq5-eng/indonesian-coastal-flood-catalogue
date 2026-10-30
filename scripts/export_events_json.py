@@ -143,6 +143,54 @@ def load_satellite_data(repo_root: Path, cat: str) -> dict:
     return sat_data
 
 
+def merge_same_place(df: pd.DataFrame, articles_csv: Path) -> pd.DataFrame:
+    """@@AI@@ 2026-10-30 (Randi: Padang Kawa is in Aceh Barat Daya). The catalogue forms its events per place NAME
+    before the place corrections; two copies of one report filed under different names (E00946 'aceh barat', E00947
+    'padang') become the same place once corrected. Rows with the same place and province whose dates touch (next
+    start at most one day after the previous end, the v5 event rule) are joined: dates spanned, counts summed, urls
+    and terms joined, independent outlets counted from the article table, the first event id kept."""
+    df = df.copy()
+    df["t_s"] = pd.to_datetime(df["date_start"])
+    df["t_e"] = pd.to_datetime(df["date_end"])
+    df = df.sort_values(["place", "province", "t_s", "event_id"])
+    grp, prev = [], None
+    for r in df.itertuples():
+        key = (r.place, r.province)
+        new = prev is None or key != prev[0] or (r.t_s - prev[1]).days > 1
+        grp.append(0 if not grp else grp[-1] + 1 if new else grp[-1])
+        prev = (key, max(r.t_e, prev[1]) if not new else r.t_e)
+    df["t_g"] = grp
+    if df["t_g"].is_unique:
+        return df.drop(columns=["t_s", "t_e", "t_g"]).sort_index()
+    domain = {}
+    if articles_csv.is_file():
+        a = pd.read_csv(articles_csv, usecols=["link", "domain"], low_memory=False)
+        domain = dict(zip(a["link"], a["domain"].fillna("")))
+    rows = []
+    for _, g in df.groupby("t_g", sort=False):
+        r = g.iloc[0].copy()
+        if len(g) > 1:
+            hz = set(g["hazard"])
+            r["hazard"] = ("tide_wave" if "tide_wave" in hz or {"rob", "high_wave"} <= hz
+                           else "high_wave" if hz == {"high_wave"} else "rob")
+            r["date_start"], r["date_end"] = g["t_s"].min().date().isoformat(), g["t_e"].max().date().isoformat()
+            r["n_days"] = (g["t_e"].max() - g["t_s"].min()).days + 1
+            for c in ("n_query_hits", "n_articles_raw", "n_articles"):
+                r[c] = int(pd.to_numeric(g[c], errors="coerce").fillna(0).sum())
+            urls = list(dict.fromkeys(u for s in g["urls"].fillna("") for u in str(s).split()))
+            r["urls"] = " ".join(urls)
+            r["terms"] = "|".join(dict.fromkeys(x for s in g["terms"].fillna("") for x in str(s).split("|") if x))
+            r["n_domains_raw"] = int(pd.to_numeric(g["n_domains_raw"], errors="coerce").max())
+            r["n_domains_indep"] = (len({domain[u] for u in urls if domain.get(u)})
+                                    or int(pd.to_numeric(g["n_domains_indep"], errors="coerce").max()))
+            r["warning_ambiguous"] = bool(g["warning_ambiguous"].astype(str).eq("True").any())
+            r["depth_cm"] = pd.to_numeric(g["depth_cm"], errors="coerce").max()
+            print(f"      Joined after the place corrections: {' + '.join(g['event_id'])} -> {r['event_id']} "
+                  f"({r['place']}, {r['date_start']})")
+        rows.append(r)
+    return pd.DataFrame(rows).drop(columns=["t_s", "t_e", "t_g"]).sort_index()
+
+
 def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_exclusions: bool = True):
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -170,6 +218,8 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         print(f"      Filtered {raw_count} raw events down to {len(df_events)} verified coastal flood events.")
     elif HAS_REGIONS_MODULE:
         df_events = apply_region_overrides(apply_event_overrides(df_events))
+    if HAS_REGIONS_MODULE:   # @@AI@@ 2026-10-30
+        df_events = merge_same_place(df_events, REPO_ROOT / f"data/raw/rob_harvest/articles_screened_{cat}.csv")
 
     print(f"[3/5] Reading places coordinates from {places_csv.name}...")
     df_places = pd.read_csv(places_csv)
