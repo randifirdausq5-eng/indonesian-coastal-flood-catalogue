@@ -55,15 +55,19 @@ def _catalogue_table(template: str, cat: str):
 
 
 def load_tidegauge_data(repo_root: Path, cat: str) -> dict:
-    """Load nearest BMKG tide station matches and calculate water level anomalies."""
+    """Load nearest BMKG tide station matches and calculate water level anomalies, keyed by (place_clean, date_start)."""
     daily_pct_file = repo_root / "data/raw/tidegauge/restricted/tg_daily_pct_local.parquet"
     df_match = _catalogue_table("rob_tg_match_{cat}.csv", cat)
     df_contrib = _catalogue_table("rob_contrib_{cat}.csv", cat)
-    tg_data = {}
+    tg_by_id = {}
+    key_by_id = {}
 
     if df_match is not None:
         for _, r in df_match.iterrows():
-            tg_data[r['event_id']] = {
+            ev_id = str(r['event_id'])
+            pl_key = (str(r['place']).strip().lower(), str(r['date_start']).strip())
+            key_by_id[ev_id] = pl_key
+            tg_by_id[ev_id] = {
                 'station': str(r['station']),
                 'dist_km': round(float(r['dist_km']), 1),
                 'pct': round(float(r['pct_max']), 1) if pd.notna(r['pct_max']) else None,
@@ -73,12 +77,12 @@ def load_tidegauge_data(repo_root: Path, cat: str) -> dict:
 
     if df_contrib is not None:
         for _, r in df_contrib.iterrows():
-            ev_id = r['event_id']
-            if ev_id in tg_data:
+            ev_id = str(r['event_id'])
+            if ev_id in tg_by_id:
                 if pd.notna(r['anom_obs_cm']):
-                    tg_data[ev_id]['anom_cm'] = round(float(r['anom_obs_cm']), 1)
+                    tg_by_id[ev_id]['anom_cm'] = round(float(r['anom_obs_cm']), 1)
                 if pd.notna(r['wl_obs_m']):
-                    tg_data[ev_id]['wl_m'] = round(float(r['wl_obs_m']), 2)
+                    tg_by_id[ev_id]['wl_m'] = round(float(r['wl_obs_m']), 2)
 
     if daily_pct_file.is_file() and df_match is not None:
         start_by_id = df_match.set_index('event_id')['date_start']
@@ -86,7 +90,7 @@ def load_tidegauge_data(repo_root: Path, cat: str) -> dict:
         df_pct['date'] = pd.to_datetime(df_pct['date'])
         df_pct['doy'] = df_pct['date'].dt.dayofyear
 
-        for ev_id, info in tg_data.items():
+        for ev_id, info in tg_by_id.items():
             if info['anom_cm'] is not None:
                 continue
             ev_date = pd.to_datetime(start_by_id[ev_id])
@@ -107,7 +111,7 @@ def load_tidegauge_data(repo_root: Path, cat: str) -> dict:
                     info['anom_cm'] = anom_cm
                     info['wl_m'] = round(wl_obs, 2)
 
-    return tg_data
+    return {key_by_id[ev_id]: info for ev_id, info in tg_by_id.items() if ev_id in key_by_id}
 
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -121,19 +125,19 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 def load_satellite_data(repo_root: Path, cat: str) -> dict:
-    """Load nearest ocean pixel satellite sea level anomaly and decomposed bands."""
+    """Load nearest ocean pixel satellite sea level anomaly and decomposed bands, keyed by (place_clean, date_start)."""
     df_bands = _catalogue_table("rob_events_with_bands_{cat}.csv", cat)
     sat_data = {}
     if df_bands is not None:
         for _, r in df_bands.iterrows():
-            ev_id = r['event_id']
+            pl_key = (str(r['place']).strip().lower(), str(r['date_start']).strip())
             sla_cm = round(float(r['detrended_sla_cm']), 1) if pd.notna(r['detrended_sla_cm']) else None
             seas_cm = round(float(r['seasonal_cm']), 1) if pd.notna(r['seasonal_cm']) else None
             intra_cm = round(float(r['intraseasonal_cm']), 1) if pd.notna(r['intraseasonal_cm']) else None
             px_lat = round(float(r['pixel_lat']), 3) if pd.notna(r['pixel_lat']) else None
             px_lon = round(float(r['pixel_lon']), 3) if pd.notna(r['pixel_lon']) else None
 
-            sat_data[ev_id] = {
+            sat_data[pl_key] = {
                 'sla_cm': sla_cm,
                 'seasonal_cm': seas_cm,
                 'intra_cm': intra_cm,
@@ -274,14 +278,15 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
     # Load tide gauge observations
     print("[4/6] Matching nearest BMKG tide gauge water level anomalies...")
     tg_data = load_tidegauge_data(REPO_ROOT, cat)
-    matched_tg_count = sum(1 for e in merged['event_id'] if e in tg_data)
-    with_anom_count = sum(1 for e in merged['event_id'] if e in tg_data and tg_data[e]['anom_cm'] is not None)
+    ev_keys = [(str(r['place']).strip().lower(), str(r['date_start']).strip()) for _, r in merged.iterrows()]
+    matched_tg_count = sum(1 for k in ev_keys if k in tg_data)
+    with_anom_count = sum(1 for k in ev_keys if k in tg_data and tg_data[k]['anom_cm'] is not None)
     print(f"      Matched {matched_tg_count} events to nearest tide station ({with_anom_count} with active water level anomalies).")
 
     # Load satellite sea level altimetry
     print("[5/6] Matching nearest satellite altimetry sea level anomalies (C3S)...")
     sat_data = load_satellite_data(REPO_ROOT, cat)
-    matched_sat_count = sum(1 for e in merged['event_id'] if e in sat_data and sat_data[e]['sla_cm'] is not None)
+    matched_sat_count = sum(1 for k in ev_keys if k in sat_data and sat_data[k]['sla_cm'] is not None)
     print(f"      Matched {matched_sat_count} events to nearest satellite ocean grid pixels.")
 
     # Sort descending by date (newest first)
@@ -448,11 +453,12 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         ev_lat = round(float(row['lat']), 5) if pd.notna(row['lat']) else None
         ev_lon = round(float(row['lon']), 5) if pd.notna(row['lon']) else None
 
-        # Tide gauge match info
-        tg_info = tg_data.get(ev_id, None)
+        # Tide gauge match info (keyed by (place_clean, date_start) so id shifts cannot misalign)
+        ev_key = (str(row['place']).strip().lower(), str(row['date_start']).strip())
+        tg_info = tg_data.get(ev_key, None)
 
         # Satellite SLA match info
-        sat_raw = sat_data.get(ev_id, None)
+        sat_raw = sat_data.get(ev_key, None)
         sat_info = None
         if sat_raw and sat_raw.get('sla_cm') is not None:
             dist_sat = None
