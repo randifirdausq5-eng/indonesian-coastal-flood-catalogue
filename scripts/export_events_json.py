@@ -404,6 +404,9 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
                 raw_status = str(ar.get('audit_status', '')).strip().upper() if pd.notna(ar.get('audit_status')) else ''
                 raw_reason = str(ar.get('audit_reason') if pd.notna(ar.get('audit_reason')) else (ar.get('flag_reason') if pd.notna(ar.get('flag_reason')) else (ar.get('reason') if pd.notna(ar.get('reason')) else ''))).strip()
                 flagged_at = str(ar.get('flagged_at', '')).strip() if pd.notna(ar.get('flagged_at')) else ''
+                raw_auditor = str(ar.get('auditor', '')).strip() if ('auditor' in ar and pd.notna(ar.get('auditor'))) else ''
+                if not raw_auditor:
+                    raw_auditor = 'Randi'
 
                 if raw_v_tier in ['confirmed', 'probable', 'possible', 'not_rob']:
                     v_tier = raw_v_tier
@@ -425,6 +428,7 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
                     'verified_tier': v_tier,
                     'flag_reason': raw_reason,
                     'flagged_at': flagged_at,
+                    'auditor': raw_auditor,
                 }
         except Exception as err:
             print(f"      Notice: Could not parse {af.name}: {err}")
@@ -532,6 +536,7 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
             'flag_reason': flag_info.get('flag_reason', ''),
             'flagged_at': flag_info.get('flagged_at', ''),
             'verified_tier': flag_info.get('verified_tier', None),
+            'auditor': flag_info.get('auditor', ''),
         })
 
     # Summary statistics

@@ -124,7 +124,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=1239.202610301410"></script>
+  <script src="data/events.js?v=1239.202611031218"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -148,6 +148,12 @@
 
       <!-- Password Form -->
       <form onsubmit="handleUnlock(event)" class="space-y-4 text-left relative">
+        <!-- Auto-Lock Idle Notification Banner -->
+        <div id="lock-idle-msg" class="hidden p-3 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs flex items-start gap-2.5 leading-snug">
+          <i class="fa-solid fa-clock-rotate-left text-amber-400 mt-0.5 shrink-0"></i>
+          <span id="lock-idle-msg-text">Sesi dikunci otomatis karena tidak ada aktivitas selama 15 menit. Silakan masukkan kembali password.</span>
+        </div>
+
         <div>
           <label for="lock-password" class="block text-[11px] font-semibold text-slate-300 mb-1.5 uppercase tracking-wider">
             Password
@@ -900,6 +906,29 @@
           </div>
         </div>
 
+        <!-- Auditor / Kurator Name Selector & Creator -->
+        <div class="p-3 rounded-xl bg-cyan-50/70 border border-cyan-200 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <label for="flag-modal-auditor-select" class="text-[11px] font-bold text-cyan-950 flex items-center gap-1.5">
+              <i class="fa-solid fa-user-pen text-cyan-600"></i>
+              <span id="flag-modal-label-auditor">Nama Auditor / Kurator:</span>
+            </label>
+            <button type="button" onclick="showFlagModalNewAuditorInput()" class="text-[10px] font-bold text-cyan-700 hover:text-cyan-900 bg-white hover:bg-cyan-100 px-2 py-0.5 rounded-md border border-cyan-300 transition cursor-pointer flex items-center gap-1">
+              <i class="fa-solid fa-user-plus text-[9px]"></i>
+              <span id="flag-modal-btn-new-auditor-text">+ Nama Baru</span>
+            </button>
+          </div>
+          <select id="flag-modal-auditor-select" onchange="onFlagModalAuditorChange(this.value)" class="w-full text-xs p-2 bg-white border border-cyan-300 rounded-lg font-semibold text-slate-800 focus:ring-2 focus:ring-cyan-500 focus:outline-none cursor-pointer">
+            <!-- Populated dynamically by renderFlagAuditorOptions() -->
+          </select>
+          <div id="flag-modal-new-auditor-box" class="hidden pt-1 flex items-center gap-1.5">
+            <input type="text" id="flag-modal-new-auditor-input" placeholder="Ketik nama auditor baru..." onkeydown="if(event.key==='Enter'){event.preventDefault();confirmFlagModalNewAuditor();}" class="flex-1 text-xs px-2.5 py-1.5 bg-white border border-cyan-400 rounded-lg text-slate-800 focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+            <button type="button" onclick="confirmFlagModalNewAuditor()" class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-bold transition cursor-pointer shrink-0">
+              <span id="flag-modal-save-auditor-btn">Simpan Nama</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Preset Reason Buttons -->
         <div>
           <div class="flex items-center justify-between mb-1.5">
@@ -969,7 +998,12 @@
         </div>
 
         <!-- Export & Action Buttons -->
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" onclick="openAuditorSelectModal()" class="px-2.5 py-1.5 bg-cyan-50 hover:bg-cyan-100 text-cyan-900 border border-cyan-300 rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow-xs cursor-pointer" title="Pilih atau ganti nama auditor/kurator aktif">
+            <i class="fa-solid fa-user-check text-cyan-600"></i>
+            <span id="audit-modal-active-auditor-label">Auditor: -</span>
+            <i class="fa-solid fa-chevron-down text-[9px] text-cyan-600"></i>
+          </button>
           <label class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs cursor-pointer" title="Impor file CSV audit/QC">
             <i class="fa-solid fa-file-arrow-up text-cyan-600"></i>
             <span id="audit-btn-import-text">Impor CSV</span>
@@ -1004,6 +1038,73 @@
         <button id="audit-modal-btn-close" onclick="toggleModal('modal-audit', false)" class="px-4 py-1.5 bg-slate-800 text-white rounded-lg text-xs font-semibold hover:bg-slate-700 transition">
           Tutup
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: PILIH / BUAT NAMA AUDITOR (KURATOR) ================= -->
+  <div id="modal-auditor-select" class="fixed inset-0 bg-slate-900/65 backdrop-blur-sm z-[65] flex items-center justify-center p-3 sm:p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden">
+      <!-- Header -->
+      <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between border-b border-cyan-500/40">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-cyan-600/30 border border-cyan-500 flex items-center justify-center text-cyan-400">
+            <i class="fa-solid fa-user-check text-sm"></i>
+          </span>
+          <div>
+            <h3 id="auditor-modal-title" class="font-bold text-sm">Pilih / Buat Nama Auditor (Kurator)</h3>
+            <p id="auditor-modal-subtitle" class="text-[10px] text-slate-400">Pilih nama Anda jika sudah terdaftar, atau buat nama baru</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeAuditorSelectModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-5 text-xs space-y-4">
+        <!-- Existing Auditors List -->
+        <div id="auditor-existing-section" class="space-y-2">
+          <label id="auditor-existing-label" class="block text-[11px] font-bold text-slate-700">
+            1. Pilih Nama yang Sudah Ada (1-Klik Lanjut):
+          </label>
+          <div id="auditor-existing-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-44 overflow-y-auto pr-0.5">
+            <!-- Populated dynamically by renderAuditorSelectModal() -->
+          </div>
+        </div>
+
+        <div class="relative flex py-0.5 items-center">
+          <div class="flex-grow border-t border-slate-200"></div>
+          <span id="auditor-or-divider" class="flex-shrink mx-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">ATAU ORANG BARU</span>
+          <div class="flex-grow border-t border-slate-200"></div>
+        </div>
+
+        <!-- Create New Auditor Name -->
+        <div class="space-y-2 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <label id="auditor-new-label" for="auditor-modal-new-input" class="block text-[11px] font-bold text-slate-800">
+            2. Orang Baru? Buat Nama Auditor Baru:
+          </label>
+          <div class="flex items-center gap-2">
+            <input
+              type="text"
+              id="auditor-modal-new-input"
+              placeholder="Ketik nama Anda (misal: Budi)..."
+              onkeydown="if(event.key==='Enter'){event.preventDefault();submitNewAuditorFromModal();}"
+              class="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 focus:outline-none"
+            >
+            <button
+              type="button"
+              onclick="submitNewAuditorFromModal()"
+              class="px-3.5 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm transition cursor-pointer shrink-0"
+            >
+              <i class="fa-solid fa-user-plus"></i>
+              <span id="auditor-modal-btn-create">Simpan & Pakai</span>
+            </button>
+          </div>
+          <p id="auditor-modal-hint" class="text-[10px] text-slate-500 leading-relaxed">
+            Nama akan tersimpan di browser ini. Saat menutup tab dan masuk kembali, Anda tinggal memilih nama Anda dari daftar di atas.
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -1547,9 +1648,12 @@
       }
     }
 
-    // ================= RESTRICTED ACCESS GATEKEEPER =================
+    // ================= RESTRICTED ACCESS GATEKEEPER & 15-MIN IDLE AUTO-LOCK =================
     // SHA-256 hash for password 'robindonesia'
     const AUTH_HASH = "9ed6c7fb4bde887066ed237fb5acdbaa087124b31e342fcb52b960236980af4a";
+    const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes in milliseconds
+    let lastActivityAt = Date.now();
+    let lastActivityWriteAt = 0;
 
     async function hashPassword(str) {
       const msgUint8 = new TextEncoder().encode(str);
@@ -1558,10 +1662,55 @@
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
+    function recordUserActivity() {
+      if (sessionStorage.getItem('ina_coastal_auth') !== 'granted') return;
+      const now = Date.now();
+      lastActivityAt = now;
+      if (now - lastActivityWriteAt > 3000) {
+        lastActivityWriteAt = now;
+        try {
+          sessionStorage.setItem('ina_last_active_ts', String(now));
+        } catch (e) {}
+      }
+    }
+
+    function checkIdleTimeout() {
+      if (sessionStorage.getItem('ina_coastal_auth') !== 'granted') return;
+      const now = Date.now();
+      let storedTs = lastActivityAt;
+      try {
+        const raw = sessionStorage.getItem('ina_last_active_ts');
+        if (raw) storedTs = Math.max(lastActivityAt, parseInt(raw, 10) || lastActivityAt);
+      } catch (e) {}
+      if (now - storedTs >= IDLE_TIMEOUT_MS) {
+        lockScreen(true);
+      }
+    }
+
+    // Attach activity listeners for 15-minute idle detection
+    ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click', 'wheel'].forEach(evtName => {
+      window.addEventListener(evtName, recordUserActivity, { passive: true });
+    });
+    setInterval(checkIdleTimeout, 10000);
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) checkIdleTimeout();
+    });
+    window.addEventListener('focus', checkIdleTimeout);
+
     function checkAuthStatus() {
       const lockscreen = document.getElementById('lockscreen');
       const isAuth = sessionStorage.getItem('ina_coastal_auth') === 'granted';
       if (isAuth) {
+        // Verify not expired while tab was inactive
+        try {
+          const raw = sessionStorage.getItem('ina_last_active_ts');
+          if (raw && (Date.now() - parseInt(raw, 10)) >= IDLE_TIMEOUT_MS) {
+            lockScreen(true);
+            return;
+          }
+        } catch (e) {}
+        lastActivityAt = Date.now();
+        try { sessionStorage.setItem('ina_last_active_ts', String(lastActivityAt)); } catch (e) {}
         if (lockscreen) lockscreen.classList.add('hidden');
       } else {
         if (lockscreen) {
@@ -1579,6 +1728,7 @@
       if (event) event.preventDefault();
       const passInput = document.getElementById('lock-password');
       const errEl = document.getElementById('lock-error');
+      const idleMsgEl = document.getElementById('lock-idle-msg');
       const btnUnlock = document.getElementById('btn-unlock');
       const enteredPass = passInput ? passInput.value.trim() : '';
 
@@ -1590,8 +1740,13 @@
       try {
         const computedHash = await hashPassword(enteredPass);
         if (computedHash === AUTH_HASH) {
+          const now = Date.now();
+          lastActivityAt = now;
+          lastActivityWriteAt = now;
           sessionStorage.setItem('ina_coastal_auth', 'granted');
+          try { sessionStorage.setItem('ina_last_active_ts', String(now)); } catch (e) {}
           if (errEl) errEl.classList.add('hidden');
+          if (idleMsgEl) idleMsgEl.classList.add('hidden');
           const lockscreen = document.getElementById('lockscreen');
           if (lockscreen) {
             lockscreen.classList.add('opacity-0');
@@ -1620,11 +1775,31 @@
       }
     }
 
-    function lockScreen() {
+    function lockScreen(isIdle = false) {
       sessionStorage.removeItem('ina_coastal_auth');
+      sessionStorage.removeItem('ina_last_active_ts');
+      // Also reset active session auditor so upon re-entry, auditor can confirm/pick their name
+      sessionStorage.removeItem('INA_SESSION_AUDITOR');
+      if (typeof updateActiveAuditorUI === 'function') updateActiveAuditorUI();
+
       const lockscreen = document.getElementById('lockscreen');
       const errEl = document.getElementById('lock-error');
+      const idleMsgEl = document.getElementById('lock-idle-msg');
+      const idleMsgTextEl = document.getElementById('lock-idle-msg-text');
       if (errEl) errEl.classList.add('hidden');
+      if (idleMsgEl) {
+        if (isIdle) {
+          const isEn = AppState && AppState.lang === 'en';
+          if (idleMsgTextEl) {
+            idleMsgTextEl.textContent = isEn
+              ? 'Session auto-locked due to 15 minutes of inactivity. Please re-enter the password.'
+              : 'Sesi dikunci otomatis karena tidak ada aktivitas selama 15 menit. Silakan masukkan kembali password.';
+          }
+          idleMsgEl.classList.remove('hidden');
+        } else {
+          idleMsgEl.classList.add('hidden');
+        }
+      }
       if (lockscreen) {
         lockscreen.classList.remove('hidden');
         const passInput = document.getElementById('lock-password');
@@ -1712,7 +1887,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=1239.202610301410')
+        fetch('data/events.json?v=1239.202611031218')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -2857,6 +3032,9 @@
         ? 'bg-red-600 text-white font-bold ring-2 ring-red-400 shadow-sm'
         : 'bg-white hover:bg-red-50 text-red-700 border border-red-300';
 
+      const existingAuditor = (existingAudit && existingAudit.auditor) ? existingAudit.auditor : '';
+      const activeSessionAuditor = typeof getActiveAuditor === 'function' ? getActiveAuditor() : '';
+
       let qcStatusDetailHtml = '';
       if (isNotRob) {
         qcStatusDetailHtml = `
@@ -2873,7 +3051,11 @@
             <p class="text-red-900 font-medium bg-white/90 p-1.5 rounded border border-red-100 text-[10px] leading-relaxed">
               "${getLocalizedFlagReason(existingAudit.reason || existingAudit.audit_reason)}"
             </p>
-            <div class="flex justify-end">
+            <div class="flex items-center justify-between pt-0.5">
+              <span class="text-[9.5px] text-slate-600 flex items-center gap-1">
+                <i class="fa-solid fa-user-check text-red-500 text-[8.5px]"></i>
+                <span>${isEnglish ? 'Auditor:' : 'Kurator:'} <strong>${existingAuditor || 'Randi'}</strong></span>
+              </span>
               <button type="button" onclick="openFlagConfirmModal('${e.id}')" class="text-red-700 hover:text-red-900 font-semibold underline text-[9px] flex items-center gap-1 cursor-pointer">
                 <i class="fa-solid fa-pen-to-square text-[8px]"></i> ${isEnglish ? 'Edit Category' : 'Ubah Kategori'}
               </button>
@@ -2883,9 +3065,10 @@
       } else if (isConfirmed) {
         qcStatusDetailHtml = `
           <div class="mt-1.5 p-1.5 px-2 rounded-lg bg-emerald-50 border border-emerald-200 text-[10px] flex items-center justify-between">
-            <span class="font-semibold text-emerald-900 flex items-center gap-1">
+            <span class="font-semibold text-emerald-900 flex items-center gap-1 flex-wrap">
               <i class="fa-solid fa-circle-check text-emerald-600"></i>
               <span>QC: <strong>${isEnglish ? 'Verified Event' : 'Event Benar'}</strong></span>
+              <span class="text-[9.5px] text-emerald-700 font-normal">(${isEnglish ? 'by' : 'oleh'} <strong>${existingAuditor || 'Randi'}</strong>)</span>
             </span>
             <button type="button" onclick="unflagEvent('${e.id}')" class="text-slate-500 hover:text-red-700 font-semibold underline text-[9px] cursor-pointer">
               ${isEnglish ? 'Reset' : 'Batalkan'}
@@ -2904,12 +3087,18 @@
       const qcSectionHtml = `
         <div class="mt-2.5 pt-2.5 border-t border-slate-200">
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between gap-1 flex-wrap">
               <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
                 <i class="fa-solid fa-clipboard-check text-cyan-600"></i>
-                <span>${isEnglish ? 'Event Verification (Training Data QC):' : 'Verifikasi Kejadian (Data Training QC):'}</span>
+                <span>${isEnglish ? 'Event Verification (QC):' : 'Verifikasi Kejadian (QC):'}</span>
               </span>
-              ${isCurated ? `<span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-100 text-cyan-800 border border-cyan-200">${isEnglish ? 'CURATED' : 'TERKURASI'}</span>` : ''}
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="openAuditorSelectModal(null, '${e.id}')" class="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-white hover:bg-cyan-50 text-cyan-800 border border-cyan-300 flex items-center gap-1 transition cursor-pointer" title="${isEnglish ? 'Select or switch auditor name' : 'Pilih atau ganti nama auditor/kurator'}">
+                  <i class="fa-solid fa-user-pen text-[8.5px] text-cyan-600"></i>
+                  <span>${activeSessionAuditor ? activeSessionAuditor : (isEnglish ? 'Select Name' : 'Pilih Nama')}</span>
+                </button>
+                ${isCurated ? `<span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-100 text-cyan-800 border border-cyan-200">${isEnglish ? 'CURATED' : 'TERKURASI'}</span>` : ''}
+              </div>
             </div>
 
             <!-- 2 1-Click Verification Toggle Buttons -->
@@ -3421,20 +3610,27 @@
           }
 
           let eventBenarBadgeHtml = '';
+          const rowAuditorName = rowAudit && rowAudit.auditor ? rowAudit.auditor : (isRowCurated ? 'Randi' : '');
           if (verTier === 'confirmed') {
             eventBenarBadgeHtml = `
-              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                <i class="fa-solid fa-circle-check text-emerald-600"></i>
-                <span>${AppState.lang === 'en' ? 'Verified Event' : 'Event Benar'}</span>
-              </span>
+              <div class="flex flex-col items-start gap-0.5">
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                  <span>${AppState.lang === 'en' ? 'Verified Event' : 'Event Benar'}</span>
+                </span>
+                ${rowAuditorName ? `<span class="text-[9.5px] text-slate-500 pl-1 flex items-center gap-1"><i class="fa-solid fa-user-check text-emerald-600 text-[8.5px]"></i> ${rowAuditorName}</span>` : ''}
+              </div>
             `;
           } else if (verTier === 'not_rob') {
             eventBenarBadgeHtml = `
-              <span title="${rowAudit.reason || rowAudit.audit_reason || (AppState.lang === 'en' ? 'Not an event' : 'Bukan event')}" 
-                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-red-100 text-red-800 border border-red-300">
-                <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
-                <span>${AppState.lang === 'en' ? 'Not an Event' : 'Bukan Event'}</span>
-              </span>
+              <div class="flex flex-col items-start gap-0.5">
+                <span title="${rowAudit.reason || rowAudit.audit_reason || (AppState.lang === 'en' ? 'Not an event' : 'Bukan event')}" 
+                  class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-red-100 text-red-800 border border-red-300">
+                  <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
+                  <span>${AppState.lang === 'en' ? 'Not an Event' : 'Bukan Event'}</span>
+                </span>
+                ${rowAuditorName ? `<span class="text-[9.5px] text-slate-500 pl-1 flex items-center gap-1"><i class="fa-solid fa-user-check text-red-500 text-[8.5px]"></i> ${rowAuditorName}</span>` : ''}
+              </div>
             `;
           } else {
             eventBenarBadgeHtml = `
@@ -3540,6 +3736,302 @@
 
     // ================= AUDIT / QC INACCURACY REPORTING SYSTEM =================
     const STORAGE_KEY_FLAGGED = 'INA_FLAGGED_EVENTS';
+    const STORAGE_KEY_AUDITORS = 'INA_AUDITOR_LIST';
+    const STORAGE_KEY_LAST_AUDITOR = 'INA_LAST_AUDITOR';
+    const SESSION_KEY_AUDITOR = 'INA_SESSION_AUDITOR';
+
+    function getAuditorList() {
+      const seen = new Set();
+      const result = [];
+      const addUnique = (rawName) => {
+        const clean = String(rawName || '').trim();
+        if (!clean) return;
+        const lower = clean.toLowerCase();
+        if (!seen.has(lower)) {
+          seen.add(lower);
+          result.push(clean);
+        }
+      };
+
+      // Always seed default primary researcher name
+      addUnique('Randi');
+
+      // Load saved auditor list from localStorage
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY_AUDITORS);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) parsed.forEach(addUnique);
+        }
+      } catch (e) {}
+
+      // Also include any auditor names found in existing flaggedEvents
+      if (AppState && AppState.flaggedEvents) {
+        Object.values(AppState.flaggedEvents).forEach(f => {
+          if (f && f.auditor) addUnique(f.auditor);
+        });
+      }
+
+      return result;
+    }
+
+    function saveAuditorListToStorage(list) {
+      try {
+        localStorage.setItem(STORAGE_KEY_AUDITORS, JSON.stringify(list));
+      } catch (e) {}
+    }
+
+    function getActiveAuditor() {
+      try {
+        return (sessionStorage.getItem(SESSION_KEY_AUDITOR) || '').trim();
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function getLastRememberedAuditor() {
+      try {
+        return (localStorage.getItem(STORAGE_KEY_LAST_AUDITOR) || '').trim();
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function setActiveAuditor(name) {
+      const clean = String(name || '').trim();
+      if (!clean) return '';
+      const currentList = getAuditorList();
+      const exists = currentList.some(a => a.toLowerCase() === clean.toLowerCase());
+      if (!exists) {
+        currentList.push(clean);
+      }
+      saveAuditorListToStorage(currentList);
+      try {
+        sessionStorage.setItem(SESSION_KEY_AUDITOR, clean);
+        localStorage.setItem(STORAGE_KEY_LAST_AUDITOR, clean);
+      } catch (e) {}
+      updateActiveAuditorUI();
+      return clean;
+    }
+
+    function removeAuditorFromList(nameToRemove, evt) {
+      if (evt) evt.stopPropagation();
+      const clean = String(nameToRemove || '').trim();
+      if (!clean || clean.toLowerCase() === 'randi') return;
+      const list = getAuditorList().filter(a => a.toLowerCase() !== clean.toLowerCase());
+      saveAuditorListToStorage(list);
+      if (getActiveAuditor().toLowerCase() === clean.toLowerCase()) {
+        try { sessionStorage.removeItem(SESSION_KEY_AUDITOR); } catch (e) {}
+      }
+      renderAuditorSelectModal();
+      renderFlagAuditorOptions();
+      updateActiveAuditorUI();
+    }
+
+    function updateActiveAuditorUI() {
+      const isEnglish = AppState && AppState.lang === 'en';
+      const active = getActiveAuditor();
+      const labelEl = document.getElementById('audit-modal-active-auditor-label');
+      if (labelEl) {
+        labelEl.textContent = active
+          ? `${isEnglish ? 'Auditor:' : 'Auditor:'} ${active}`
+          : (isEnglish ? 'Select Auditor' : 'Pilih Auditor');
+      }
+    }
+
+    function ensureAuditorSelected(callback) {
+      const active = getActiveAuditor();
+      if (active) {
+        callback(active);
+        return;
+      }
+      openAuditorSelectModal(callback);
+    }
+
+    function openAuditorSelectModal(onSelectedCallback = null, popupEventId = null) {
+      AppState.pendingAuditorCallback = onSelectedCallback;
+      AppState.pendingAuditorPopupEventId = popupEventId;
+      renderAuditorSelectModal();
+      const newInput = document.getElementById('auditor-modal-new-input');
+      if (newInput) newInput.value = '';
+      toggleModal('modal-auditor-select', true);
+    }
+
+    function closeAuditorSelectModal() {
+      AppState.pendingAuditorCallback = null;
+      AppState.pendingAuditorPopupEventId = null;
+      toggleModal('modal-auditor-select', false);
+    }
+
+    function renderAuditorSelectModal() {
+      const isEnglish = AppState && AppState.lang === 'en';
+      const titleEl = document.getElementById('auditor-modal-title');
+      if (titleEl) titleEl.textContent = isEnglish ? 'Select or Create Auditor Name' : 'Pilih / Buat Nama Auditor (Kurator)';
+      const subEl = document.getElementById('auditor-modal-subtitle');
+      if (subEl) subEl.textContent = isEnglish ? 'Pick your existing name or register a new auditor name' : 'Pilih nama Anda jika sudah ada, atau buat nama baru jika orang baru';
+      const existLabel = document.getElementById('auditor-existing-label');
+      if (existLabel) existLabel.textContent = isEnglish ? '1. Select Existing Name (1-Click Continue):' : '1. Pilih Nama yang Sudah Ada (1-Klik Lanjut):';
+      const orDiv = document.getElementById('auditor-or-divider');
+      if (orDiv) orDiv.textContent = isEnglish ? 'OR NEW AUDITOR' : 'ATAU ORANG BARU';
+      const newLabel = document.getElementById('auditor-new-label');
+      if (newLabel) newLabel.textContent = isEnglish ? '2. New Person? Create New Auditor Name:' : '2. Orang Baru? Buat Nama Auditor Baru:';
+      const newInput = document.getElementById('auditor-modal-new-input');
+      if (newInput) newInput.placeholder = isEnglish ? 'Type your name (e.g., Budi)...' : 'Ketik nama Anda (misal: Budi)...';
+      const btnCreate = document.getElementById('auditor-modal-btn-create');
+      if (btnCreate) btnCreate.textContent = isEnglish ? 'Save & Use' : 'Simpan & Pakai';
+      const hintEl = document.getElementById('auditor-modal-hint');
+      if (hintEl) hintEl.textContent = isEnglish
+        ? 'Your name is saved in this browser. Next time you reopen the tab, simply select your name from the list above.'
+        : 'Nama akan tersimpan di browser ini. Saat menutup tab dan masuk kembali, Anda tinggal memilih nama Anda dari daftar di atas.';
+
+      const listContainer = document.getElementById('auditor-existing-list');
+      if (!listContainer) return;
+
+      const auditors = getAuditorList();
+      const active = getActiveAuditor();
+      const lastUsed = getLastRememberedAuditor();
+
+      // Sort so active or lastUsed is first
+      const sorted = [...auditors].sort((a, b) => {
+        if (active && a.toLowerCase() === active.toLowerCase()) return -1;
+        if (active && b.toLowerCase() === active.toLowerCase()) return 1;
+        if (lastUsed && a.toLowerCase() === lastUsed.toLowerCase()) return -1;
+        if (lastUsed && b.toLowerCase() === lastUsed.toLowerCase()) return 1;
+        return a.localeCompare(b);
+      });
+
+      listContainer.innerHTML = sorted.map(name => {
+        const isCurrent = active && active.toLowerCase() === name.toLowerCase();
+        const isLast = !isCurrent && lastUsed && lastUsed.toLowerCase() === name.toLowerCase();
+        const escaped = name.replace(/'/g, "\\'");
+        return `
+          <div onclick="selectAuditorFromModal('${escaped}')"
+            class="p-2.5 rounded-xl border ${isCurrent ? 'bg-cyan-50 border-cyan-500 ring-1 ring-cyan-400' : (isLast ? 'bg-emerald-50/60 border-emerald-300 hover:border-cyan-400' : 'bg-slate-50 border-slate-200 hover:border-cyan-400 hover:bg-cyan-50/40')} transition flex items-center justify-between gap-2 cursor-pointer group">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="w-6 h-6 rounded-full ${isCurrent ? 'bg-cyan-600 text-white' : 'bg-slate-200 text-slate-700 group-hover:bg-cyan-600 group-hover:text-white'} flex items-center justify-center text-[11px] font-bold shrink-0 transition">
+                <i class="fa-solid fa-user"></i>
+              </span>
+              <div class="truncate">
+                <div class="font-bold text-slate-900 text-xs truncate">${name}</div>
+                ${isCurrent ? `<span class="text-[9px] font-bold text-cyan-700">${isEnglish ? '✓ Active now' : '✓ Aktif saat ini'}</span>` : (isLast ? `<span class="text-[9px] font-semibold text-emerald-700">${isEnglish ? 'Last used' : 'Terakhir dipakai'}</span>` : `<span class="text-[9px] text-slate-400">${isEnglish ? 'Click to use' : 'Klik untuk pilih'}</span>`)}
+              </div>
+            </div>
+            ${name.toLowerCase() !== 'randi' ? `
+              <button type="button" onclick="removeAuditorFromList('${escaped}', event)" title="${isEnglish ? 'Remove name' : 'Hapus nama'}" class="text-slate-400 hover:text-red-600 p-1 text-[10px] shrink-0">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectAuditorFromModal(name) {
+      const chosen = setActiveAuditor(name);
+      if (!chosen) return;
+      const cb = AppState.pendingAuditorCallback;
+      const popupEvId = AppState.pendingAuditorPopupEventId;
+      closeAuditorSelectModal();
+      renderFlagAuditorOptions();
+      if (popupEvId) {
+        updateOpenMarkerPopup(popupEvId);
+      }
+      const auditModal = document.getElementById('modal-audit');
+      if (auditModal && !auditModal.classList.contains('hidden')) {
+        renderAuditModalContent();
+      }
+      if (typeof cb === 'function') {
+        cb(chosen);
+      } else {
+        showToast(AppState.lang === 'en' ? `👤 Active auditor set to: ${chosen}` : `👤 Auditor aktif dipilih: ${chosen}`);
+      }
+    }
+
+    function submitNewAuditorFromModal() {
+      const inputEl = document.getElementById('auditor-modal-new-input');
+      const raw = inputEl ? inputEl.value.trim() : '';
+      if (!raw) {
+        if (inputEl) inputEl.focus();
+        return;
+      }
+      selectAuditorFromModal(raw);
+    }
+
+    function renderFlagAuditorOptions(preferredAuditor = '') {
+      const isEnglish = AppState && AppState.lang === 'en';
+      const labelEl = document.getElementById('flag-modal-label-auditor');
+      if (labelEl) labelEl.textContent = isEnglish ? 'Auditor / Curator Name:' : 'Nama Auditor / Kurator:';
+      const btnNewText = document.getElementById('flag-modal-btn-new-auditor-text');
+      if (btnNewText) btnNewText.textContent = isEnglish ? '+ New Name' : '+ Nama Baru';
+      const saveBtnText = document.getElementById('flag-modal-save-auditor-btn');
+      if (saveBtnText) saveBtnText.textContent = isEnglish ? 'Save Name' : 'Simpan Nama';
+      const newInput = document.getElementById('flag-modal-new-auditor-input');
+      if (newInput) newInput.placeholder = isEnglish ? 'Type new auditor name...' : 'Ketik nama auditor baru...';
+
+      const selectEl = document.getElementById('flag-modal-auditor-select');
+      if (!selectEl) return;
+
+      const list = getAuditorList();
+      const target = (preferredAuditor || getActiveAuditor() || getLastRememberedAuditor() || 'Randi').trim();
+      if (target && !list.some(a => a.toLowerCase() === target.toLowerCase())) {
+        list.push(target);
+      }
+
+      selectEl.innerHTML = list.map(name => {
+        const isSel = name.toLowerCase() === target.toLowerCase();
+        return `<option value="${name.replace(/"/g, '&quot;')}" ${isSel ? 'selected' : ''}>👤 ${name}</option>`;
+      }).join('') + `<option value="__new__">➕ ${isEnglish ? 'Create New Auditor Name...' : 'Buat Nama Auditor Baru...'}</option>`;
+
+      const newBox = document.getElementById('flag-modal-new-auditor-box');
+      if (newBox) newBox.classList.add('hidden');
+    }
+
+    function onFlagModalAuditorChange(val) {
+      const newBox = document.getElementById('flag-modal-new-auditor-box');
+      const newInput = document.getElementById('flag-modal-new-auditor-input');
+      if (val === '__new__') {
+        if (newBox) newBox.classList.remove('hidden');
+        if (newInput) {
+          newInput.value = '';
+          newInput.focus();
+        }
+      } else {
+        if (newBox) newBox.classList.add('hidden');
+        if (val) setActiveAuditor(val);
+      }
+    }
+
+    function showFlagModalNewAuditorInput() {
+      const selectEl = document.getElementById('flag-modal-auditor-select');
+      if (selectEl) selectEl.value = '__new__';
+      onFlagModalAuditorChange('__new__');
+    }
+
+    function confirmFlagModalNewAuditor() {
+      const newInput = document.getElementById('flag-modal-new-auditor-input');
+      const raw = newInput ? newInput.value.trim() : '';
+      if (!raw) {
+        if (newInput) newInput.focus();
+        return '';
+      }
+      const saved = setActiveAuditor(raw);
+      renderFlagAuditorOptions(saved);
+      showToast(AppState.lang === 'en' ? `✓ Added auditor: ${saved}` : `✓ Nama auditor ditambahkan: ${saved}`);
+      return saved;
+    }
+
+    function resolveCurrentFlagModalAuditor() {
+      const newBox = document.getElementById('flag-modal-new-auditor-box');
+      const newInput = document.getElementById('flag-modal-new-auditor-input');
+      if (newBox && !newBox.classList.contains('hidden') && newInput && newInput.value.trim()) {
+        return setActiveAuditor(newInput.value.trim());
+      }
+      const selectEl = document.getElementById('flag-modal-auditor-select');
+      if (selectEl && selectEl.value && selectEl.value !== '__new__') {
+        return setActiveAuditor(selectEl.value);
+      }
+      return getActiveAuditor() || getLastRememberedAuditor() || 'Randi';
+    }
 
     function initFlaggedEvents(events) {
       try {
@@ -3624,13 +4116,22 @@
                 audit_status: (vTier === 'not_rob') ? 'INACCURATE' : vTier.toUpperCase(),
                 reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
                 audit_reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
+                auditor: e.auditor || 'Randi',
                 flagged_at: e.flagged_at || new Date().toISOString()
               };
+            } else if (cur && !cur.auditor) {
+              cur.auditor = e.auditor || 'Randi';
             }
           }
         });
       }
 
+      // Ensure all existing records have an auditor field and sync auditor list
+      Object.values(AppState.flaggedEvents || {}).forEach(f => {
+        if (f && !f.auditor) f.auditor = 'Randi';
+      });
+      saveAuditorListToStorage(getAuditorList());
+      updateActiveAuditorUI();
       updateFlaggedUI();
     }
 
@@ -3687,48 +4188,51 @@
         return;
       }
 
-      const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
-      if (!ev) return;
+      ensureAuditorSelected(auditorName => {
+        const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
+        if (!ev) return;
 
-      if (!AppState.flaggedEvents) AppState.flaggedEvents = {};
+        if (!AppState.flaggedEvents) AppState.flaggedEvents = {};
 
-      const isEnglish = AppState.lang === 'en';
-      const reasonText = isEnglish ? 'Manual QC: Verified as Confirmed Event' : 'QC Manual: Terverifikasi Event Benar';
+        const isEnglish = AppState.lang === 'en';
+        const reasonText = isEnglish ? 'Manual QC: Verified as Confirmed Event' : 'QC Manual: Terverifikasi Event Benar';
 
-      AppState.flaggedEvents[eventId] = {
-        id: eventId,
-        place: ev.place || '',
-        province: ev.province || '',
-        region: ev.region || '',
-        date_start: ev.date_start || '',
-        date_end: ev.date_end || '',
-        depth_cm: ev.depth_cm !== undefined ? ev.depth_cm : null,
-        title: ev.title || '',
-        url: ev.url || '',
-        terms: ev.terms || '',
-        tg_station: ev.tg ? (ev.tg.station || '') : '',
-        tg_anom_cm: ev.tg && ev.tg.anom_cm !== null && ev.tg.anom_cm !== undefined ? ev.tg.anom_cm : '',
-        original_tier: ev.tier || 'unknown',
-        verified_tier: 'confirmed',
-        audit_status: 'CONFIRMED',
-        reason: reasonText,
-        audit_reason: reasonText,
-        flagged_at: new Date().toISOString()
-      };
+        AppState.flaggedEvents[eventId] = {
+          id: eventId,
+          place: ev.place || '',
+          province: ev.province || '',
+          region: ev.region || '',
+          date_start: ev.date_start || '',
+          date_end: ev.date_end || '',
+          depth_cm: ev.depth_cm !== undefined ? ev.depth_cm : null,
+          title: ev.title || '',
+          url: ev.url || '',
+          terms: ev.terms || '',
+          tg_station: ev.tg ? (ev.tg.station || '') : '',
+          tg_anom_cm: ev.tg && ev.tg.anom_cm !== null && ev.tg.anom_cm !== undefined ? ev.tg.anom_cm : '',
+          original_tier: ev.tier || 'unknown',
+          verified_tier: 'confirmed',
+          audit_status: 'CONFIRMED',
+          reason: reasonText,
+          audit_reason: reasonText,
+          auditor: auditorName || 'Randi',
+          flagged_at: new Date().toISOString()
+        };
 
-      saveFlaggedEvents();
-      updateOpenMarkerPopup(eventId);
+        saveFlaggedEvents();
+        updateOpenMarkerPopup(eventId);
 
-      if (AppState.currentView === 'table') {
-        renderTablePage(AppState.tablePage);
-      }
+        if (AppState.currentView === 'table') {
+          renderTablePage(AppState.tablePage);
+        }
 
-      const auditModal = document.getElementById('modal-audit');
-      if (auditModal && !auditModal.classList.contains('hidden')) {
-        renderAuditModalContent();
-      }
+        const auditModal = document.getElementById('modal-audit');
+        if (auditModal && !auditModal.classList.contains('hidden')) {
+          renderAuditModalContent();
+        }
 
-      showToast(isEnglish ? `✓ #${eventId} verified as confirmed event!` : `✓ #${eventId} diverifikasi sebagai Event Benar!`);
+        showToast(isEnglish ? `✓ #${eventId} verified by ${auditorName}!` : `✓ #${eventId} diverifikasi oleh ${auditorName}!`);
+      });
     }
 
     const setVerifiedTier = setVerifiedStatus;
@@ -3741,7 +4245,7 @@
       }
     }
 
-    function renderFlagConfirmModal() {
+    function renderFlagConfirmModal(preferredAuditor = '') {
       const isEnglish = AppState.lang === 'en';
 
       const titleEl = document.getElementById('flag-modal-title');
@@ -3771,6 +4275,8 @@
       const btnSubmitText = document.getElementById('flag-modal-btn-submit-text');
       if (btnSubmitText) btnSubmitText.textContent = isEnglish ? 'Save & Mark as Not an Event' : 'Simpan & Tandai Bukan Event';
 
+      renderFlagAuditorOptions(preferredAuditor);
+
       // Populate preset buttons container
       const container = document.getElementById('flag-preset-buttons');
       if (container) {
@@ -3796,55 +4302,57 @@
     }
 
     function openFlagConfirmModal(eventId, chkEl = null) {
-      AppState.pendingFlagEventId = eventId;
-      AppState.pendingFlagCheckbox = chkEl;
+      ensureAuditorSelected(auditorName => {
+        AppState.pendingFlagEventId = eventId;
+        AppState.pendingFlagCheckbox = chkEl;
 
-      const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
-      if (!ev) return;
+        const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
+        if (!ev) return;
 
-      const isEnglish = AppState.lang === 'en';
-      const existingFlag = AppState.flaggedEvents ? AppState.flaggedEvents[eventId] : null;
+        const isEnglish = AppState.lang === 'en';
+        const existingFlag = AppState.flaggedEvents ? AppState.flaggedEvents[eventId] : null;
 
-      const idEl = document.getElementById('flag-modal-event-id');
-      if (idEl) idEl.textContent = `#${ev.id}`;
-      const dateEl = document.getElementById('flag-modal-event-date');
-      if (dateEl) dateEl.textContent = `📅 ${ev.date_start}${ev.days > 1 ? ` (${ev.days} ${isEnglish ? 'days' : 'hr'})` : ''}`;
-      const placeEl = document.getElementById('flag-modal-event-place');
-      if (placeEl) placeEl.textContent = `📍 ${ev.place}, ${ev.province}`;
-      const titleEl = document.getElementById('flag-modal-event-title');
-      if (titleEl) titleEl.textContent = `"${ev.title || (isEnglish ? 'Event Report' : 'Laporan Kejadian')}"`;
+        const idEl = document.getElementById('flag-modal-event-id');
+        if (idEl) idEl.textContent = `#${ev.id}`;
+        const dateEl = document.getElementById('flag-modal-event-date');
+        if (dateEl) dateEl.textContent = `📅 ${ev.date_start}${ev.days > 1 ? ` (${ev.days} ${isEnglish ? 'days' : 'hr'})` : ''}`;
+        const placeEl = document.getElementById('flag-modal-event-place');
+        if (placeEl) placeEl.textContent = `📍 ${ev.place}, ${ev.province}`;
+        const titleEl = document.getElementById('flag-modal-event-title');
+        if (titleEl) titleEl.textContent = `"${ev.title || (isEnglish ? 'Event Report' : 'Laporan Kejadian')}"`;
 
-      const urlEl = document.getElementById('flag-modal-event-url');
-      if (urlEl) {
-        if (ev.url) {
-          urlEl.href = ev.url;
-          urlEl.classList.remove('hidden');
-        } else {
-          urlEl.classList.add('hidden');
+        const urlEl = document.getElementById('flag-modal-event-url');
+        if (urlEl) {
+          if (ev.url) {
+            urlEl.href = ev.url;
+            urlEl.classList.remove('hidden');
+          } else {
+            urlEl.classList.add('hidden');
+          }
         }
-      }
 
-      const currentReason = existingFlag && existingFlag.reason ? existingFlag.reason : '';
-      const reasonInput = document.getElementById('flag-reason-input');
-      if (reasonInput) {
-        reasonInput.value = currentReason;
-      }
-
-      // Restore 1-click mode toggle state (default to true so Randi can 1-click save!)
-      const oneClickChk = document.getElementById('flag-oneclick-toggle');
-      if (oneClickChk) {
-        try {
-          const storedVal = localStorage.getItem('INA_ONECLICK_FLAG');
-          oneClickChk.checked = storedVal === null ? true : storedVal === 'true';
-        } catch (e) {
-          oneClickChk.checked = true;
+        const currentReason = existingFlag && existingFlag.reason ? existingFlag.reason : '';
+        const reasonInput = document.getElementById('flag-reason-input');
+        if (reasonInput) {
+          reasonInput.value = currentReason;
         }
-      }
 
-      // Render localized elements & buttons
-      renderFlagConfirmModal();
+        // Restore 1-click mode toggle state (default to true so Randi can 1-click save!)
+        const oneClickChk = document.getElementById('flag-oneclick-toggle');
+        if (oneClickChk) {
+          try {
+            const storedVal = localStorage.getItem('INA_ONECLICK_FLAG');
+            oneClickChk.checked = storedVal === null ? true : storedVal === 'true';
+          } catch (e) {
+            oneClickChk.checked = true;
+          }
+        }
 
-      toggleModal('modal-flag-confirm', true);
+        // Render localized elements & buttons
+        renderFlagConfirmModal(auditorName || (existingFlag && existingFlag.auditor) || '');
+
+        toggleModal('modal-flag-confirm', true);
+      });
     }
 
     function toggleOneClickFlagMode(enabled) {
@@ -3896,6 +4404,7 @@
       const reasonInput = document.getElementById('flag-reason-input');
       const defaultReason = isEnglish ? 'Inaccurate news / not a coastal flood event' : 'Berita tidak akurat / bukan rob';
       const reasonText = (reasonInput ? reasonInput.value : '').trim() || defaultReason;
+      const auditorName = resolveCurrentFlagModalAuditor();
 
       const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
 
@@ -3918,6 +4427,7 @@
         audit_status: 'INACCURATE',
         reason: reasonText,
         audit_reason: reasonText,
+        auditor: auditorName || 'Randi',
         flagged_at: new Date().toISOString()
       };
 
@@ -3938,7 +4448,7 @@
         renderAuditModalContent();
       }
 
-      showToast(isEnglish ? `✓ Event #${eventId} marked as not an event.` : `✓ Kejadian #${eventId} ditandai sebagai BUKAN ROB.`);
+      showToast(isEnglish ? `✓ Event #${eventId} marked as not an event (by ${auditorName}).` : `✓ Kejadian #${eventId} ditandai BUKAN ROB (oleh ${auditorName}).`);
     }
 
     function unflagEvent(eventId) {
@@ -4038,6 +4548,7 @@
 
       const currentFilter = AppState.auditFilterTier || 'all';
       updateFlaggedUI();
+      updateActiveAuditorUI();
 
       // Highlight active filter pill tab
       const filterTabs = ['all', 'confirmed', 'not_rob'];
@@ -4138,10 +4649,21 @@
         const reasonStr = f.audit_reason || f.reason || defaultReason;
 
         let badgeHtml = '';
+        const auditorStr = f.auditor || 'Randi';
         if (vTier === 'not_rob') {
-          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-800 text-[11px] font-bold">🔴 ${isEnglish ? 'Not an Event' : 'Bukan Event'}: ${reasonStr}</span>`;
+          badgeHtml = `
+            <div class="space-y-1">
+              <span class="inline-block px-2 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-800 text-[11px] font-bold">🔴 ${isEnglish ? 'Not an Event' : 'Bukan Event'}: ${reasonStr}</span>
+              <div class="text-[10px] text-slate-500 flex items-center gap-1"><i class="fa-solid fa-user-check text-red-500 text-[9px]"></i> ${isEnglish ? 'Auditor:' : 'Kurator:'} <strong class="text-slate-700">${auditorStr}</strong></div>
+            </div>
+          `;
         } else {
-          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">🟢 ${isEnglish ? 'Verified Event (QC)' : 'Event Benar (QC Verified)'}</span>`;
+          badgeHtml = `
+            <div class="space-y-1">
+              <span class="inline-block px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">🟢 ${isEnglish ? 'Verified Event (QC)' : 'Event Benar (QC Verified)'}</span>
+              <div class="text-[10px] text-slate-500 flex items-center gap-1"><i class="fa-solid fa-user-check text-emerald-600 text-[9px]"></i> ${isEnglish ? 'Auditor:' : 'Kurator:'} <strong class="text-slate-700">${auditorStr}</strong></div>
+            </div>
+          `;
         }
 
         return `
@@ -4229,6 +4751,7 @@
         'verified_tier',
         'audit_status',
         'audit_reason',
+        'auditor',
         'flagged_at'
       ]);
 
@@ -4239,6 +4762,7 @@
         const verTier = f.verified_tier || (f.audit_status === 'INACCURATE' ? 'not_rob' : (f.audit_status ? f.audit_status.toLowerCase() : 'not_rob'));
         const auditStatus = f.audit_status || (verTier === 'not_rob' ? 'INACCURATE' : verTier.toUpperCase());
         const auditReason = f.audit_reason || f.reason || '';
+        const auditorName = f.auditor || 'Randi';
 
         rows.push([
           `"${f.id || id}"`,
@@ -4257,6 +4781,7 @@
           `"${verTier}"`,
           `"${auditStatus}"`,
           `"${auditReason.replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
+          `"${auditorName.replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"`,
           `"${f.flagged_at || new Date().toISOString()}"`
         ]);
       });
@@ -4329,6 +4854,7 @@
               audit_status: (vTier === 'not_rob') ? 'INACCURATE' : vTier.toUpperCase(),
               reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
               audit_reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
+              auditor: e.auditor || 'Randi',
               flagged_at: e.flagged_at || new Date().toISOString()
             };
           }
@@ -4416,6 +4942,7 @@
           const idxVerTier = header.indexOf('verified_tier');
           const idxStatus = header.indexOf('audit_status');
           const idxReason = header.indexOf('audit_reason') !== -1 ? header.indexOf('audit_reason') : header.indexOf('reason');
+          const idxAuditor = header.indexOf('auditor');
           const idxFlaggedAt = header.indexOf('flagged_at');
 
           let importedCount = 0;
@@ -4470,6 +4997,7 @@
               audit_status: (vTier === 'not_rob') ? 'INACCURATE' : vTier.toUpperCase(),
               reason: idxReason !== -1 && r[idxReason] ? r[idxReason] : `Imported from CSV`,
               audit_reason: idxReason !== -1 && r[idxReason] ? r[idxReason] : `Imported from CSV`,
+              auditor: (idxAuditor !== -1 && r[idxAuditor] && r[idxAuditor].trim()) ? r[idxAuditor].trim() : 'Randi',
               flagged_at: (idxFlaggedAt !== -1 && r[idxFlaggedAt]) ? r[idxFlaggedAt] : new Date().toISOString()
             };
             importedCount++;
