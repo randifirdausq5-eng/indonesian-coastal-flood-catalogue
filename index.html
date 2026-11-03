@@ -124,7 +124,7 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=1239.202611031218"></script>
+  <script src="data/events.js?v=1239.202611031223"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -810,6 +810,7 @@
               <th class="py-2.5 px-3" data-i18n="th_sat">Satellite SLA</th>
               <th class="py-2.5 px-3" data-i18n="th_title">News Headline & Sources</th>
               <th class="py-2.5 px-3" data-i18n="th_event_benar">Event Benar</th>
+              <th class="py-2.5 px-3" data-i18n="th_auditor">Auditor</th>
               <th class="py-2.5 px-3 text-center" data-i18n="th_action">Actions</th>
             </tr>
           </thead>
@@ -1221,6 +1222,7 @@
         th_sat: "Satellite SLA (Grid)",
         th_title: "News Headline & Sources",
         th_event_benar: "Verified Event",
+        th_auditor: "Auditor",
         th_action: "Actions",
         btn_prev: "Previous",
         btn_next: "Next",
@@ -1355,6 +1357,7 @@
         th_sat: "SLA Satelit (Grid)",
         th_title: "Judul Berita & Sumber",
         th_event_benar: "Event Benar",
+        th_auditor: "Auditor",
         th_action: "Aksi",
         btn_prev: "Sebelumnya",
         btn_next: "Berikutnya",
@@ -1887,7 +1890,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=1239.202611031218')
+        fetch('data/events.json?v=1239.202611031223')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -3032,13 +3035,14 @@
         ? 'bg-red-600 text-white font-bold ring-2 ring-red-400 shadow-sm'
         : 'bg-white hover:bg-red-50 text-red-700 border border-red-300';
 
-      const existingAuditor = (existingAudit && existingAudit.auditor) ? existingAudit.auditor : '';
+      const rawExistingAuditor = (existingAudit && existingAudit.auditor) ? existingAudit.auditor.trim() : '';
+      const existingAuditor = (!rawExistingAuditor || rawExistingAuditor.toLowerCase() === 'randi') ? 'Randi Firdaus' : rawExistingAuditor;
       const activeSessionAuditor = typeof getActiveAuditor === 'function' ? getActiveAuditor() : '';
 
       let qcStatusDetailHtml = '';
       if (isNotRob) {
         qcStatusDetailHtml = `
-          <div class="mt-1.5 p-2 rounded-lg bg-red-50 border border-red-200 text-[10px] space-y-1">
+          <div class="mt-1.5 p-2 rounded-lg bg-red-50 border border-red-200 text-[10px] space-y-1.5">
             <div class="flex items-center justify-between">
               <span class="font-bold text-red-800 flex items-center gap-1">
                 <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
@@ -3051,10 +3055,10 @@
             <p class="text-red-900 font-medium bg-white/90 p-1.5 rounded border border-red-100 text-[10px] leading-relaxed">
               "${getLocalizedFlagReason(existingAudit.reason || existingAudit.audit_reason)}"
             </p>
-            <div class="flex items-center justify-between pt-0.5">
-              <span class="text-[9.5px] text-slate-600 flex items-center gap-1">
-                <i class="fa-solid fa-user-check text-red-500 text-[8.5px]"></i>
-                <span>${isEnglish ? 'Auditor:' : 'Kurator:'} <strong>${existingAuditor || 'Randi'}</strong></span>
+            <div class="flex items-center justify-between pt-0.5 border-t border-red-200/60">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white border border-red-200 text-[10px] text-slate-800 font-semibold shadow-2xs">
+                <i class="fa-solid fa-user-check text-red-600 text-[9px]"></i>
+                <span>Auditor: <strong class="text-slate-950">${existingAuditor}</strong></span>
               </span>
               <button type="button" onclick="openFlagConfirmModal('${e.id}')" class="text-red-700 hover:text-red-900 font-semibold underline text-[9px] flex items-center gap-1 cursor-pointer">
                 <i class="fa-solid fa-pen-to-square text-[8px]"></i> ${isEnglish ? 'Edit Category' : 'Ubah Kategori'}
@@ -3064,15 +3068,22 @@
         `;
       } else if (isConfirmed) {
         qcStatusDetailHtml = `
-          <div class="mt-1.5 p-1.5 px-2 rounded-lg bg-emerald-50 border border-emerald-200 text-[10px] flex items-center justify-between">
-            <span class="font-semibold text-emerald-900 flex items-center gap-1 flex-wrap">
-              <i class="fa-solid fa-circle-check text-emerald-600"></i>
-              <span>QC: <strong>${isEnglish ? 'Verified Event' : 'Event Benar'}</strong></span>
-              <span class="text-[9.5px] text-emerald-700 font-normal">(${isEnglish ? 'by' : 'oleh'} <strong>${existingAuditor || 'Randi'}</strong>)</span>
-            </span>
-            <button type="button" onclick="unflagEvent('${e.id}')" class="text-slate-500 hover:text-red-700 font-semibold underline text-[9px] cursor-pointer">
-              ${isEnglish ? 'Reset' : 'Batalkan'}
-            </button>
+          <div class="mt-1.5 p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-[10px] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-emerald-900 flex items-center gap-1">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                <span>QC: <strong>${isEnglish ? 'Verified Event' : 'Event Benar'}</strong></span>
+              </span>
+              <button type="button" onclick="unflagEvent('${e.id}')" class="text-slate-500 hover:text-red-700 font-semibold underline text-[9px] cursor-pointer">
+                ${isEnglish ? 'Reset' : 'Batalkan'}
+              </button>
+            </div>
+            <div class="flex items-center justify-between pt-0.5 border-t border-emerald-200/60">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white border border-emerald-200 text-[10px] text-slate-800 font-semibold shadow-2xs">
+                <i class="fa-solid fa-user-check text-emerald-600 text-[9px]"></i>
+                <span>Auditor: <strong class="text-slate-950">${existingAuditor}</strong></span>
+              </span>
+            </div>
           </div>
         `;
       } else {
@@ -3587,7 +3598,7 @@
       if (pageEvents.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="11" class="text-center py-10 text-slate-400">
+            <td colspan="12" class="text-center py-10 text-slate-400">
               <i class="fa-solid fa-box-open text-2xl mb-2 block"></i>
               ${dict.table_empty}
             </td>
@@ -3610,27 +3621,22 @@
           }
 
           let eventBenarBadgeHtml = '';
-          const rowAuditorName = rowAudit && rowAudit.auditor ? rowAudit.auditor : (isRowCurated ? 'Randi' : '');
+          const rawAuditor = rowAudit && rowAudit.auditor ? rowAudit.auditor.trim() : '';
+          const rowAuditorName = isRowCurated ? ((!rawAuditor || rawAuditor.toLowerCase() === 'randi') ? 'Randi Firdaus' : rawAuditor) : '';
           if (verTier === 'confirmed') {
             eventBenarBadgeHtml = `
-              <div class="flex flex-col items-start gap-0.5">
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                  <i class="fa-solid fa-circle-check text-emerald-600"></i>
-                  <span>${AppState.lang === 'en' ? 'Verified Event' : 'Event Benar'}</span>
-                </span>
-                ${rowAuditorName ? `<span class="text-[9.5px] text-slate-500 pl-1 flex items-center gap-1"><i class="fa-solid fa-user-check text-emerald-600 text-[8.5px]"></i> ${rowAuditorName}</span>` : ''}
-              </div>
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                <span>${AppState.lang === 'en' ? 'Verified Event' : 'Event Benar'}</span>
+              </span>
             `;
           } else if (verTier === 'not_rob') {
             eventBenarBadgeHtml = `
-              <div class="flex flex-col items-start gap-0.5">
-                <span title="${rowAudit.reason || rowAudit.audit_reason || (AppState.lang === 'en' ? 'Not an event' : 'Bukan event')}" 
-                  class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-red-100 text-red-800 border border-red-300">
-                  <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
-                  <span>${AppState.lang === 'en' ? 'Not an Event' : 'Bukan Event'}</span>
-                </span>
-                ${rowAuditorName ? `<span class="text-[9.5px] text-slate-500 pl-1 flex items-center gap-1"><i class="fa-solid fa-user-check text-red-500 text-[8.5px]"></i> ${rowAuditorName}</span>` : ''}
-              </div>
+              <span title="${rowAudit.reason || rowAudit.audit_reason || (AppState.lang === 'en' ? 'Not an event' : 'Bukan event')}" 
+                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-red-100 text-red-800 border border-red-300">
+                <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
+                <span>${AppState.lang === 'en' ? 'Not an Event' : 'Bukan Event'}</span>
+              </span>
             `;
           } else {
             eventBenarBadgeHtml = `
@@ -3640,6 +3646,13 @@
               </span>
             `;
           }
+
+          const auditorCellHtml = rowAuditorName
+            ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold bg-cyan-50 text-cyan-900 border border-cyan-200 whitespace-nowrap">
+                 <i class="fa-solid fa-user-check text-cyan-600 text-[9.5px]"></i>
+                 <span>${rowAuditorName}</span>
+               </span>`
+            : `<span class="text-slate-300 text-xs font-mono">-</span>`;
 
           let rowBgClass = '';
           if (isRowCurated) {
@@ -3687,6 +3700,9 @@
               </td>
               <td class="py-2 px-3 whitespace-nowrap">
                 ${eventBenarBadgeHtml}
+              </td>
+              <td class="py-2 px-3 whitespace-nowrap">
+                ${auditorCellHtml}
               </td>
               <td class="py-2 px-3 text-center whitespace-nowrap space-x-1">
                 <button onclick="focusMapEvent('${e.id}')" title="${AppState.lang === 'en' ? 'Open details & all news sources on map' : 'Buka detail & semua berita di peta'}" 
@@ -3744,8 +3760,9 @@
       const seen = new Set();
       const result = [];
       const addUnique = (rawName) => {
-        const clean = String(rawName || '').trim();
+        let clean = String(rawName || '').trim();
         if (!clean) return;
+        if (clean.toLowerCase() === 'randi') clean = 'Randi Firdaus';
         const lower = clean.toLowerCase();
         if (!seen.has(lower)) {
           seen.add(lower);
@@ -3754,7 +3771,7 @@
       };
 
       // Always seed default primary researcher name
-      addUnique('Randi');
+      addUnique('Randi Firdaus');
 
       // Load saved auditor list from localStorage
       try {
@@ -3817,7 +3834,7 @@
     function removeAuditorFromList(nameToRemove, evt) {
       if (evt) evt.stopPropagation();
       const clean = String(nameToRemove || '').trim();
-      if (!clean || clean.toLowerCase() === 'randi') return;
+      if (!clean || clean.toLowerCase() === 'randi firdaus' || clean.toLowerCase() === 'randi') return;
       const list = getAuditorList().filter(a => a.toLowerCase() !== clean.toLowerCase());
       saveAuditorListToStorage(list);
       if (getActiveAuditor().toLowerCase() === clean.toLowerCase()) {
@@ -3916,7 +3933,7 @@
                 ${isCurrent ? `<span class="text-[9px] font-bold text-cyan-700">${isEnglish ? '✓ Active now' : '✓ Aktif saat ini'}</span>` : (isLast ? `<span class="text-[9px] font-semibold text-emerald-700">${isEnglish ? 'Last used' : 'Terakhir dipakai'}</span>` : `<span class="text-[9px] text-slate-400">${isEnglish ? 'Click to use' : 'Klik untuk pilih'}</span>`)}
               </div>
             </div>
-            ${name.toLowerCase() !== 'randi' ? `
+            ${name.toLowerCase() !== 'randi firdaus' ? `
               <button type="button" onclick="removeAuditorFromList('${escaped}', event)" title="${isEnglish ? 'Remove name' : 'Hapus nama'}" class="text-slate-400 hover:text-red-600 p-1 text-[10px] shrink-0">
                 <i class="fa-solid fa-xmark"></i>
               </button>
@@ -3972,7 +3989,7 @@
       if (!selectEl) return;
 
       const list = getAuditorList();
-      const target = (preferredAuditor || getActiveAuditor() || getLastRememberedAuditor() || 'Randi').trim();
+      const target = (preferredAuditor || getActiveAuditor() || getLastRememberedAuditor() || 'Randi Firdaus').trim();
       if (target && !list.some(a => a.toLowerCase() === target.toLowerCase())) {
         list.push(target);
       }
@@ -4030,7 +4047,7 @@
       if (selectEl && selectEl.value && selectEl.value !== '__new__') {
         return setActiveAuditor(selectEl.value);
       }
-      return getActiveAuditor() || getLastRememberedAuditor() || 'Randi';
+      return getActiveAuditor() || getLastRememberedAuditor() || 'Randi Firdaus';
     }
 
     function initFlaggedEvents(events) {
@@ -4116,20 +4133,29 @@
                 audit_status: (vTier === 'not_rob') ? 'INACCURATE' : vTier.toUpperCase(),
                 reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
                 audit_reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
-                auditor: e.auditor || 'Randi',
+                auditor: (!e.auditor || String(e.auditor).trim().toLowerCase() === 'randi') ? 'Randi Firdaus' : e.auditor,
                 flagged_at: e.flagged_at || new Date().toISOString()
               };
-            } else if (cur && !cur.auditor) {
-              cur.auditor = e.auditor || 'Randi';
+            } else if (cur && (!cur.auditor || String(cur.auditor).trim().toLowerCase() === 'randi')) {
+              cur.auditor = (!e.auditor || String(e.auditor).trim().toLowerCase() === 'randi') ? 'Randi Firdaus' : e.auditor;
             }
           }
         });
       }
 
-      // Ensure all existing records have an auditor field and sync auditor list
+      // Ensure all existing records have an auditor field ("Randi Firdaus" for existing records) and sync auditor list
+      let upgradedAuditor = false;
       Object.values(AppState.flaggedEvents || {}).forEach(f => {
-        if (f && !f.auditor) f.auditor = 'Randi';
+        if (f && (!f.auditor || String(f.auditor).trim().toLowerCase() === 'randi')) {
+          f.auditor = 'Randi Firdaus';
+          upgradedAuditor = true;
+        }
       });
+      if (upgradedAuditor) {
+        try {
+          localStorage.setItem(STORAGE_KEY_FLAGGED, JSON.stringify(AppState.flaggedEvents));
+        } catch (e) {}
+      }
       saveAuditorListToStorage(getAuditorList());
       updateActiveAuditorUI();
       updateFlaggedUI();
@@ -4215,7 +4241,7 @@
           audit_status: 'CONFIRMED',
           reason: reasonText,
           audit_reason: reasonText,
-          auditor: auditorName || 'Randi',
+          auditor: auditorName || 'Randi Firdaus',
           flagged_at: new Date().toISOString()
         };
 
@@ -4427,7 +4453,7 @@
         audit_status: 'INACCURATE',
         reason: reasonText,
         audit_reason: reasonText,
-        auditor: auditorName || 'Randi',
+        auditor: auditorName || 'Randi Firdaus',
         flagged_at: new Date().toISOString()
       };
 
@@ -4649,21 +4675,12 @@
         const reasonStr = f.audit_reason || f.reason || defaultReason;
 
         let badgeHtml = '';
-        const auditorStr = f.auditor || 'Randi';
+        const rawAud = (f.auditor || '').trim();
+        const auditorStr = (!rawAud || rawAud.toLowerCase() === 'randi') ? 'Randi Firdaus' : rawAud;
         if (vTier === 'not_rob') {
-          badgeHtml = `
-            <div class="space-y-1">
-              <span class="inline-block px-2 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-800 text-[11px] font-bold">🔴 ${isEnglish ? 'Not an Event' : 'Bukan Event'}: ${reasonStr}</span>
-              <div class="text-[10px] text-slate-500 flex items-center gap-1"><i class="fa-solid fa-user-check text-red-500 text-[9px]"></i> ${isEnglish ? 'Auditor:' : 'Kurator:'} <strong class="text-slate-700">${auditorStr}</strong></div>
-            </div>
-          `;
+          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-red-50 border border-red-200 text-red-800 text-[11px] font-bold">🔴 ${isEnglish ? 'Not an Event' : 'Bukan Event'}: ${reasonStr}</span>`;
         } else {
-          badgeHtml = `
-            <div class="space-y-1">
-              <span class="inline-block px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">🟢 ${isEnglish ? 'Verified Event (QC)' : 'Event Benar (QC Verified)'}</span>
-              <div class="text-[10px] text-slate-500 flex items-center gap-1"><i class="fa-solid fa-user-check text-emerald-600 text-[9px]"></i> ${isEnglish ? 'Auditor:' : 'Kurator:'} <strong class="text-slate-700">${auditorStr}</strong></div>
-            </div>
-          `;
+          badgeHtml = `<span class="inline-block px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-bold">🟢 ${isEnglish ? 'Verified Event (QC)' : 'Event Benar (QC Verified)'}</span>`;
         }
 
         return `
@@ -4684,6 +4701,12 @@
             </td>
             <td class="py-2.5 px-3">
               ${badgeHtml}
+            </td>
+            <td class="py-2.5 px-3 whitespace-nowrap">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-900 font-bold text-[11px]">
+                <i class="fa-solid fa-user-check text-cyan-600 text-[10px]"></i>
+                <span>${auditorStr}</span>
+              </span>
             </td>
             <td class="py-2.5 px-3 whitespace-nowrap text-center space-x-1">
               <button onclick="focusMapEvent('${id}'); toggleModal('modal-audit', false);" title="${isEnglish ? 'View on Map' : 'Lihat di Peta'}" 
@@ -4714,6 +4737,7 @@
                 <th class="py-2.5 px-3">${isEnglish ? 'Location' : 'Lokasi'}</th>
                 <th class="py-2.5 px-3">${isEnglish ? 'News Headline' : 'Berita'}</th>
                 <th class="py-2.5 px-3">${isEnglish ? 'QC Verification Status' : 'Status Verifikasi QC'}</th>
+                <th class="py-2.5 px-3">${isEnglish ? 'Auditor' : 'Auditor'}</th>
                 <th class="py-2.5 px-3 text-center">${isEnglish ? 'Actions' : 'Aksi'}</th>
               </tr>
             </thead>
@@ -4762,7 +4786,8 @@
         const verTier = f.verified_tier || (f.audit_status === 'INACCURATE' ? 'not_rob' : (f.audit_status ? f.audit_status.toLowerCase() : 'not_rob'));
         const auditStatus = f.audit_status || (verTier === 'not_rob' ? 'INACCURATE' : verTier.toUpperCase());
         const auditReason = f.audit_reason || f.reason || '';
-        const auditorName = f.auditor || 'Randi';
+        const rawAud = (f.auditor || '').trim();
+        const auditorName = (!rawAud || rawAud.toLowerCase() === 'randi') ? 'Randi Firdaus' : rawAud;
 
         rows.push([
           `"${f.id || id}"`,
@@ -4854,7 +4879,7 @@
               audit_status: (vTier === 'not_rob') ? 'INACCURATE' : vTier.toUpperCase(),
               reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
               audit_reason: e.flag_reason || (vTier === 'not_rob' ? 'Ditandai bukan rob' : `Verified as ${vTier}`),
-              auditor: e.auditor || 'Randi',
+              auditor: (!e.auditor || String(e.auditor).trim().toLowerCase() === 'randi') ? 'Randi Firdaus' : e.auditor,
               flagged_at: e.flagged_at || new Date().toISOString()
             };
           }
@@ -4997,7 +5022,7 @@
               audit_status: (vTier === 'not_rob') ? 'INACCURATE' : vTier.toUpperCase(),
               reason: idxReason !== -1 && r[idxReason] ? r[idxReason] : `Imported from CSV`,
               audit_reason: idxReason !== -1 && r[idxReason] ? r[idxReason] : `Imported from CSV`,
-              auditor: (idxAuditor !== -1 && r[idxAuditor] && r[idxAuditor].trim()) ? r[idxAuditor].trim() : 'Randi',
+              auditor: (idxAuditor !== -1 && r[idxAuditor] && r[idxAuditor].trim() && r[idxAuditor].trim().toLowerCase() !== 'randi') ? r[idxAuditor].trim() : 'Randi Firdaus',
               flagged_at: (idxFlaggedAt !== -1 && r[idxFlaggedAt]) ? r[idxFlaggedAt] : new Date().toISOString()
             };
             importedCount++;

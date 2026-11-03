@@ -405,8 +405,8 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
                 raw_reason = str(ar.get('audit_reason') if pd.notna(ar.get('audit_reason')) else (ar.get('flag_reason') if pd.notna(ar.get('flag_reason')) else (ar.get('reason') if pd.notna(ar.get('reason')) else ''))).strip()
                 flagged_at = str(ar.get('flagged_at', '')).strip() if pd.notna(ar.get('flagged_at')) else ''
                 raw_auditor = str(ar.get('auditor', '')).strip() if ('auditor' in ar and pd.notna(ar.get('auditor'))) else ''
-                if not raw_auditor:
-                    raw_auditor = 'Randi'
+                if not raw_auditor or raw_auditor.lower() == 'randi':
+                    raw_auditor = 'Randi Firdaus'
 
                 if raw_v_tier in ['confirmed', 'probable', 'possible', 'not_rob']:
                     v_tier = raw_v_tier
