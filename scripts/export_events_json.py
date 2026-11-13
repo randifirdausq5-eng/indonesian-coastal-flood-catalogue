@@ -224,6 +224,12 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         df_events = apply_region_overrides(apply_event_overrides(df_events))
     if HAS_REGIONS_MODULE:   # @@AI@@ 2026-10-30
         df_events = merge_same_place(df_events, REPO_ROOT / f"data/raw/rob_harvest/articles_screened_{cat}.csv")
+    if HAS_REGIONS_MODULE:   # @@AI@@ 2026-11-13 (Randi): literature floods confirmed by Randi, tagged "confirmed"
+        from src.regions import event_additions
+        df_add = event_additions()
+        if len(df_add):
+            df_events = pd.concat([df_events, df_add], ignore_index=True)
+            print(f"      Added {len(df_add)} confirmed literature event(s): {list(df_add['event_id'])}")
 
     print(f"[3/5] Reading places coordinates from {places_csv.name}...")
     df_places = pd.read_csv(places_csv)
@@ -332,6 +338,11 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         print(f"      Loaded {len(articles_by_url)} unique article records from {art_path.name}")
     else:
         print(f"      Warning: Articles file not found at {art_path}")
+    # @@AI@@ 2026-11-13: the paper behind each literature event is its one "article" (DOI link)
+    if 'source_code' in merged.columns:
+        for _, ev in merged[merged['source_code'] == 'literature'].iterrows():
+            articles_by_url[str(ev['urls']).strip()] = {'title': str(ev['first_title']), 'url': str(ev['urls']).strip(),
+                                                        'date': str(ev['date_start']), 'domain': 'doi.org'}
 
     # Load manual audit flags & QC verified tiers from data/processed/dashboard_audit_*.csv
     print("[7/7] Loading manual audit review flags from data/processed/dashboard_audit_*.csv...")
@@ -505,6 +516,10 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
             title = articles[0]['title']
 
         flag_info = audit_flags.get(ev_id, {})
+        if tier_code == 'confirmed' and not flag_info:   # @@AI@@ 2026-11-13: shown as a verified event on the web
+            flag_info = {'flagged_inaccurate': False, 'verified_tier': 'confirmed', 'auditor': 'Randi Firdaus',
+                         'flag_reason': str(row['tier_reason']).strip() if pd.notna(row.get('tier_reason')) else '',
+                         'flagged_at': ''}
 
         records.append({
             'id': ev_id,
