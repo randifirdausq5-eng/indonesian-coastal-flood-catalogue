@@ -607,9 +607,12 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
         json.dump(summary, f, indent=2, ensure_ascii=False)
     print(f"      Wrote summary metadata to {summary_path}")
 
-    # [7/7] Update index.html static placeholders & cache-buster tags if present
+    # [6.5/7] Export OpenAlex literature flood dates (literature.json and literature.js)
+    export_literature(REPO_ROOT, places_csv, out_dir, {r['id'] for r in records})
+
+    # [7/7] Update local index.html static placeholders & cache-buster tags if present (skip public repo folder)
     rob_events = hazard_counts.get('rob', total_events)
-    for candidate_index in [out_dir.parent / "index.html", Path("/Users/randifirdaus/Documents/indonesian-coastal-flood-catalogue/index.html")]:
+    for candidate_index in [out_dir.parent / "index.html"]:
         if candidate_index.is_file():
             try:
                 update_index_html(candidate_index, total_events, rob_events)
@@ -617,6 +620,176 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
                 print(f"      Notice: Could not update {candidate_index.name}: {e}")
 
     return records, summary
+
+
+def export_literature(repo_root: Path, places_csv: Path, out_dir: Path, web_event_ids: set):
+    """Export OpenAlex literature flood date rows (2015-2026) to literature.json and literature.js."""
+    lit_csv = repo_root / "data/processed/literature_rob_events.csv"
+    v5e_csv = repo_root / "data/processed/rob_events_v5e.csv"
+    if not lit_csv.is_file():
+        print(f"      Notice: {lit_csv} not found; skipping literature export.")
+        return []
+
+    df_lit = pd.read_csv(lit_csv)
+    df_places = pd.read_csv(places_csv)
+
+    # Coordinate lookup by (place, province) then fallback by place (same pattern as catalogue)
+    coords_by_place_prov = {}
+    coords_by_place = {}
+    for _, row in df_places.iterrows():
+        p_clean = str(row['place']).strip().lower()
+        prov_clean = str(row['province']).strip().lower() if pd.notna(row.get('province')) else ''
+        if pd.notna(row['lat']) and pd.notna(row['lon']):
+            coords_by_place_prov[(p_clean, prov_clean)] = (float(row['lat']), float(row['lon']))
+            if p_clean not in coords_by_place:
+                coords_by_place[p_clean] = (float(row['lat']), float(row['lon']))
+
+    # P-id -> v5 E-ids mapping from rob_events_v5e.csv (merged_from column)
+    p_to_e = {}
+    if v5e_csv.is_file():
+        df_v5e = pd.read_csv(v5e_csv)
+        for _, row in df_v5e.iterrows():
+            pid = str(row['event_id']).strip()
+            mf = str(row['merged_from']).strip() if pd.notna(row.get('merged_from')) else ''
+            p_to_e[pid] = [eid.strip() for eid in mf.split() if eid.strip()]
+
+    # Verify all linked P-ids across the CSV map to web E-ids
+    all_csv_pids = sorted({
+        p.strip()
+        for val in df_lit['catalogue_event_id'].dropna()
+        for p in str(val).split()
+        if p.strip()
+    })
+    unmapped_pids = []
+    missing_web_eids = []
+    for pid in all_csv_pids:
+        eids = p_to_e.get(pid, [])
+        if not eids:
+            unmapped_pids.append(pid)
+        for eid in eids:
+            if eid not in web_event_ids:
+                missing_web_eids.append((pid, eid))
+
+    # Filter to kind == "date" and date in 2015..2026 (109 rows: 90 with place, 87 in rob_places_latlon.csv)
+    df_date = df_lit[df_lit['kind'] == 'date'].copy()
+    df_date['_start_str'] = df_date['date_or_month'].astype(str).str.split('/').str[0].str.strip()
+    df_sub = df_date[
+        (df_date['_start_str'] >= '2015-01-01') & (df_date['_start_str'] <= '2026-12-31')
+    ].copy()
+
+    region_display_map = {
+        'java_north': 'Pantura Jawa',
+        'java_south': 'Jawa Selatan',
+        'sumatra_east': 'Sumatera Timur',
+        'sumatra_west': 'Sumatera Barat',
+        'kalimantan': 'Kalimantan',
+        'east_indo': 'Indonesia Timur',
+        'other': 'Lainnya'
+    }
+
+    lit_records = []
+    with_place_count = 0
+    with_coords_count = 0
+
+    for seq_idx, (csv_idx, row) in enumerate(df_sub.iterrows()):
+        raw_oa = str(row['openalex_id']).strip() if pd.notna(row.get('openalex_id')) else ''
+        work_id = raw_oa.rstrip('/').split('/')[-1] if raw_oa else f"ROW{csv_idx}"
+        dom = str(row['date_or_month']).strip()
+        item_id = f"LIT-{work_id}-{dom}"
+
+        date_start, _, date_end = dom.partition('/')
+        date_start = date_start.strip()
+        date_end = date_end.strip() if date_end.strip() else date_start
+
+        place_raw = str(row['place']).strip() if pd.notna(row.get('place')) and str(row['place']).strip() else ''
+        place_clean = place_raw.lower()
+        prov_raw = str(row['province']).strip() if pd.notna(row.get('province')) and str(row['province']).strip() else ''
+        prov_clean = prov_raw.lower()
+        regency_raw = str(row['regency']).strip() if pd.notna(row.get('regency')) and str(row['regency']).strip() else ''
+        region_raw = str(row['region']).strip() if pd.notna(row.get('region')) and str(row['region']).strip() else ''
+
+        if place_clean:
+            with_place_count += 1
+
+        coords = None
+        if place_clean:
+            coords = coords_by_place_prov.get((place_clean, prov_clean))
+            if not coords:
+                if place_clean != "pesisir selatan" or prov_clean == "sumatera barat":
+                    coords = coords_by_place.get(place_clean)
+
+        lat = round(coords[0], 5) if coords else None
+        lon = round(coords[1], 5) if coords else None
+        if lat is not None and lon is not None:
+            with_coords_count += 1
+
+        cat_raw = str(row['catalogue_event_id']).strip() if pd.notna(row.get('catalogue_event_id')) else ''
+        pids = [p.strip() for p in cat_raw.split() if p.strip()]
+        status = "in catalogue" if len(pids) > 0 else "not in catalogue"
+
+        linked_e_ids = []
+        for pid in pids:
+            for eid in p_to_e.get(pid, []):
+                if eid in web_event_ids and eid not in linked_e_ids:
+                    linked_e_ids.append(eid)
+
+        flood_sentence = bool(row['flood_sentence']) if pd.notna(row.get('flood_sentence')) else False
+        pub_year = int(row['year']) if pd.notna(row.get('year')) else None
+        title = str(row['title']).strip() if pd.notna(row.get('title')) else ''
+        source = str(row['source']).strip() if pd.notna(row.get('source')) else ''
+        doi = str(row['doi']).strip() if pd.notna(row.get('doi')) else ''
+        oa_url = str(row['oa_url']).strip() if pd.notna(row.get('oa_url')) else ''
+        snippet = str(row['snippet']).strip() if pd.notna(row.get('snippet')) else ''
+
+        lit_records.append({
+            'id': item_id,
+            'uid': f"{item_id}#{seq_idx + 1}",
+            'openalex_id': raw_oa,
+            'work_id': work_id,
+            'date_or_month': dom,
+            'date_start': date_start,
+            'date_end': date_end,
+            'place': place_raw,
+            'regency': regency_raw,
+            'province': prov_raw,
+            'region': region_raw,
+            'region_label': region_display_map.get(region_raw, region_raw if region_raw else '-'),
+            'status': status,
+            'catalogue_event_id': cat_raw,
+            'linked_e_ids': linked_e_ids,
+            'flood_sentence': flood_sentence,
+            'title': title,
+            'year': pub_year,
+            'source': source,
+            'doi': doi,
+            'oa_url': oa_url,
+            'snippet': snippet,
+            'lat': lat,
+            'lon': lon,
+        })
+
+    lit_json_path = out_dir / "literature.json"
+    with open(lit_json_path, 'w', encoding='utf-8') as f:
+        json.dump(lit_records, f, separators=(',', ':'), ensure_ascii=False)
+
+    lit_js_path = out_dir / "literature.js"
+    with open(lit_js_path, 'w', encoding='utf-8') as f:
+        f.write("// INA-CoastalFlood: OpenAlex Literature Flood Dates (2015-2026)\n")
+        f.write("// Loaded automatically when accessed via file:// without webserver\n")
+        f.write("window.ROB_LITERATURE = ")
+        json.dump(lit_records, f, separators=(',', ':'), ensure_ascii=False)
+        f.write(";\n")
+
+    print(
+        f"      Wrote {len(lit_records)} literature items ({with_place_count} with place, "
+        f"{with_coords_count} on map, {len(lit_records) - with_coords_count} table-only) "
+        f"to {lit_json_path.name} & {lit_js_path.name}"
+    )
+    print(
+        f"      Literature P-id check: {len(all_csv_pids)} distinct P-ids in CSV; "
+        f"unmapped={unmapped_pids}, missing_in_web={missing_web_eids}"
+    )
+    return lit_records
 
 
 def update_index_html(index_path: Path, total_events: int, rob_events: int = None):
@@ -628,9 +801,11 @@ def update_index_html(index_path: Path, total_events: int, rob_events: int = Non
     default_events = rob_events if rob_events is not None else total_events
     default_fmt = f"{default_events:,}"
 
-    # Update cache-busting params for events.js and events.json
+    # Update cache-busting params for events.js, events.json, literature.js, literature.json
     content = re.sub(r'data/events\.js\?v=[^"\'\s>]+', f'data/events.js?v={v_tag}', content)
     content = re.sub(r'data/events\.json\?v=[^"\'\s>]+', f'data/events.json?v={v_tag}', content)
+    content = re.sub(r'data/literature\.js\?v=[^"\'\s>]+', f'data/literature.js?v={v_tag}', content)
+    content = re.sub(r'data/literature\.json\?v=[^"\'\s>]+', f'data/literature.json?v={v_tag}', content)
 
     # Update static badge/stat placeholders (defaulting to rob count for initial load)
     content = re.sub(r'(id="stat-total"[^>]*>)[0-9,]+(<)', rf'\g<1>{default_fmt}\g<2>', content)
