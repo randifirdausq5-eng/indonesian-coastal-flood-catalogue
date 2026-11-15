@@ -409,14 +409,14 @@
               </button>
             </div>
             <div class="grid grid-cols-2 gap-1.5 pt-0.5 text-[10px]">
-              <button type="button" onclick="if(AppState.dataSourceMode==='news'){setDataSourceMode('paper');}setLitTableSubFilter('in_cat');" class="flex items-center gap-1.5 bg-white/95 hover:bg-teal-50 px-2 py-1 rounded border border-teal-300 text-left transition cursor-pointer" title="Filter Paper: Sudah ada di katalog berita (in catalogue)">
+              <div class="flex items-center gap-1.5 bg-white/95 px-2 py-1 rounded border border-teal-300 text-left">
                 <span class="w-2.5 h-2.5 bg-[#0d9488] inline-block rotate-45 border border-white shadow-2xs shrink-0"></span>
                 <span class="text-teal-900 font-semibold truncate">in catalogue (<span id="lit-count-in-cat">30</span>)</span>
-              </button>
-              <button type="button" onclick="if(AppState.dataSourceMode==='news'){setDataSourceMode('paper');}setLitTableSubFilter('not_cat');" class="flex items-center gap-1.5 bg-white/95 hover:bg-amber-50 px-2 py-1 rounded border border-amber-300 text-left transition cursor-pointer" title="Filter Paper: Belum ada di katalog berita (not in catalogue)">
+              </div>
+              <div class="flex items-center gap-1.5 bg-white/95 px-2 py-1 rounded border border-amber-300 text-left">
                 <span class="w-2.5 h-2.5 bg-[#d97706] inline-block rotate-45 border border-white shadow-2xs shrink-0"></span>
                 <span class="text-amber-900 font-semibold truncate">not in cat. (<span id="lit-count-not-cat">79</span>)</span>
-              </button>
+              </div>
             </div>
             <button type="button" id="btn-download-lit-csv" onclick="exportLiteratureToCSV()" class="w-full mt-1 py-1.5 px-2.5 bg-white hover:bg-amber-100/80 text-amber-900 border border-amber-300 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer">
               <i class="fa-solid fa-file-csv text-amber-700"></i>
@@ -910,11 +910,11 @@
               109 items (87 on map · 22 table-only)
             </span>
           </div>
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <button type="button" onclick="setLitTableSubFilter('all')" id="btn-lit-sub-all" class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-800 text-white cursor-pointer">All (<span id="lit-sub-cnt-all">109</span>)</button>
-            <button type="button" onclick="setLitTableSubFilter('in_cat')" id="btn-lit-sub-in_cat" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-white text-teal-800 border border-teal-300 hover:bg-teal-50 cursor-pointer">In Catalogue (<span id="lit-sub-cnt-incat">30</span>)</button>
-            <button type="button" onclick="setLitTableSubFilter('not_cat')" id="btn-lit-sub-not_cat" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-white text-amber-900 border border-amber-300 hover:bg-amber-50 cursor-pointer">Not in Catalogue (<span id="lit-sub-cnt-notcat">79</span>)</button>
-            <button type="button" onclick="setLitTableSubFilter('unmapped')" id="btn-lit-sub-unmapped" class="px-2 py-0.5 rounded text-[11px] font-semibold bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 cursor-pointer">Table-only / No Coords (<span id="lit-sub-cnt-unmapped">22</span>)</button>
+          <div class="flex items-center gap-1.5 flex-wrap text-[11px]">
+            <span class="px-2 py-0.5 rounded font-bold bg-amber-800 text-white">Total: <span id="lit-sub-cnt-all">109</span></span>
+            <span class="px-2 py-0.5 rounded font-semibold bg-white text-teal-800 border border-teal-300 inline-flex items-center gap-1"><span class="w-2 h-2 bg-[#0d9488] rotate-45 inline-block"></span>in catalogue: <span id="lit-sub-cnt-incat">30</span></span>
+            <span class="px-2 py-0.5 rounded font-semibold bg-white text-amber-900 border border-amber-300 inline-flex items-center gap-1"><span class="w-2 h-2 bg-[#d97706] rotate-45 inline-block"></span>not in catalogue: <span id="lit-sub-cnt-notcat">79</span></span>
+            <span class="px-2 py-0.5 rounded font-semibold bg-white text-slate-700 border border-slate-300">no coords (table-only): <span id="lit-sub-cnt-unmapped">22</span></span>
           </div>
         </div>
         <div class="flex-1 overflow-auto">
@@ -1578,7 +1578,6 @@
       dataSourceMode: 'news', // 'news' | 'paper' | 'both'
       litLayerGroup: null,
       litMarkersByUid: {},
-      litTableSubFilter: 'all',
       activeRegion: 'all',
       availableYears: ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
       selectedYears: new Set(['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026']),
@@ -3698,13 +3697,7 @@
       // Group co-located mapped items so overlapping markers at the same place get a slight deterministic offset
       const locCounts = {};
       const locIndex = {};
-      const sub = AppState.litTableSubFilter || 'all';
-      const mappedItems = AppState.filteredLiterature.filter(x => {
-        if (x.lat === null || x.lon === null) return false;
-        if (sub === 'in_cat') return x.status === 'in catalogue';
-        if (sub === 'not_cat') return x.status === 'not in catalogue';
-        return true;
-      });
+      const mappedItems = AppState.filteredLiterature.filter(x => x.lat !== null && x.lon !== null);
       mappedItems.forEach(item => {
         const key = `${item.lat},${item.lon}`;
         locCounts[key] = (locCounts[key] || 0) + 1;
@@ -3977,12 +3970,6 @@
       focusMapEvent(eventId);
     }
 
-    function setLitTableSubFilter(sub) {
-      AppState.litTableSubFilter = sub || 'all';
-      refreshLiteratureMarkers();
-      renderLiteratureTable();
-    }
-
     function renderLiteratureTable() {
       const tbody = document.getElementById('literature-table-body');
       if (!tbody) return;
@@ -4004,30 +3991,12 @@
       setTxt('lit-sub-cnt-notcat', notCat);
       setTxt('lit-sub-cnt-unmapped', tableOnly);
 
-      const sub = AppState.litTableSubFilter || 'all';
-      ['all', 'in_cat', 'not_cat', 'unmapped'].forEach(k => {
-        const btn = document.getElementById(`btn-lit-sub-${k}`);
-        if (!btn) return;
-        if (k === sub) {
-          btn.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-amber-800 text-white cursor-pointer';
-        } else {
-          btn.className = 'px-2 py-0.5 rounded text-[11px] font-semibold bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 cursor-pointer';
-        }
-      });
-
-      const subFiltered = items.filter(x => {
-        if (sub === 'in_cat') return x.status === 'in catalogue';
-        if (sub === 'not_cat') return x.status === 'not in catalogue';
-        if (sub === 'unmapped') return x.lat === null || x.lon === null;
-        return true;
-      });
-
-      if (subFiltered.length === 0) {
+      if (items.length === 0) {
         tbody.innerHTML = `<tr><td colspan="12" class="text-center py-6 text-slate-400">No literature items match the current filter.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = subFiltered.map(item => {
+      tbody.innerHTML = items.map(item => {
         const isInCat = item.status === 'in catalogue';
         const statusBadge = isInCat
           ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-900 border border-teal-300 whitespace-nowrap"><span class="w-2 h-2 bg-[#0d9488] rotate-45 inline-block"></span>in catalogue</span>`
