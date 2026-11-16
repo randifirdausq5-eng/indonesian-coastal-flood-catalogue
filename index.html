@@ -932,6 +932,8 @@
                 <th class="py-2 px-2.5">Flood Sent.</th>
                 <th class="py-2 px-2.5">Paper Title, Year, Journal & Links</th>
                 <th class="py-2 px-2.5">Snippet</th>
+                <th class="py-2 px-2.5">Verification (QC)</th>
+                <th class="py-2 px-2.5">Auditor</th>
                 <th class="py-2 px-2.5 text-center">Actions</th>
               </tr>
             </thead>
@@ -3756,10 +3758,124 @@
     }
 
     function buildLiteraturePopupContent(item) {
+      const isEnglish = AppState.lang === 'en';
       const isInCat = item.status === 'in catalogue';
       const statusBadgeClass = isInCat
         ? 'bg-teal-100 text-teal-900 border-teal-300 font-bold'
         : 'bg-amber-100 text-amber-900 border-amber-300 font-bold';
+
+      // Audit & Verification QC data (stored under LIT- id in AppState.flaggedEvents)
+      const existingAudit = (AppState.flaggedEvents && (AppState.flaggedEvents[item.id] || AppState.flaggedEvents[item.uid]))
+        ? (AppState.flaggedEvents[item.id] || AppState.flaggedEvents[item.uid])
+        : null;
+      const isCurated = !!existingAudit;
+      const verifiedTier = existingAudit ? (existingAudit.verified_tier || (existingAudit.audit_status === 'INACCURATE' ? 'not_rob' : existingAudit.audit_status ? existingAudit.audit_status.toLowerCase() : 'not_rob')) : null;
+      const isNotRob = verifiedTier === 'not_rob';
+      const isConfirmed = verifiedTier === 'confirmed' || verifiedTier === 'probable' || verifiedTier === 'possible';
+
+      const btnEventBenarClass = isConfirmed
+        ? 'bg-emerald-600 text-white font-bold ring-2 ring-emerald-400 shadow-sm'
+        : 'bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-300';
+
+      const btnBukanEventClass = isNotRob
+        ? 'bg-red-600 text-white font-bold ring-2 ring-red-400 shadow-sm'
+        : 'bg-white hover:bg-red-50 text-red-700 border border-red-300';
+
+      const rawExistingAuditor = (existingAudit && existingAudit.auditor) ? existingAudit.auditor.trim() : '';
+      const existingAuditor = (!rawExistingAuditor || rawExistingAuditor.toLowerCase() === 'randi') ? 'Randi Firdaus' : rawExistingAuditor;
+      const activeSessionAuditor = typeof getActiveAuditor === 'function' ? getActiveAuditor() : '';
+
+      let qcStatusDetailHtml = '';
+      if (isNotRob) {
+        qcStatusDetailHtml = `
+          <div class="mt-1.5 p-2 rounded-lg bg-red-50 border border-red-200 text-[10px] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-red-800 flex items-center gap-1">
+                <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
+                ${isEnglish ? 'Flagged: Not an Event / Inaccurate' : 'Ditandai: Bukan Event'}
+              </span>
+              <button type="button" onclick="unflagEvent('${item.id}')" class="text-slate-500 hover:text-red-700 font-semibold underline text-[9px] cursor-pointer">
+                ${isEnglish ? 'Reset' : 'Batalkan'}
+              </button>
+            </div>
+            <p class="text-red-900 font-medium bg-white/90 p-1.5 rounded border border-red-100 text-[10px] leading-relaxed">
+              "${getLocalizedFlagReason(existingAudit.reason || existingAudit.audit_reason)}"
+            </p>
+            <div class="flex items-center justify-between pt-0.5 border-t border-red-200/60">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white border border-red-200 text-[10px] text-slate-800 font-semibold shadow-2xs">
+                <i class="fa-solid fa-user-check text-red-600 text-[9px]"></i>
+                <span>Auditor: <strong class="text-slate-950">${escapeHtmlStr(existingAuditor)}</strong></span>
+              </span>
+              <button type="button" onclick="openFlagConfirmModal('${item.id}')" class="text-red-700 hover:text-red-900 font-semibold underline text-[9px] flex items-center gap-1 cursor-pointer">
+                <i class="fa-solid fa-pen-to-square text-[8px]"></i> ${isEnglish ? 'Edit Category' : 'Ubah Kategori'}
+              </button>
+            </div>
+          </div>
+        `;
+      } else if (isConfirmed) {
+        qcStatusDetailHtml = `
+          <div class="mt-1.5 p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-[10px] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-emerald-900 flex items-center gap-1">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                <span>QC: <strong>${isEnglish ? 'Verified Event' : 'Event Benar'}</strong></span>
+              </span>
+              <button type="button" onclick="unflagEvent('${item.id}')" class="text-slate-500 hover:text-red-700 font-semibold underline text-[9px] cursor-pointer">
+                ${isEnglish ? 'Reset' : 'Batalkan'}
+              </button>
+            </div>
+            <div class="flex items-center justify-between pt-0.5 border-t border-emerald-200/60">
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white border border-emerald-200 text-[10px] text-slate-800 font-semibold shadow-2xs">
+                <i class="fa-solid fa-user-check text-emerald-600 text-[9px]"></i>
+                <span>Auditor: <strong class="text-slate-950">${escapeHtmlStr(existingAuditor)}</strong></span>
+              </span>
+            </div>
+          </div>
+        `;
+      } else {
+        qcStatusDetailHtml = `
+          <div class="text-[9px] text-slate-400 text-center pt-0.5 flex items-center justify-center gap-1">
+            <i class="fa-regular fa-hand-pointer text-cyan-600 text-[8px]"></i>
+            <span>${isEnglish ? 'Click a button above for instant 1-click QC' : 'Klik tombol di atas untuk 1-klik simpan verifikasi QC'}</span>
+          </div>
+        `;
+      }
+
+      const qcSectionHtml = `
+        <div class="pt-1 border-t border-slate-200">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <div class="flex items-center justify-between gap-1 flex-wrap">
+              <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1">
+                <i class="fa-solid fa-clipboard-check text-cyan-600"></i>
+                <span>${isEnglish ? 'Event Verification (QC):' : 'Verifikasi Kejadian (QC):'}</span>
+              </span>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="openAuditorSelectModal(null, '${item.id}')" class="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-white hover:bg-cyan-50 text-cyan-800 border border-cyan-300 flex items-center gap-1 transition cursor-pointer" title="${isEnglish ? 'Select or switch auditor name' : 'Pilih atau ganti nama auditor/kurator'}">
+                  <i class="fa-solid fa-user-pen text-[8.5px] text-cyan-600"></i>
+                  <span>${escapeHtmlStr(activeSessionAuditor ? activeSessionAuditor : (isEnglish ? 'Select Name' : 'Pilih Nama'))}</span>
+                </button>
+                ${isCurated ? `<span class="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-cyan-100 text-cyan-800 border border-cyan-200">${isEnglish ? 'CURATED' : 'TERKURASI'}</span>` : ''}
+              </div>
+            </div>
+
+            <!-- 2 1-Click Verification Toggle Buttons -->
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="setVerifiedStatus('${item.id}', 'confirmed')" title="${isEnglish ? 'Verify as Confirmed Event' : 'Verifikasi sebagai Event Benar'}"
+                class="py-2 px-2 rounded-lg text-center font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${btnEventBenarClass}">
+                <i class="fa-solid fa-circle-check text-sm ${isConfirmed ? 'text-white' : 'text-emerald-600'}"></i>
+                <span>${isEnglish ? 'Verified Event' : 'Event Benar'}</span>
+              </button>
+              <button type="button" onclick="openFlagConfirmModal('${item.id}')" title="${isEnglish ? 'Mark as Not an Event (Choose reason)' : 'Tandai Bukan Event (Pilih Alasan)'}"
+                class="py-2 px-2 rounded-lg text-center font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${btnBukanEventClass}">
+                <i class="fa-solid fa-triangle-exclamation text-sm ${isNotRob ? 'text-white' : 'text-red-600'}"></i>
+                <span>${isEnglish ? 'Not an Event' : 'Bukan Event'}</span>
+              </button>
+            </div>
+
+            ${qcStatusDetailHtml}
+          </div>
+        </div>
+      `;
 
       // Co-located literature items switcher
       let sameLocHtml = '';
@@ -3875,6 +3991,8 @@
               <span class="text-[10px] font-bold uppercase text-amber-900 block">Extracted Sentence / Snippet:</span>
               <p class="text-[11px] text-slate-800 leading-relaxed italic">"${escapeHtmlStr(item.snippet || '')}"</p>
             </div>
+
+            ${qcSectionHtml}
           </div>
         </div>
       `;
@@ -3916,6 +4034,7 @@
     function openLiteratureDetailModal(uid) {
       const item = (AppState.allLiterature || []).find(x => x.uid === uid || x.id === uid);
       if (!item) return;
+      AppState.openLitDetailUid = item.uid;
       const bodyEl = document.getElementById('modal-lit-detail-body');
       if (bodyEl) {
         bodyEl.innerHTML = buildLiteraturePopupContent(item);
@@ -3974,6 +4093,7 @@
       const tbody = document.getElementById('literature-table-body');
       if (!tbody) return;
 
+      const isEnglish = AppState.lang === 'en';
       const items = AppState.filteredLiterature || [];
       const total = items.length;
       const onMap = items.filter(x => x.lat !== null && x.lon !== null).length;
@@ -3992,7 +4112,7 @@
       setTxt('lit-sub-cnt-unmapped', tableOnly);
 
       if (items.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="12" class="text-center py-6 text-slate-400">No literature items match the current filter.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="14" class="text-center py-6 text-slate-400">No literature items match the current filter.</td></tr>`;
         return;
       }
 
@@ -4017,8 +4137,49 @@
           ? `<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono text-[10px] font-bold">true</span>`
           : `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-mono text-[10px]">false</span>`;
 
+        const rowAudit = (AppState.flaggedEvents && (AppState.flaggedEvents[item.id] || AppState.flaggedEvents[item.uid]))
+          ? (AppState.flaggedEvents[item.id] || AppState.flaggedEvents[item.uid])
+          : null;
+        const isRowCurated = !!rowAudit;
+        const verTier = rowAudit ? (rowAudit.verified_tier || (rowAudit.audit_status === 'INACCURATE' ? 'not_rob' : rowAudit.audit_status ? rowAudit.audit_status.toLowerCase() : 'not_rob')) : null;
+        const rawAuditor = rowAudit && rowAudit.auditor ? rowAudit.auditor.trim() : '';
+        const rowAuditorName = isRowCurated ? ((!rawAuditor || rawAuditor.toLowerCase() === 'randi') ? 'Randi Firdaus' : rawAuditor) : '';
+
+        let qcBadgeHtml = '';
+        if (verTier === 'confirmed') {
+          qcBadgeHtml = `
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 whitespace-nowrap">
+              <i class="fa-solid fa-circle-check text-emerald-600"></i>
+              <span>${isEnglish ? 'Verified Event' : 'Event Benar'}</span>
+            </span>
+          `;
+        } else if (verTier === 'not_rob') {
+          qcBadgeHtml = `
+            <span title="${escapeHtmlStr(rowAudit.reason || rowAudit.audit_reason || 'Not an event')}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-300 whitespace-nowrap">
+              <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
+              <span>${isEnglish ? 'Not an Event' : 'Bukan Event'}</span>
+            </span>
+          `;
+        } else {
+          qcBadgeHtml = `
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] text-slate-400 bg-slate-100 border border-slate-200 font-medium whitespace-nowrap">
+              <i class="fa-regular fa-clock text-slate-400"></i>
+              <span>${isEnglish ? 'Unreviewed' : 'Belum Verifikasi'}</span>
+            </span>
+          `;
+        }
+
+        const auditorCellHtml = rowAuditorName
+          ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-cyan-50 text-cyan-900 border border-cyan-200 whitespace-nowrap">
+               <i class="fa-solid fa-user-check text-cyan-600 text-[9px]"></i>
+               <span>${escapeHtmlStr(rowAuditorName)}</span>
+             </span>`
+          : `<span class="text-slate-300 text-xs font-mono">—</span>`;
+
+        const rowBgClass = isRowCurated ? (verTier === 'not_rob' ? 'bg-red-50/40' : 'bg-emerald-50/30') : '';
+
         return `
-          <tr class="hover:bg-amber-50/40 transition">
+          <tr class="hover:bg-amber-50/40 transition ${rowBgClass}">
             <td class="py-2 px-2.5 font-mono text-[10.5px] font-semibold text-slate-800 whitespace-nowrap">${escapeHtmlStr(item.id)}</td>
             <td class="py-2 px-2.5 font-mono text-[11px] whitespace-nowrap text-slate-800">${escapeHtmlStr(item.date_or_month)}</td>
             <td class="py-2 px-2.5 whitespace-nowrap">${placeHtml}</td>
@@ -4042,6 +4203,21 @@
             <td class="py-2 px-2.5 max-w-sm">
               <div class="text-[11px] text-slate-600 line-clamp-2 italic" title="${escapeHtmlStr(item.snippet)}">"${escapeHtmlStr(item.snippet)}"</div>
             </td>
+            <td class="py-2 px-2.5 whitespace-nowrap">
+              <div class="flex flex-col items-start gap-1">
+                ${qcBadgeHtml}
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="setVerifiedStatus('${item.id}', 'confirmed')" title="Verify as Confirmed Event" class="px-1.5 py-0.5 rounded text-[10px] font-bold border transition cursor-pointer ${verTier === 'confirmed' ? 'bg-emerald-600 text-white border-emerald-700' : 'bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-300'}">
+                    <i class="fa-solid fa-check"></i> Verify
+                  </button>
+                  <button type="button" onclick="openFlagConfirmModal('${item.id}')" title="Mark as Not an Event" class="px-1.5 py-0.5 rounded text-[10px] font-bold border transition cursor-pointer ${verTier === 'not_rob' ? 'bg-red-600 text-white border-red-700' : 'bg-white hover:bg-red-50 text-red-700 border-red-300'}">
+                    <i class="fa-solid fa-flag"></i> Not Event
+                  </button>
+                  ${isRowCurated ? `<button type="button" onclick="unflagEvent('${item.id}')" title="Reset QC" class="px-1 py-0.5 rounded text-[10px] text-slate-400 hover:text-red-600 cursor-pointer"><i class="fa-solid fa-rotate-left"></i></button>` : ''}
+                </div>
+              </div>
+            </td>
+            <td class="py-2 px-2.5 whitespace-nowrap">${auditorCellHtml}</td>
             <td class="py-2 px-2.5 text-center whitespace-nowrap space-x-1">
               ${(item.lat !== null && item.lon !== null) ? `
                 <button type="button" onclick="focusLiteratureItem('${item.uid}')" title="Show on Map & Open Popup" class="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded text-xs font-semibold transition cursor-pointer">
@@ -4923,6 +5099,11 @@
           const f = AppState.flaggedEvents[oldId];
           if (!f) return;
 
+          if (String(oldId).startsWith('LIT-')) {
+            realigned[oldId] = f;
+            return;
+          }
+
           // Check if current event with same ID is an exact match (same date & place)
           const directMatch = events.find(e => String(e.id) === String(oldId));
           const isDirectSame = directMatch && 
@@ -5061,6 +5242,24 @@
       if (elNotRob) elNotRob.textContent = notRobCount;
     }
 
+    function findEventOrLitById(eventId) {
+      const ev = (AppState.allEvents || []).find(e => String(e.id) === String(eventId));
+      if (ev) return ev;
+      const lit = (AppState.allLiterature || []).find(x => String(x.id) === String(eventId) || String(x.uid) === String(eventId));
+      if (lit) {
+        return {
+          ...lit,
+          date_start: lit.date_start || lit.date_or_month || '',
+          date_end: lit.date_end || lit.date_or_month || '',
+          days: 1,
+          url: lit.doi || lit.oa_url || '',
+          terms: lit.snippet || '',
+          tier: lit.status || 'literature'
+        };
+      }
+      return null;
+    }
+
     function setVerifiedStatus(eventId, newStatus) {
       if (newStatus === 'not_rob') {
         openFlagConfirmModal(eventId);
@@ -5068,7 +5267,7 @@
       }
 
       ensureAuditorSelected(auditorName => {
-        const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
+        const ev = findEventOrLitById(eventId);
         if (!ev) return;
 
         if (!AppState.flaggedEvents) AppState.flaggedEvents = {};
@@ -5103,6 +5302,7 @@
 
         if (AppState.currentView === 'table') {
           renderTablePage(AppState.tablePage);
+          renderLiteratureTable();
         }
 
         const auditModal = document.getElementById('modal-audit');
@@ -5134,7 +5334,7 @@
       if (subtitleEl) subtitleEl.textContent = isEnglish ? 'Click any category below — auto-saved instantly!' : 'Klik salah satu kategori di bawah — langsung otomatis tersimpan!';
 
       const urlTextEl = document.getElementById('flag-modal-event-url-text');
-      if (urlTextEl) urlTextEl.textContent = isEnglish ? 'Check original news article' : 'Periksa tautan berita asli';
+      if (urlTextEl) urlTextEl.textContent = isEnglish ? 'Check original news article / paper' : 'Periksa tautan berita / paper asli';
 
       const labelCatEl = document.getElementById('flag-modal-label-categories');
       if (labelCatEl) labelCatEl.textContent = isEnglish ? 'Select Reason Category (1-Click Save):' : 'Pilih Kategori Alasan (1-Klik Simpan):';
@@ -5185,7 +5385,7 @@
         AppState.pendingFlagEventId = eventId;
         AppState.pendingFlagCheckbox = chkEl;
 
-        const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
+        const ev = findEventOrLitById(eventId);
         if (!ev) return;
 
         const isEnglish = AppState.lang === 'en';
@@ -5194,9 +5394,9 @@
         const idEl = document.getElementById('flag-modal-event-id');
         if (idEl) idEl.textContent = `#${ev.id}`;
         const dateEl = document.getElementById('flag-modal-event-date');
-        if (dateEl) dateEl.textContent = `📅 ${ev.date_start}${ev.days > 1 ? ` (${ev.days} ${isEnglish ? 'days' : 'hr'})` : ''}`;
+        if (dateEl) dateEl.textContent = `📅 ${ev.date_or_month || ev.date_start}${ev.days > 1 ? ` (${ev.days} ${isEnglish ? 'days' : 'hr'})` : ''}`;
         const placeEl = document.getElementById('flag-modal-event-place');
-        if (placeEl) placeEl.textContent = `📍 ${ev.place}, ${ev.province}`;
+        if (placeEl) placeEl.textContent = `📍 ${ev.place || '—'}${ev.province ? `, ${ev.province}` : ''}`;
         const titleEl = document.getElementById('flag-modal-event-title');
         if (titleEl) titleEl.textContent = `"${ev.title || (isEnglish ? 'Event Report' : 'Laporan Kejadian')}"`;
 
@@ -5285,7 +5485,7 @@
       const reasonText = (reasonInput ? reasonInput.value : '').trim() || defaultReason;
       const auditorName = resolveCurrentFlagModalAuditor();
 
-      const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
+      const ev = findEventOrLitById(eventId);
 
       if (!AppState.flaggedEvents) AppState.flaggedEvents = {};
       AppState.flaggedEvents[eventId] = {
@@ -5319,6 +5519,7 @@
       // If in table view, re-render
       if (AppState.currentView === 'table') {
         renderTablePage(AppState.tablePage);
+        renderLiteratureTable();
       }
 
       // If audit modal is open, re-render
@@ -5337,6 +5538,7 @@
         updateOpenMarkerPopup(eventId);
         if (AppState.currentView === 'table') {
           renderTablePage(AppState.tablePage);
+          renderLiteratureTable();
         }
         renderAuditModalContent();
         showToast(AppState.lang === 'en' ? `Flag removed from #${eventId}.` : `Tanda pada #${eventId} telah dibatalkan.`);
@@ -5349,10 +5551,8 @@
 
     function updateOpenMarkerPopup(eventId) {
       const marker = AppState.markersById ? AppState.markersById[eventId] : null;
-      const ev = AppState.allEvents.find(e => String(e.id) === String(eventId));
-      if (!ev) return;
-
-      if (marker) {
+      const ev = (AppState.allEvents || []).find(e => String(e.id) === String(eventId));
+      if (ev && marker) {
         const iconCfg = getMarkerIconConfig(ev);
         const markerIcon = L.divIcon({
           className: 'custom-flood-pin',
@@ -5371,6 +5571,33 @@
             if (popup.update) popup.update();
           }
         }
+      }
+
+      // Also update any matching literature marker(s) & table/modal
+      const litMatches = (AppState.allLiterature || []).filter(
+        x => String(x.id) === String(eventId) || String(x.uid) === String(eventId)
+      );
+      if (litMatches.length > 0) {
+        litMatches.forEach(item => {
+          const litMarker = AppState.litMarkersByUid ? AppState.litMarkersByUid[item.uid] : null;
+          if (litMarker) {
+            const newLitHtml = buildLiteraturePopupContent(item);
+            litMarker.setPopupContent(newLitHtml);
+            if (litMarker.isPopupOpen && litMarker.isPopupOpen()) {
+              const popup = litMarker.getPopup();
+              if (popup) {
+                popup.setContent(newLitHtml);
+                if (popup.update) popup.update();
+              }
+            }
+          }
+          const litModal = document.getElementById('modal-lit-detail');
+          if (litModal && !litModal.classList.contains('hidden') && AppState.openLitDetailUid === item.uid) {
+            const bodyEl = document.getElementById('modal-lit-detail-body');
+            if (bodyEl) bodyEl.innerHTML = buildLiteraturePopupContent(item);
+          }
+        });
+        renderLiteratureTable();
       }
     }
 
@@ -5517,7 +5744,9 @@
 
       const rows = filteredIds.map(id => {
         const f = AppState.flaggedEvents[id] || {};
-        const ev = AppState.allEvents.find(e => String(e.id) === String(id)) || {};
+        const ev = findEventOrLitById(id) || {};
+        const isLitItem = String(id).startsWith('LIT-');
+        const focusAction = isLitItem ? `focusLiteratureItem('${id}')` : `focusMapEvent('${id}')`;
         const dateStr = f.date_start || ev.date_start || '-';
         const placeStr = f.place || ev.place || '-';
         const provStr = f.province || ev.province || '';
@@ -5548,7 +5777,7 @@
               <div class="text-slate-800 font-medium line-clamp-2" title="${titleStr}">"${titleStr}"</div>
               ${urlStr ? `
                 <a href="${urlStr}" target="_blank" rel="noopener noreferrer" class="text-cyan-700 hover:underline text-[10px] inline-flex items-center gap-1 mt-0.5 font-medium">
-                  <span>${isEnglish ? 'Open Article' : 'Buka Berita'}</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  <span>${isEnglish ? (isLitItem ? 'Open Paper' : 'Open Article') : (isLitItem ? 'Buka Paper' : 'Buka Berita')}</span> <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                 </a>
               ` : ''}
             </td>
@@ -5562,11 +5791,11 @@
               </span>
             </td>
             <td class="py-2.5 px-3 whitespace-nowrap text-center space-x-1">
-              <button onclick="focusMapEvent('${id}'); toggleModal('modal-audit', false);" title="${isEnglish ? 'View on Map' : 'Lihat di Peta'}" 
+              <button onclick="${focusAction}; toggleModal('modal-audit', false);" title="${isEnglish ? 'View on Map' : 'Lihat di Peta'}" 
                 class="px-2 py-1 bg-cyan-50 hover:bg-cyan-100 text-cyan-800 rounded font-semibold transition text-xs">
                 <i class="fa-solid fa-location-dot"></i> ${isEnglish ? 'Map' : 'Peta'}
               </button>
-              <button onclick="${vTier === 'not_rob' ? `openFlagConfirmModal('${id}')` : `focusMapEvent('${id}'); toggleModal('modal-audit', false);`}" title="${isEnglish ? 'Edit Verification' : 'Ubah Verifikasi'}" 
+              <button onclick="${vTier === 'not_rob' ? `openFlagConfirmModal('${id}')` : `${focusAction}; toggleModal('modal-audit', false);`}" title="${isEnglish ? 'Edit Verification' : 'Ubah Verifikasi'}" 
                 class="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition text-xs">
                 <i class="fa-solid fa-pen-to-square"></i>
               </button>
@@ -5588,7 +5817,7 @@
                 <th class="py-2.5 px-3">ID</th>
                 <th class="py-2.5 px-3">${isEnglish ? 'Date' : 'Tanggal'}</th>
                 <th class="py-2.5 px-3">${isEnglish ? 'Location' : 'Lokasi'}</th>
-                <th class="py-2.5 px-3">${isEnglish ? 'News Headline' : 'Berita'}</th>
+                <th class="py-2.5 px-3">${isEnglish ? 'News / Paper Title' : 'Berita / Paper'}</th>
                 <th class="py-2.5 px-3">${isEnglish ? 'QC Verification Status' : 'Status Verifikasi QC'}</th>
                 <th class="py-2.5 px-3">${isEnglish ? 'Auditor' : 'Auditor'}</th>
                 <th class="py-2.5 px-3 text-center">${isEnglish ? 'Actions' : 'Aksi'}</th>
@@ -5634,7 +5863,7 @@
 
       ids.forEach(id => {
         const f = AppState.flaggedEvents[id] || {};
-        const e = AppState.allEvents.find(x => String(x.id) === String(id)) || {};
+        const e = findEventOrLitById(id) || {};
         const origTier = f.original_tier || e.tier || '';
         const verTier = f.verified_tier || (f.audit_status === 'INACCURATE' ? 'not_rob' : (f.audit_status ? f.audit_status.toLowerCase() : 'not_rob'));
         const auditStatus = f.audit_status || (verTier === 'not_rob' ? 'INACCURATE' : verTier.toUpperCase());
