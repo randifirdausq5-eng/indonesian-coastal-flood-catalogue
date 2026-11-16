@@ -2193,11 +2193,22 @@
       if (!listEl) return;
       listEl.innerHTML = '';
 
-      // Count events per year from allEvents
+      // Count events per year based on active data source mode & hazard filter
       const counts = {};
-      (AppState.allEvents || []).forEach(e => {
-        const y = e.date_start.substring(0, 4);
-        counts[y] = (counts[y] || 0) + 1;
+      const mode = AppState.dataSourceMode || 'news';
+      const hazardVal = document.getElementById('filter-hazard') ? document.getElementById('filter-hazard').value : 'rob';
+      let baseEvents = AppState.allEvents || [];
+      if (hazardVal === 'rob') baseEvents = baseEvents.filter(e => (!e.hazard || e.hazard === 'rob'));
+      else if (hazardVal === 'tide_wave') baseEvents = baseEvents.filter(e => e.hazard === 'tide_wave');
+      else if (hazardVal === 'high_wave') baseEvents = baseEvents.filter(e => e.hazard === 'high_wave');
+
+      const sourceItems = (mode === 'paper')
+        ? (AppState.allLiterature || [])
+        : (mode === 'both' ? [...baseEvents, ...(AppState.allLiterature || [])] : baseEvents);
+
+      sourceItems.forEach(e => {
+        const y = String(e.date_start || '').substring(0, 4);
+        if (y) counts[y] = (counts[y] || 0) + 1;
       });
 
       // Update Select All Checkbox state (checked, indeterminate, unchecked)
@@ -2812,77 +2823,225 @@
       }
     }
 
+    // Helper: filter events by all active filters EXCEPT region/province (for accurate Region chip badges)
+    function getRegionBaseEvents(baseEvents) {
+      const searchEl = document.getElementById('search-input');
+      const searchVal = (searchEl ? searchEl.value : '').toLowerCase().trim();
+      const monthEl = document.getElementById('filter-month');
+      const monthVal = monthEl ? monthEl.value : 'all';
+      const depthEl = document.getElementById('filter-depth');
+      const depthVal = depthEl ? depthEl.value : 'all';
+      const auditFilterEl = document.getElementById('filter-audit');
+      const auditVal = auditFilterEl ? auditFilterEl.value : 'all';
+
+      return (baseEvents || []).filter(e => {
+        if (AppState.selectedYears) {
+          if (AppState.selectedYears.size === 0) return false;
+          if (AppState.selectedYears.size < (AppState.availableYears || []).length) {
+            const yr = String(e.date_start || '').substring(0, 4);
+            if (!AppState.selectedYears.has(yr)) return false;
+          }
+        }
+        if (monthVal !== 'all') {
+          const m = parseInt(String(e.date_start || '').substring(5, 7), 10);
+          if (m !== parseInt(monthVal, 10)) return false;
+        }
+        if (depthVal === 'reported' && (e.depth_cm === null || e.depth_cm === undefined)) return false;
+        if (depthVal === '50' && (e.depth_cm === null || e.depth_cm < 50)) return false;
+        if (depthVal === '100' && (e.depth_cm === null || e.depth_cm < 100)) return false;
+
+        const curEntry = (AppState.flaggedEvents && AppState.flaggedEvents[e.id]) ? AppState.flaggedEvents[e.id] : null;
+        const isCurated = !!curEntry;
+        const isNotRob = isCurated && (curEntry.verified_tier === 'not_rob' || curEntry.audit_status === 'INACCURATE');
+        const isVerifiedRob = isCurated && !isNotRob;
+        if (auditVal === 'flagged' && !isNotRob) return false;
+        if (auditVal === 'verified' && !isVerifiedRob) return false;
+        if (auditVal === 'unverified' && isCurated) return false;
+        if (auditVal === 'unflagged' && isNotRob) return false;
+
+        if (searchVal.length > 0) {
+          const tgText = e.tg ? `${e.tg.station}` : '';
+          const flagReason = curEntry ? (curEntry.reason || '') : '';
+          const matchTarget = `${e.id} ${e.place} ${e.regency} ${e.province} ${e.title} ${e.terms} ${tgText} ${flagReason}`.toLowerCase();
+          if (!matchTarget.includes(searchVal)) return false;
+        }
+        return true;
+      });
+    }
+
+    function getRegionBaseLiterature(allLit) {
+      const searchEl = document.getElementById('search-input');
+      const searchVal = (searchEl ? searchEl.value : '').toLowerCase().trim();
+      const monthEl = document.getElementById('filter-month');
+      const monthVal = monthEl ? monthEl.value : 'all';
+      const auditFilterEl = document.getElementById('filter-audit');
+      const auditVal = auditFilterEl ? auditFilterEl.value : 'all';
+
+      return (allLit || []).filter(item => {
+        if (AppState.selectedYears) {
+          if (AppState.selectedYears.size === 0) return false;
+          if (AppState.selectedYears.size < (AppState.availableYears || []).length) {
+            const yr = String(item.date_start || '').substring(0, 4);
+            if (!AppState.selectedYears.has(yr)) return false;
+          }
+        }
+        if (monthVal !== 'all') {
+          const m = parseInt(String(item.date_start || '').substring(5, 7), 10);
+          if (m !== parseInt(monthVal, 10)) return false;
+        }
+        const curEntry = (AppState.flaggedEvents && (AppState.flaggedEvents[item.id] || AppState.flaggedEvents[item.uid]))
+          ? (AppState.flaggedEvents[item.id] || AppState.flaggedEvents[item.uid])
+          : null;
+        const isCurated = !!curEntry;
+        const isNotRob = isCurated && (curEntry.verified_tier === 'not_rob' || curEntry.audit_status === 'INACCURATE');
+        const isVerifiedRob = isCurated && !isNotRob;
+        if (auditVal === 'flagged' && !isNotRob) return false;
+        if (auditVal === 'verified' && !isVerifiedRob) return false;
+        if (auditVal === 'unverified' && isCurated) return false;
+        if (auditVal === 'unflagged' && isNotRob) return false;
+
+        if (searchVal.length > 0) {
+          const eids = Array.isArray(item.linked_e_ids) ? item.linked_e_ids.join(' ') : '';
+          const target = `${item.id} ${item.date_or_month} ${item.place} ${item.regency} ${item.province} ${item.region} ${item.status} ${item.catalogue_event_id} ${eids} ${item.title} ${item.year} ${item.source} ${item.doi} ${item.snippet}`.toLowerCase();
+          if (!target.includes(searchVal)) return false;
+        }
+        return true;
+      });
+    }
+
     // Update Header & Sidebar Statistics
     function updateHeaderAndSidebarStats() {
       const hazardVal = document.getElementById('filter-hazard') ? document.getElementById('filter-hazard').value : 'rob';
 
-      let baseEvents = AppState.allEvents;
+      let baseEvents = AppState.allEvents || [];
       if (hazardVal === 'rob') {
-        baseEvents = AppState.allEvents.filter(e => (!e.hazard || e.hazard === 'rob'));
+        baseEvents = baseEvents.filter(e => (!e.hazard || e.hazard === 'rob'));
       } else if (hazardVal === 'tide_wave') {
-        baseEvents = AppState.allEvents.filter(e => e.hazard === 'tide_wave');
+        baseEvents = baseEvents.filter(e => e.hazard === 'tide_wave');
       } else if (hazardVal === 'high_wave') {
-        baseEvents = AppState.allEvents.filter(e => e.hazard === 'high_wave');
+        baseEvents = baseEvents.filter(e => e.hazard === 'high_wave');
       }
 
-      const total = baseEvents.length;
-      const count = AppState.filteredEvents.length;
-      const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+      const mode = AppState.dataSourceMode || 'news';
       const dict = I18N[AppState.lang];
+      const isEnglish = AppState.lang === 'en';
 
-      // Dynamic header label for total events based on selected hazard
+      const newsTotal = baseEvents.length;
+      const newsCount = (AppState.filteredEvents || []).length;
+      const litAll = AppState.allLiterature || [];
+      const litFiltered = AppState.filteredLiterature || [];
+      const litTotal = litAll.length;
+      const litCount = litFiltered.length;
+      const litOnMap = litFiltered.filter(x => x.lat !== null && x.lon !== null).length;
+
       const elLabelTotal = document.getElementById('label-stat-total');
-      if (elLabelTotal) {
-        if (hazardVal === 'rob') {
-          elLabelTotal.textContent = dict.stat_total_rob || (AppState.lang === 'id' ? 'Total Banjir Rob:' : 'Total Tidal Floods:');
-        } else if (hazardVal === 'tide_wave') {
-          elLabelTotal.textContent = dict.stat_total_tide_wave || (AppState.lang === 'id' ? 'Total Rob + Gelombang:' : 'Total Rob + Waves:');
-        } else if (hazardVal === 'high_wave') {
-          elLabelTotal.textContent = dict.stat_total_high_wave || (AppState.lang === 'id' ? 'Total Gelombang Tinggi:' : 'Total High Waves:');
-        } else {
-          elLabelTotal.textContent = dict.stat_total_all || (AppState.lang === 'id' ? 'Total Semua Kejadian:' : 'Total Events:');
+      const elFiltered = document.getElementById('stat-filtered');
+      const elTotal = document.getElementById('stat-total');
+      const elMobileBadge = document.getElementById('mobile-filter-badge');
+      const elFabCount = document.getElementById('mobile-fab-count');
+      const elPct = document.getElementById('active-percentage');
+      const summaryEl = document.getElementById('filter-summary-text');
+
+      if (mode === 'paper') {
+        if (elLabelTotal) elLabelTotal.textContent = isEnglish ? 'Total Paper:' : 'Total Paper:';
+        if (elTotal) elTotal.textContent = litTotal.toLocaleString();
+
+        const activeText = (AppState.currentView === 'map' && litOnMap !== litCount)
+          ? `${litOnMap.toLocaleString()} (${litCount} tbl)`
+          : litCount.toLocaleString();
+        if (elFiltered) elFiltered.textContent = activeText;
+
+        const badgeNum = (AppState.currentView === 'map' ? litOnMap : litCount).toLocaleString();
+        if (elMobileBadge) elMobileBadge.textContent = badgeNum;
+        if (elFabCount) elFabCount.textContent = badgeNum;
+
+        const pct = litTotal > 0 ? Math.round((litCount / litTotal) * 100) : 0;
+        if (elPct) elPct.textContent = `${pct}%`;
+
+        if (summaryEl) {
+          summaryEl.innerHTML = isEnglish
+            ? `Showing <span id="label-count-active" class="font-bold text-amber-300 font-mono">${litCount.toLocaleString()}</span> of <span class="font-semibold font-mono">${litTotal.toLocaleString()}</span> paper items (<span class="font-mono font-bold text-cyan-300">${litOnMap}</span> on map · ${litCount - litOnMap} table-only).`
+            : `Menampilkan <span id="label-count-active" class="font-bold text-amber-300 font-mono">${litCount.toLocaleString()}</span> dari <span class="font-semibold font-mono">${litTotal.toLocaleString()}</span> item paper (<span class="font-mono font-bold text-cyan-300">${litOnMap}</span> di peta · ${litCount - litOnMap} hanya tabel).`;
         }
+
+        const litRegionBase = getRegionBaseLiterature(litAll);
+        updateRegionBadges(litRegionBase);
+        renderHotspots(litFiltered);
+      } else if (mode === 'both') {
+        const combinedTotal = newsTotal + litTotal;
+        const combinedCount = newsCount + litCount;
+        const newsOnMap = (AppState.filteredEvents || []).filter(e => e.lat !== null && e.lon !== null).length;
+        const combinedOnMap = newsOnMap + litOnMap;
+
+        if (elLabelTotal) elLabelTotal.textContent = isEnglish ? 'Total (News+Paper):' : 'Total (Berita+Paper):';
+        if (elTotal) elTotal.textContent = `${combinedTotal.toLocaleString()} (${newsTotal.toLocaleString()}+${litTotal})`;
+
+        const activeText = (AppState.currentView === 'map')
+          ? `${combinedOnMap.toLocaleString()} (${newsCount.toLocaleString()}+${litOnMap} map)`
+          : `${combinedCount.toLocaleString()} (${newsCount.toLocaleString()}+${litCount})`;
+        if (elFiltered) elFiltered.textContent = activeText;
+
+        const badgeNum = (AppState.currentView === 'map' ? combinedOnMap : combinedCount).toLocaleString();
+        if (elMobileBadge) elMobileBadge.textContent = badgeNum;
+        if (elFabCount) elFabCount.textContent = badgeNum;
+
+        const pct = combinedTotal > 0 ? Math.round((combinedCount / combinedTotal) * 100) : 0;
+        if (elPct) elPct.textContent = `${pct}%`;
+
+        if (summaryEl) {
+          summaryEl.innerHTML = isEnglish
+            ? `Showing <span id="label-count-active" class="font-bold text-teal-300 font-mono">${combinedCount.toLocaleString()}</span> of <span class="font-semibold font-mono">${combinedTotal.toLocaleString()}</span> items (${newsCount.toLocaleString()} news + ${litCount} paper, ${litOnMap} on map).`
+            : `Menampilkan <span id="label-count-active" class="font-bold text-teal-300 font-mono">${combinedCount.toLocaleString()}</span> dari <span class="font-semibold font-mono">${combinedTotal.toLocaleString()}</span> item (${newsCount.toLocaleString()} berita + ${litCount} paper, ${litOnMap} di peta).`;
+        }
+
+        const newsRegionBase = getRegionBaseEvents(baseEvents);
+        const litRegionBase = getRegionBaseLiterature(litAll);
+        updateRegionBadges([...newsRegionBase, ...litRegionBase]);
+        renderHotspots([...(AppState.filteredEvents || []), ...litFiltered]);
+      } else {
+        // Default: 'news' mode (Toggle OFF)
+        const total = newsTotal;
+        const count = newsCount;
+        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+
+        if (elLabelTotal) {
+          if (hazardVal === 'rob') {
+            elLabelTotal.textContent = dict.stat_total_rob || (AppState.lang === 'id' ? 'Total Banjir Rob:' : 'Total Tidal Floods:');
+          } else if (hazardVal === 'tide_wave') {
+            elLabelTotal.textContent = dict.stat_total_tide_wave || (AppState.lang === 'id' ? 'Total Rob + Gelombang:' : 'Total Rob + Waves:');
+          } else if (hazardVal === 'high_wave') {
+            elLabelTotal.textContent = dict.stat_total_high_wave || (AppState.lang === 'id' ? 'Total Gelombang Tinggi:' : 'Total High Waves:');
+          } else {
+            elLabelTotal.textContent = dict.stat_total_all || (AppState.lang === 'id' ? 'Total Semua Kejadian:' : 'Total Events:');
+          }
+        }
+
+        if (elFiltered) elFiltered.textContent = count.toLocaleString();
+        if (elTotal) elTotal.textContent = total.toLocaleString();
+        if (elMobileBadge) elMobileBadge.textContent = count.toLocaleString();
+        if (elFabCount) elFabCount.textContent = count.toLocaleString();
+        if (elPct) elPct.textContent = `${pct}%`;
+
+        if (summaryEl && dict.filter_summary) {
+          summaryEl.innerHTML = dict.filter_summary(count, total);
+        }
+
+        const regionBase = getRegionBaseEvents(baseEvents);
+        updateRegionBadges(regionBase);
+        renderHotspots(AppState.filteredEvents || baseEvents);
       }
 
-      // Header numbers
-      const elFiltered = document.getElementById('stat-filtered');
-      if (elFiltered) elFiltered.textContent = count.toLocaleString();
-
-      const elTotal = document.getElementById('stat-total');
-      if (elTotal) elTotal.textContent = total.toLocaleString();
-
-      // Mobile Badges
-      const elMobileBadge = document.getElementById('mobile-filter-badge');
-      if (elMobileBadge) elMobileBadge.textContent = count.toLocaleString();
-
-      const elFabCount = document.getElementById('mobile-fab-count');
-      if (elFabCount) elFabCount.textContent = count.toLocaleString();
-
-      // Max depth
-      const depths = AppState.filteredEvents.map(e => e.depth_cm).filter(d => d !== null && !isNaN(d));
+      // Max depth (from filtered news events)
+      const depths = (AppState.filteredEvents || []).map(e => e.depth_cm).filter(d => d !== null && !isNaN(d));
       const maxDepth = depths.length > 0 ? Math.max(...depths) : null;
       const elMaxDepth = document.getElementById('stat-max-depth');
       if (elMaxDepth) elMaxDepth.textContent = maxDepth ? `${maxDepth} cm` : '-';
 
-      // Sidebar percentage
-      const elPct = document.getElementById('active-percentage');
-      if (elPct) elPct.textContent = `${pct}%`;
-      
       updateYearSummary();
 
-      // Summary text
-      const summaryEl = document.getElementById('filter-summary-text');
-      if (summaryEl && dict.filter_summary) {
-        summaryEl.innerHTML = dict.filter_summary(count, total);
-      }
-
-      // Chart count in Analytics view
+      // Chart count in Analytics view (always catalogue events only)
       const chartCountEl = document.getElementById('chart-filter-count');
-      if (chartCountEl) chartCountEl.textContent = count.toLocaleString();
-
-      // Update region badges and hotspots to reflect the active hazard base
-      updateRegionBadges(baseEvents);
-      renderHotspots(baseEvents);
+      if (chartCountEl) chartCountEl.textContent = newsCount.toLocaleString();
     }
 
     // Helper to generate marker icon based on hazard and audit status
@@ -3622,6 +3781,8 @@
       const monthVal = monthEl ? monthEl.value : 'all';
       const provEl = document.getElementById('filter-province');
       const provVal = provEl ? provEl.value : 'all';
+      const auditFilterEl = document.getElementById('filter-audit');
+      const auditVal = auditFilterEl ? auditFilterEl.value : 'all';
 
       AppState.filteredLiterature = allLit.filter(item => {
         // 1. Region filter
@@ -3645,7 +3806,19 @@
         if (provVal !== 'all' && item.province !== provVal) {
           return false;
         }
-        // 5. Text search filter
+        // 5. Audit QC filter
+        const curEntry = (AppState.flaggedEvents && (AppState.flaggedEvents[item.id] || AppState.flaggedEvents[item.uid]))
+          ? (AppState.flaggedEvents[item.id] || AppState.flaggedEvents[item.uid])
+          : null;
+        const isCurated = !!curEntry;
+        const isNotRob = isCurated && (curEntry.verified_tier === 'not_rob' || curEntry.audit_status === 'INACCURATE');
+        const isVerifiedRob = isCurated && !isNotRob;
+        if (auditVal === 'flagged' && !isNotRob) return false;
+        if (auditVal === 'verified' && !isVerifiedRob) return false;
+        if (auditVal === 'unverified' && isCurated) return false;
+        if (auditVal === 'unflagged' && isNotRob) return false;
+
+        // 6. Text search filter
         if (searchVal.length > 0) {
           const eids = Array.isArray(item.linked_e_ids) ? item.linked_e_ids.join(' ') : '';
           const target = `${item.id} ${item.date_or_month} ${item.place} ${item.regency} ${item.province} ${item.region} ${item.status} ${item.catalogue_event_id} ${eids} ${item.title} ${item.year} ${item.source} ${item.doi} ${item.snippet}`.toLowerCase();
@@ -3677,6 +3850,8 @@
 
       refreshLiteratureMarkers();
       renderLiteratureTable();
+      updateHeaderAndSidebarStats();
+      renderExcelYearList();
     }
 
     function refreshLiteratureMarkers() {
@@ -4375,7 +4550,9 @@
         updateCharts();
       } else if (viewName === 'table') {
         renderTablePage(AppState.tablePage);
+        renderLiteratureTable();
       }
+      updateHeaderAndSidebarStats();
     }
 
     // Update Analytics Charts (Chart.js)
@@ -5300,9 +5477,15 @@
         saveFlaggedEvents();
         updateOpenMarkerPopup(eventId);
 
-        if (AppState.currentView === 'table') {
-          renderTablePage(AppState.tablePage);
-          renderLiteratureTable();
+        const auditFilterEl = document.getElementById('filter-audit');
+        if (auditFilterEl && auditFilterEl.value !== 'all') {
+          applyFilters();
+        } else {
+          updateHeaderAndSidebarStats();
+          if (AppState.currentView === 'table') {
+            renderTablePage(AppState.tablePage);
+            renderLiteratureTable();
+          }
         }
 
         const auditModal = document.getElementById('modal-audit');
@@ -5516,10 +5699,15 @@
       // Update map marker icon and popup in-place
       updateOpenMarkerPopup(eventId);
 
-      // If in table view, re-render
-      if (AppState.currentView === 'table') {
-        renderTablePage(AppState.tablePage);
-        renderLiteratureTable();
+      const auditFilterEl = document.getElementById('filter-audit');
+      if (auditFilterEl && auditFilterEl.value !== 'all') {
+        applyFilters();
+      } else {
+        updateHeaderAndSidebarStats();
+        if (AppState.currentView === 'table') {
+          renderTablePage(AppState.tablePage);
+          renderLiteratureTable();
+        }
       }
 
       // If audit modal is open, re-render
@@ -5536,9 +5724,15 @@
         delete AppState.flaggedEvents[eventId];
         saveFlaggedEvents();
         updateOpenMarkerPopup(eventId);
-        if (AppState.currentView === 'table') {
-          renderTablePage(AppState.tablePage);
-          renderLiteratureTable();
+        const auditFilterEl = document.getElementById('filter-audit');
+        if (auditFilterEl && auditFilterEl.value !== 'all') {
+          applyFilters();
+        } else {
+          updateHeaderAndSidebarStats();
+          if (AppState.currentView === 'table') {
+            renderTablePage(AppState.tablePage);
+            renderLiteratureTable();
+          }
         }
         renderAuditModalContent();
         showToast(AppState.lang === 'en' ? `Flag removed from #${eventId}.` : `Tanda pada #${eventId} telah dibatalkan.`);
