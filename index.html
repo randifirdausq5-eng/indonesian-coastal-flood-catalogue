@@ -124,8 +124,8 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=1237.202611162207"></script>
-  <script src="data/literature.js?v=1237.202611162207"></script>
+  <script src="data/events.js?v=1237.202611171203"></script>
+  <script src="data/literature.js?v=1237.202611171203"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -2075,7 +2075,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=1237.202611162207')
+        fetch('data/events.json?v=1237.202611171203')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -2098,7 +2098,7 @@
         AppState.allLiterature = window.ROB_LITERATURE;
         AppState.filteredLiterature = [...window.ROB_LITERATURE];
       } else {
-        fetch('data/literature.json?v=1237.202611162207')
+        fetch('data/literature.json?v=1237.202611171203')
           .then(res => res.ok ? res.json() : [])
           .then(litData => {
             if (Array.isArray(litData)) {
