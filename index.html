@@ -52,6 +52,11 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <style>
+    html, body {
+      max-width: 100vw;
+      width: 100%;
+      overflow-x: hidden;
+    }
     body {
       font-family: 'Inter', sans-serif;
     }
@@ -202,49 +207,49 @@
   </div>
 
   <!-- ================= TOP NAVIGATION BAR ================= -->
-  <header class="bg-slate-900 text-white border-b border-slate-800 flex-none z-30 shadow-md">
-    <div class="px-2.5 sm:px-4 py-1.5 sm:py-2.5 flex items-center justify-between gap-1.5 sm:gap-4">
+  <header class="bg-slate-900 text-white border-b border-slate-800 flex-none z-30 shadow-md w-full max-w-full overflow-x-hidden">
+    <div class="px-2 sm:px-3.5 py-1.5 sm:py-2 flex items-center justify-between gap-1.5 sm:gap-2.5 w-full max-w-full">
       
       <!-- Brand & Title -->
-      <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
-        <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-900/30">
-          <i class="fa-solid fa-water text-xs sm:text-xl text-white"></i>
+      <div class="flex items-center gap-1.5 sm:gap-2.5 min-w-0 shrink-0">
+        <div class="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-900/30 shrink-0">
+          <i class="fa-solid fa-water text-xs sm:text-lg text-white"></i>
         </div>
-        <div>
+        <div class="min-w-0">
           <div class="flex items-center gap-1 sm:gap-1.5">
-            <h1 class="text-xs sm:text-base font-bold tracking-tight text-white flex items-center gap-1">
+            <h1 class="text-xs sm:text-sm xl:text-base font-bold tracking-tight text-white flex items-center gap-1 whitespace-nowrap">
               <span class="sm:hidden">INA-Flood</span>
               <span class="hidden sm:inline">INA-CoastalFlood</span>
               <span class="text-[9px] sm:text-xs font-semibold px-1.5 py-0.2 sm:py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 whitespace-nowrap">v5</span>
             </h1>
           </div>
-          <p id="app-tagline" class="text-xs text-slate-400 hidden md:block">
+          <p id="app-tagline" class="text-[11px] text-slate-400 hidden 2xl:block truncate">
             Indonesian Coastal Flood Inventory & Tracker (2015–2026)
           </p>
         </div>
       </div>
 
       <!-- Quick Stats Banner (Visible on Desktop & Laptop) -->
-      <div class="hidden lg:flex items-center gap-3 xl:gap-4 px-3 py-1.5 bg-slate-800/80 rounded-lg border border-slate-700/60 text-xs">
-        <div class="flex items-center gap-1.5 xl:gap-2">
-          <span id="label-stat-total" class="text-slate-400" data-i18n="stat_total">Total Events:</span>
-          <span id="stat-total" class="font-bold text-white font-mono text-sm">1,019</span>
+      <div class="hidden xl:flex items-center gap-2.5 2xl:gap-3.5 px-2.5 py-1 bg-slate-800/80 rounded-lg border border-slate-700/60 text-[11px] whitespace-nowrap shrink-0">
+        <div class="flex items-center gap-1.5 whitespace-nowrap">
+          <span id="label-stat-total" class="text-slate-400 whitespace-nowrap" data-i18n="stat_total">Total Events:</span>
+          <span id="stat-total" class="font-bold text-white font-mono text-xs 2xl:text-sm whitespace-nowrap">1,019</span>
         </div>
-        <div class="h-4 w-px bg-slate-700"></div>
-        <div class="flex items-center gap-1.5 xl:gap-2">
-          <span id="label-stat-filtered" class="text-slate-400" data-i18n="stat_active">Active Shown:</span>
-          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-sm">1,019</span>
+        <div class="h-3.5 w-px bg-slate-700"></div>
+        <div class="flex items-center gap-1.5 whitespace-nowrap">
+          <span id="label-stat-filtered" class="text-slate-400 whitespace-nowrap" data-i18n="stat_active">Active Shown:</span>
+          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-xs 2xl:text-sm whitespace-nowrap">1,019</span>
         </div>
 
-        <div class="hidden 2xl:block h-4 w-px bg-slate-700"></div>
-        <div class="hidden 2xl:flex items-center gap-2">
-          <span class="text-slate-400" data-i18n="stat_max_depth">Max Inundation:</span>
-          <span id="stat-max-depth" class="font-bold text-amber-400 font-mono text-sm">-</span>
+        <div class="hidden 2xl:block h-3.5 w-px bg-slate-700"></div>
+        <div class="hidden 2xl:flex items-center gap-1.5 whitespace-nowrap">
+          <span class="text-slate-400 whitespace-nowrap" data-i18n="stat_max_depth">Max Inundation:</span>
+          <span id="stat-max-depth" class="font-bold text-amber-400 font-mono text-xs 2xl:text-sm whitespace-nowrap">-</span>
         </div>
       </div>
 
       <!-- Actions & Nav Tabs -->
-      <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+      <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
         
         <!-- Mobile Filter Drawer Toggle Button (Icon only on mobile) -->
         <button id="btn-mobile-filter" onclick="toggleMobileSidebar()" class="md:hidden p-1.5 sm:px-2 sm:py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 rounded-lg text-xs font-semibold flex items-center justify-center transition active:scale-95" title="Filters & Search">
@@ -252,68 +257,68 @@
         </button>
 
         <!-- Data Source Quick Switcher (News vs Paper) -->
-        <div class="bg-slate-800 p-0.5 rounded-lg border border-slate-700 flex text-xs font-semibold" title="Data Source: News vs Paper (OpenAlex Literature)">
-          <button type="button" id="nav-src-news" onclick="setDataSourceMode('news')" class="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md bg-cyan-600 text-white flex items-center gap-1 shadow-sm transition cursor-pointer">
+        <div class="bg-slate-800 p-0.5 rounded-lg border border-slate-700 flex text-xs font-semibold whitespace-nowrap" title="Data Source: News vs Paper (OpenAlex Literature)">
+          <button type="button" id="nav-src-news" onclick="setDataSourceMode('news')" class="px-2 py-1 rounded-md bg-cyan-600 text-white flex items-center gap-1 shadow-sm transition cursor-pointer">
             <i class="fa-regular fa-newspaper text-xs"></i>
             <span>News</span>
           </button>
-          <button type="button" id="nav-src-paper" onclick="setDataSourceMode('paper')" class="px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md text-amber-300 hover:text-white flex items-center gap-1 transition cursor-pointer">
+          <button type="button" id="nav-src-paper" onclick="setDataSourceMode('paper')" class="px-2 py-1 rounded-md text-amber-300 hover:text-white flex items-center gap-1 transition cursor-pointer">
             <i class="fa-solid fa-book-open text-xs"></i>
-            <span>Paper (109)</span>
+            <span id="nav-src-paper-label">Paper (62)</span>
           </button>
-          <button type="button" id="nav-src-both" onclick="setDataSourceMode('both')" class="hidden sm:flex px-2 py-1 sm:py-1.5 rounded-md text-slate-300 hover:text-white items-center gap-1 transition cursor-pointer">
+          <button type="button" id="nav-src-both" onclick="setDataSourceMode('both')" class="hidden sm:flex px-2 py-1 rounded-md text-slate-300 hover:text-white items-center gap-1 transition cursor-pointer">
             <i class="fa-solid fa-layer-group text-xs"></i>
-            <span class="hidden xl:inline">News + Paper</span>
+            <span class="hidden lg:inline">Both</span>
           </button>
         </div>
 
         <!-- View Switcher Tabs -->
-        <div class="bg-slate-800 p-0.5 rounded-lg border border-slate-700 flex text-xs font-medium">
-          <button id="btn-view-map" onclick="switchView('map')" class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md bg-cyan-600 text-white flex items-center gap-1 sm:gap-1.5 shadow-sm transition">
-            <i class="fa-solid fa-map text-xs sm:text-sm"></i>
+        <div class="bg-slate-800 p-0.5 rounded-lg border border-slate-700 flex text-xs font-medium whitespace-nowrap">
+          <button id="btn-view-map" onclick="switchView('map')" class="px-2 sm:px-2.5 py-1 rounded-md bg-cyan-600 text-white flex items-center gap-1 shadow-sm transition">
+            <i class="fa-solid fa-map text-xs"></i>
             <span class="hidden md:inline" data-i18n="view_map">Spatial Map</span>
           </button>
-          <button id="btn-view-analytics" onclick="switchView('analytics')" class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1 sm:gap-1.5 transition">
-            <i class="fa-solid fa-chart-pie text-xs sm:text-sm"></i>
+          <button id="btn-view-analytics" onclick="switchView('analytics')" class="px-2 sm:px-2.5 py-1 rounded-md text-slate-300 hover:text-white flex items-center gap-1 transition">
+            <i class="fa-solid fa-chart-pie text-xs"></i>
             <span class="hidden md:inline" data-i18n="view_analytics">Analytics</span>
           </button>
-          <button id="btn-view-table" onclick="switchView('table')" class="px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-slate-300 hover:text-white flex items-center gap-1 sm:gap-1.5 transition">
-            <i class="fa-solid fa-table-list text-xs sm:text-sm"></i>
+          <button id="btn-view-table" onclick="switchView('table')" class="px-2 sm:px-2.5 py-1 rounded-md text-slate-300 hover:text-white flex items-center gap-1 transition">
+            <i class="fa-solid fa-table-list text-xs"></i>
             <span class="hidden md:inline" data-i18n="view_table">Data Table</span>
           </button>
         </div>
 
         <!-- Language Switcher Button -->
-        <button id="btn-lang-toggle" onclick="toggleLanguage()" class="px-1.5 sm:px-2.5 py-1 sm:py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold border border-slate-700 flex items-center gap-1 transition" title="Switch Language / Ganti Bahasa">
-          <i class="fa-solid fa-language text-cyan-400 text-xs sm:text-sm"></i>
+        <button id="btn-lang-toggle" onclick="toggleLanguage()" class="px-1.5 sm:px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-semibold border border-slate-700 flex items-center gap-1 transition whitespace-nowrap" title="Switch Language / Ganti Bahasa">
+          <i class="fa-solid fa-language text-cyan-400 text-xs"></i>
           <span id="current-lang-label" class="font-mono text-[10px] sm:text-xs">EN</span>
         </button>
 
         <!-- Audit QC Modal Button -->
-        <button id="btn-nav-audit" onclick="openAuditModal()" class="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 bg-red-500/15 hover:bg-red-500/25 text-red-300 border border-red-500/40 rounded-lg text-xs font-semibold transition shadow-xs" title="Audit QC: Daftar Berita Tidak Akurat / Bukan Rob">
+        <button id="btn-nav-audit" onclick="openAuditModal()" class="flex items-center gap-1 px-2 py-1 bg-red-500/15 hover:bg-red-500/25 text-red-300 border border-red-500/40 rounded-lg text-xs font-semibold transition shadow-xs whitespace-nowrap" title="Audit QC: Daftar Berita Tidak Akurat / Bukan Rob">
           <i class="fa-solid fa-clipboard-check text-red-400 text-xs"></i>
           <span class="hidden sm:inline" data-i18n="nav_audit">Audit QC</span>
           <span id="audit-badge-count" class="bg-red-600 text-white font-mono text-[10px] px-1.5 py-0.2 rounded-full font-bold">0</span>
         </button>
 
         <!-- Report Issue Button (Desktop/Tablet) -->
-        <button onclick="toggleModal('modal-about', true)" class="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold transition" title="Report Inaccurate News / Laporkan Berita Keliru">
+        <button onclick="toggleModal('modal-about', true)" class="hidden lg:flex items-center gap-1.5 px-2 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold transition whitespace-nowrap" title="Report Inaccurate News / Laporkan Berita Keliru">
           <i class="fa-solid fa-flag text-amber-400 text-xs"></i>
-          <span data-i18n="nav_report">Report Issue</span>
+          <span class="hidden 2xl:inline" data-i18n="nav_report">Report Issue</span>
         </button>
 
         <!-- About Modal Button (Desktop/Tablet) -->
-        <button onclick="toggleModal('modal-about', true)" title="About & Methodology" class="hidden sm:flex p-1.5 sm:p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs border border-slate-700 transition">
+        <button onclick="toggleModal('modal-about', true)" title="About & Methodology" class="hidden sm:flex p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs border border-slate-700 transition">
           <i class="fa-solid fa-circle-info text-xs sm:text-sm"></i>
         </button>
 
         <!-- GitHub Repo Button (Desktop only) -->
-        <a href="https://github.com/randifirdausq5-eng/indonesian-coastal-flood-catalogue" target="_blank" rel="noopener noreferrer" title="View Source on GitHub" class="hidden sm:flex p-1.5 sm:p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs border border-slate-700 transition">
+        <a href="https://github.com/randifirdausq5-eng/indonesian-coastal-flood-catalogue" target="_blank" rel="noopener noreferrer" title="View Source on GitHub" class="hidden sm:flex p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs border border-slate-700 transition">
           <i class="fa-brands fa-github text-xs sm:text-sm"></i>
         </a>
 
         <!-- Lock Dashboard Button -->
-        <button onclick="lockScreen()" title="Lock Screen / Kunci Akses" class="p-1 sm:p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 rounded-lg text-xs border border-slate-700 transition">
+        <button onclick="lockScreen()" title="Lock Screen / Kunci Akses" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-amber-400 rounded-lg text-xs border border-slate-700 transition">
           <i class="fa-solid fa-lock text-xs sm:text-sm"></i>
         </button>
       </div>
@@ -392,7 +397,7 @@
             </button>
             <button type="button" id="sidebar-src-paper" onclick="setDataSourceMode('paper')" class="py-1.5 px-2 rounded-md font-semibold text-[11px] text-slate-700 hover:bg-white/70 transition flex items-center justify-center gap-1 cursor-pointer">
               <i class="fa-solid fa-book-open text-amber-600"></i>
-              <span>Paper (109)</span>
+              <span id="sidebar-src-paper-label">Paper (62)</span>
             </button>
             <button type="button" id="sidebar-src-both" onclick="setDataSourceMode('both')" class="py-1.5 px-2 rounded-md font-semibold text-[11px] text-slate-700 hover:bg-white/70 transition flex items-center justify-center gap-1 cursor-pointer">
               <i class="fa-solid fa-plus text-[9px] text-teal-600"></i>
@@ -403,7 +408,7 @@
           <!-- Literature Status & Legend Summary -->
           <div id="literature-sidebar-summary" class="text-[10.5px] text-slate-600 space-y-1.5 pt-0.5">
             <div class="flex items-center justify-between text-[10px]">
-              <span id="lit-status-badge" class="font-mono font-semibold text-slate-500">Toggle OFF (109 items)</span>
+              <span id="lit-status-badge" class="font-mono font-semibold text-slate-500">Toggle OFF (62 items)</span>
               <button type="button" onclick="if(AppState.dataSourceMode==='news'){setDataSourceMode('paper');}switchView('table');" class="text-[10px] font-bold text-amber-800 hover:underline cursor-pointer">
                 Open Paper Table →
               </button>
@@ -411,11 +416,11 @@
             <div class="grid grid-cols-2 gap-1.5 pt-0.5 text-[10px]">
               <div class="flex items-center gap-1.5 bg-white/95 px-2 py-1 rounded border border-teal-300 text-left">
                 <span class="w-2.5 h-2.5 bg-[#0d9488] inline-block rotate-45 border border-white shadow-2xs shrink-0"></span>
-                <span class="text-teal-900 font-semibold truncate">in inventory (<span id="lit-count-in-cat">30</span>)</span>
+                <span class="text-teal-900 font-semibold truncate">in inventory (<span id="lit-count-in-cat">29</span>)</span>
               </div>
               <div class="flex items-center gap-1.5 bg-white/95 px-2 py-1 rounded border border-amber-300 text-left">
                 <span class="w-2.5 h-2.5 bg-[#d97706] inline-block rotate-45 border border-white shadow-2xs shrink-0"></span>
-                <span class="text-amber-900 font-semibold truncate">not in inv. (<span id="lit-count-not-cat">79</span>)</span>
+                <span class="text-amber-900 font-semibold truncate">not in inv. (<span id="lit-count-not-cat">33</span>)</span>
               </div>
             </div>
             <button type="button" id="btn-download-lit-csv" onclick="exportLiteratureToCSV()" class="w-full mt-1 py-1.5 px-2.5 bg-white hover:bg-amber-100/80 text-amber-900 border border-amber-300 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer">
@@ -877,7 +882,7 @@
             </button>
             <button type="button" id="tbl-src-paper" onclick="setDataSourceMode('paper')" class="px-2.5 py-1 rounded-md text-amber-900 hover:bg-white/70 flex items-center gap-1 transition cursor-pointer">
               <i class="fa-solid fa-book-open text-amber-600"></i>
-              <span>Paper (109)</span>
+              <span id="tbl-src-paper-label">Paper (62)</span>
             </button>
             <button type="button" id="tbl-src-both" onclick="setDataSourceMode('both')" class="px-2.5 py-1 rounded-md text-slate-700 hover:bg-white/70 flex items-center gap-1 transition cursor-pointer">
               <i class="fa-solid fa-layer-group text-teal-600"></i>
@@ -907,14 +912,14 @@
               <span>Literature Flood Dates (OpenAlex, 2015–2026)</span>
             </span>
             <span id="lit-table-summary-badge" class="px-2 py-0.5 rounded-full bg-white border border-amber-300 text-amber-900 font-mono text-[11px] font-bold">
-              109 items (87 on map · 22 table-only)
+              62 items (61 on map · 1 table-only)
             </span>
           </div>
           <div class="flex items-center gap-1.5 flex-wrap text-[11px]">
-            <span class="px-2 py-0.5 rounded font-bold bg-amber-800 text-white">Total: <span id="lit-sub-cnt-all">109</span></span>
-            <span class="px-2 py-0.5 rounded font-semibold bg-white text-teal-800 border border-teal-300 inline-flex items-center gap-1"><span class="w-2 h-2 bg-[#0d9488] rotate-45 inline-block"></span>in inventory: <span id="lit-sub-cnt-incat">30</span></span>
-            <span class="px-2 py-0.5 rounded font-semibold bg-white text-amber-900 border border-amber-300 inline-flex items-center gap-1"><span class="w-2 h-2 bg-[#d97706] rotate-45 inline-block"></span>not in inventory: <span id="lit-sub-cnt-notcat">79</span></span>
-            <span class="px-2 py-0.5 rounded font-semibold bg-white text-slate-700 border border-slate-300">no coords (table-only): <span id="lit-sub-cnt-unmapped">22</span></span>
+            <span class="px-2 py-0.5 rounded font-bold bg-amber-800 text-white">Total: <span id="lit-sub-cnt-all">62</span></span>
+            <span class="px-2 py-0.5 rounded font-semibold bg-white text-teal-800 border border-teal-300 inline-flex items-center gap-1"><span class="w-2 h-2 bg-[#0d9488] rotate-45 inline-block"></span>in inventory: <span id="lit-sub-cnt-incat">29</span></span>
+            <span class="px-2 py-0.5 rounded font-semibold bg-white text-amber-900 border border-amber-300 inline-flex items-center gap-1"><span class="w-2 h-2 bg-[#d97706] rotate-45 inline-block"></span>not in inventory: <span id="lit-sub-cnt-notcat">33</span></span>
+            <span class="px-2 py-0.5 rounded font-semibold bg-white text-slate-700 border border-slate-300">no coords (table-only): <span id="lit-sub-cnt-unmapped">1</span></span>
           </div>
         </div>
         <div class="flex-1 overflow-auto">
@@ -3832,6 +3837,11 @@
       const tableOnlyCount = totalFiltered - onMapCount;
       const inCatCount = AppState.filteredLiterature.filter(x => x.status === 'in catalogue').length;
       const notCatCount = totalFiltered - inCatCount;
+
+      ['nav-src-paper-label', 'sidebar-src-paper-label', 'tbl-src-paper-label'].forEach(lblId => {
+        const lblEl = document.getElementById(lblId);
+        if (lblEl) lblEl.textContent = `Paper (${allLit.length})`;
+      });
 
       const statusBadge = document.getElementById('lit-status-badge');
       if (statusBadge) {
