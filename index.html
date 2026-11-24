@@ -405,23 +405,23 @@
             </button>
           </div>
 
-          <!-- Literature Status & Legend Summary -->
-          <div id="literature-sidebar-summary" class="text-[10.5px] text-slate-600 space-y-1.5 pt-0.5">
+          <!-- Literature Status & Legend Summary (Hidden in News mode; shown when Paper is active) -->
+          <div id="literature-sidebar-summary" class="hidden text-[10.5px] text-slate-600 space-y-1.5 pt-0.5">
             <div class="flex items-center justify-between text-[10px]">
-              <span id="lit-status-badge" class="font-mono font-semibold text-slate-500">Toggle OFF (62 items)</span>
+              <span id="lit-status-badge" class="font-mono font-semibold text-slate-500">62 items</span>
               <button type="button" onclick="if(AppState.dataSourceMode==='news'){setDataSourceMode('paper');}switchView('table');" class="text-[10px] font-bold text-amber-800 hover:underline cursor-pointer">
                 Open Paper Table →
               </button>
             </div>
             <div class="grid grid-cols-2 gap-1.5 pt-0.5 text-[10px]">
-              <div class="flex items-center gap-1.5 bg-white/95 px-2 py-1 rounded border border-teal-300 text-left">
+              <button type="button" id="btn-lit-filter-in" onclick="toggleLitInventoryFilter('in_inv')" title="Click to show only 'in inventory' on map (click again to show all)" class="flex items-center gap-1.5 bg-white/95 hover:bg-teal-50 px-2 py-1 rounded border border-teal-300 text-left transition cursor-pointer">
                 <span class="w-2.5 h-2.5 bg-[#0d9488] inline-block rotate-45 border border-white shadow-2xs shrink-0"></span>
                 <span class="text-teal-900 font-semibold truncate">in inventory (<span id="lit-count-in-cat">29</span>)</span>
-              </div>
-              <div class="flex items-center gap-1.5 bg-white/95 px-2 py-1 rounded border border-amber-300 text-left">
+              </button>
+              <button type="button" id="btn-lit-filter-not" onclick="toggleLitInventoryFilter('not_inv')" title="Click to show only 'not in inventory' on map (click again to show all)" class="flex items-center gap-1.5 bg-white/95 hover:bg-amber-50 px-2 py-1 rounded border border-amber-300 text-left transition cursor-pointer">
                 <span class="w-2.5 h-2.5 bg-[#d97706] inline-block rotate-45 border border-white shadow-2xs shrink-0"></span>
                 <span class="text-amber-900 font-semibold truncate">not in inv. (<span id="lit-count-not-cat">33</span>)</span>
-              </div>
+              </button>
             </div>
             <button type="button" id="btn-download-lit-csv" onclick="exportLiteratureToCSV()" class="w-full mt-1 py-1.5 px-2.5 bg-white hover:bg-amber-100/80 text-amber-900 border border-amber-300 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer">
               <i class="fa-solid fa-file-csv text-amber-700"></i>
@@ -916,9 +916,9 @@
             </span>
           </div>
           <div class="flex items-center gap-1.5 flex-wrap text-[11px]">
-            <span class="px-2 py-0.5 rounded font-bold bg-amber-800 text-white">Total: <span id="lit-sub-cnt-all">62</span></span>
-            <span class="px-2 py-0.5 rounded font-semibold bg-white text-teal-800 border border-teal-300 inline-flex items-center gap-1"><span class="w-2 h-2 bg-[#0d9488] rotate-45 inline-block"></span>in inventory: <span id="lit-sub-cnt-incat">29</span></span>
-            <span class="px-2 py-0.5 rounded font-semibold bg-white text-amber-900 border border-amber-300 inline-flex items-center gap-1"><span class="w-2 h-2 bg-[#d97706] rotate-45 inline-block"></span>not in inventory: <span id="lit-sub-cnt-notcat">33</span></span>
+            <button type="button" id="btn-tbl-lit-all" onclick="toggleLitInventoryFilter('all')" class="px-2 py-0.5 rounded font-bold bg-amber-800 text-white cursor-pointer transition">Total: <span id="lit-sub-cnt-all">62</span></button>
+            <button type="button" id="btn-tbl-lit-in" onclick="toggleLitInventoryFilter('in_inv')" class="px-2 py-0.5 rounded font-semibold bg-white hover:bg-teal-50 text-teal-800 border border-teal-300 inline-flex items-center gap-1 cursor-pointer transition"><span class="w-2 h-2 bg-[#0d9488] rotate-45 inline-block"></span>in inventory: <span id="lit-sub-cnt-incat">29</span></button>
+            <button type="button" id="btn-tbl-lit-not" onclick="toggleLitInventoryFilter('not_inv')" class="px-2 py-0.5 rounded font-semibold bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 inline-flex items-center gap-1 cursor-pointer transition"><span class="w-2 h-2 bg-[#d97706] rotate-45 inline-block"></span>not in inventory: <span id="lit-sub-cnt-notcat">33</span></button>
             <span class="px-2 py-0.5 rounded font-semibold bg-white text-slate-700 border border-slate-300">no coords (table-only): <span id="lit-sub-cnt-unmapped">1</span></span>
           </div>
         </div>
@@ -3742,7 +3742,15 @@
         }
       }
 
-      // Legend & Table section visibility
+      // Legend, Sidebar Summary & Table section visibility
+      const sideLitSummary = document.getElementById('literature-sidebar-summary');
+      if (sideLitSummary) {
+        if (AppState.showLiterature) sideLitSummary.classList.remove('hidden');
+        else sideLitSummary.classList.add('hidden');
+      }
+      if (!AppState.showLiterature) {
+        AppState.litInventoryFilter = 'all';
+      }
       const legendSec = document.getElementById('legend-literature-section');
       if (legendSec) {
         if (AppState.showLiterature) legendSec.classList.remove('hidden');
@@ -3778,6 +3786,20 @@
       }
     }
 
+    function toggleLitInventoryFilter(targetFilter) {
+      const cur = AppState.litInventoryFilter || 'all';
+      if (targetFilter === 'all' || cur === targetFilter) {
+        AppState.litInventoryFilter = 'all';
+      } else {
+        AppState.litInventoryFilter = targetFilter;
+      }
+      if (!AppState.showLiterature) {
+        setDataSourceMode('paper');
+      } else {
+        applyLiteratureFilters();
+      }
+    }
+
     function applyLiteratureFilters() {
       const allLit = AppState.allLiterature || [];
       const searchEl = document.getElementById('search-input');
@@ -3789,7 +3811,7 @@
       const auditFilterEl = document.getElementById('filter-audit');
       const auditVal = auditFilterEl ? auditFilterEl.value : 'all';
 
-      AppState.filteredLiterature = allLit.filter(item => {
+      const baseFiltered = allLit.filter(item => {
         // 1. Region filter
         if (AppState.activeRegion !== 'all' && item.region !== AppState.activeRegion) {
           return false;
@@ -3832,16 +3854,58 @@
         return true;
       });
 
+      AppState.baseFilteredLiterature = baseFiltered;
+      const inCatCount = baseFiltered.filter(x => x.status === 'in catalogue').length;
+      const notCatCount = baseFiltered.length - inCatCount;
+
+      const invFilter = AppState.litInventoryFilter || 'all';
+      AppState.filteredLiterature = baseFiltered.filter(x => {
+        if (invFilter === 'in_inv') return x.status === 'in catalogue';
+        if (invFilter === 'not_inv') return x.status !== 'in catalogue';
+        return true;
+      });
+
       const totalFiltered = AppState.filteredLiterature.length;
       const onMapCount = AppState.filteredLiterature.filter(x => x.lat !== null && x.lon !== null).length;
       const tableOnlyCount = totalFiltered - onMapCount;
-      const inCatCount = AppState.filteredLiterature.filter(x => x.status === 'in catalogue').length;
-      const notCatCount = totalFiltered - inCatCount;
 
       ['nav-src-paper-label', 'sidebar-src-paper-label', 'tbl-src-paper-label'].forEach(lblId => {
         const lblEl = document.getElementById(lblId);
         if (lblEl) lblEl.textContent = `Paper (${allLit.length})`;
       });
+
+      // Highlight active 'in inventory' / 'not in inv.' filter buttons
+      const btnSideIn = document.getElementById('btn-lit-filter-in');
+      const btnSideNot = document.getElementById('btn-lit-filter-not');
+      if (btnSideIn) {
+        btnSideIn.className = (invFilter === 'in_inv')
+          ? 'flex items-center gap-1.5 bg-teal-600 text-white px-2 py-1 rounded border border-teal-700 text-left ring-2 ring-teal-400 shadow-xs transition cursor-pointer'
+          : 'flex items-center gap-1.5 bg-white/95 hover:bg-teal-50 text-teal-900 px-2 py-1 rounded border border-teal-300 text-left transition cursor-pointer';
+      }
+      if (btnSideNot) {
+        btnSideNot.className = (invFilter === 'not_inv')
+          ? 'flex items-center gap-1.5 bg-amber-600 text-white px-2 py-1 rounded border border-amber-700 text-left ring-2 ring-amber-400 shadow-xs transition cursor-pointer'
+          : 'flex items-center gap-1.5 bg-white/95 hover:bg-amber-50 text-amber-900 px-2 py-1 rounded border border-amber-300 text-left transition cursor-pointer';
+      }
+
+      const btnTblAll = document.getElementById('btn-tbl-lit-all');
+      const btnTblIn = document.getElementById('btn-tbl-lit-in');
+      const btnTblNot = document.getElementById('btn-tbl-lit-not');
+      if (btnTblAll) {
+        btnTblAll.className = (invFilter === 'all')
+          ? 'px-2 py-0.5 rounded font-bold bg-amber-800 text-white cursor-pointer transition'
+          : 'px-2 py-0.5 rounded font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 cursor-pointer transition';
+      }
+      if (btnTblIn) {
+        btnTblIn.className = (invFilter === 'in_inv')
+          ? 'px-2 py-0.5 rounded font-bold bg-teal-600 text-white border border-teal-700 inline-flex items-center gap-1 cursor-pointer transition'
+          : 'px-2 py-0.5 rounded font-semibold bg-white hover:bg-teal-50 text-teal-800 border border-teal-300 inline-flex items-center gap-1 cursor-pointer transition';
+      }
+      if (btnTblNot) {
+        btnTblNot.className = (invFilter === 'not_inv')
+          ? 'px-2 py-0.5 rounded font-bold bg-amber-600 text-white border border-amber-700 inline-flex items-center gap-1 cursor-pointer transition'
+          : 'px-2 py-0.5 rounded font-semibold bg-white hover:bg-amber-50 text-amber-900 border border-amber-300 inline-flex items-center gap-1 cursor-pointer transition';
+      }
 
       const statusBadge = document.getElementById('lit-status-badge');
       if (statusBadge) {
@@ -4281,20 +4345,21 @@
 
       const isEnglish = AppState.lang === 'en';
       const items = AppState.filteredLiterature || [];
+      const baseItems = AppState.baseFilteredLiterature || items;
       const total = items.length;
       const onMap = items.filter(x => x.lat !== null && x.lon !== null).length;
       const tableOnly = total - onMap;
-      const inCat = items.filter(x => x.status === 'in catalogue').length;
-      const notCat = total - inCat;
+      const baseInCat = baseItems.filter(x => x.status === 'in catalogue').length;
+      const baseNotCat = baseItems.length - baseInCat;
 
       const badgeEl = document.getElementById('lit-table-summary-badge');
       if (badgeEl) {
         badgeEl.textContent = `${total} items (${onMap} on map · ${tableOnly} table-only)`;
       }
       const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-      setTxt('lit-sub-cnt-all', total);
-      setTxt('lit-sub-cnt-incat', inCat);
-      setTxt('lit-sub-cnt-notcat', notCat);
+      setTxt('lit-sub-cnt-all', baseItems.length);
+      setTxt('lit-sub-cnt-incat', baseInCat);
+      setTxt('lit-sub-cnt-notcat', baseNotCat);
       setTxt('lit-sub-cnt-unmapped', tableOnly);
 
       if (items.length === 0) {
