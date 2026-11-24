@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>INA-CoastalFlood (v5) | Indonesian Coastal Flood Catalogue & Tracker</title>
+  <title>INA-CoastalFlood (v5) | Indonesian Coastal Flood Inventory & Tracker</title>
   <meta name="description" content="Interactive Web Dashboard and Auto-Tracker for Indonesian Coastal Flooding Events (2015-2026) - INA-CoastalFlood">
 
   <!-- Tailwind CSS CDN -->
@@ -143,7 +143,7 @@
         </div>
         <h1 class="text-2xl font-bold text-white tracking-tight">Restricted Access</h1>
         <p class="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-          Indonesian Coastal Flood Catalogue & Research Prototype. Please enter authorization password to view dashboard.
+          Indonesian Coastal Flood Inventory & Research Prototype. Please enter authorization password to view dashboard.
         </p>
       </div>
 
@@ -219,7 +219,7 @@
             </h1>
           </div>
           <p id="app-tagline" class="text-xs text-slate-400 hidden md:block">
-            Indonesian Coastal Flood Catalogue & Tracker (2015–2026)
+            Indonesian Coastal Flood Inventory & Tracker (2015–2026)
           </p>
         </div>
       </div>
@@ -411,11 +411,11 @@
             <div class="grid grid-cols-2 gap-1.5 pt-0.5 text-[10px]">
               <div class="flex items-center gap-1.5 bg-white/95 px-2 py-1 rounded border border-teal-300 text-left">
                 <span class="w-2.5 h-2.5 bg-[#0d9488] inline-block rotate-45 border border-white shadow-2xs shrink-0"></span>
-                <span class="text-teal-900 font-semibold truncate">in catalogue (<span id="lit-count-in-cat">30</span>)</span>
+                <span class="text-teal-900 font-semibold truncate">in inventory (<span id="lit-count-in-cat">30</span>)</span>
               </div>
               <div class="flex items-center gap-1.5 bg-white/95 px-2 py-1 rounded border border-amber-300 text-left">
                 <span class="w-2.5 h-2.5 bg-[#d97706] inline-block rotate-45 border border-white shadow-2xs shrink-0"></span>
-                <span class="text-amber-900 font-semibold truncate">not in cat. (<span id="lit-count-not-cat">79</span>)</span>
+                <span class="text-amber-900 font-semibold truncate">not in inv. (<span id="lit-count-not-cat">79</span>)</span>
               </div>
             </div>
             <button type="button" id="btn-download-lit-csv" onclick="exportLiteratureToCSV()" class="w-full mt-1 py-1.5 px-2.5 bg-white hover:bg-amber-100/80 text-amber-900 border border-amber-300 rounded-lg text-[11px] font-semibold flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer">
@@ -541,7 +541,7 @@
             <option value="unverified">⏳ Belum Ditinjau (Sisa Kurasi)</option>
             <option value="verified">✅ Sudah Diverifikasi (Event Benar)</option>
             <option value="flagged">🚫 Ditandai Bukan Event / Inaccurate</option>
-            <option value="unflagged">🌊 Katalog Bersih (Sembunyikan Bukan Event)</option>
+            <option value="unflagged">🌊 Inventaris Bersih (Sembunyikan Bukan Event)</option>
           </select>
         </div>
 
@@ -608,7 +608,7 @@
           </div>
           <p class="text-xs text-slate-200" id="filter-summary-text">
             Showing <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,019</span> of 
-            <span class="font-semibold font-mono">1,019</span> verified events in catalogue.
+            <span class="font-semibold font-mono">1,019</span> verified events in inventory.
           </p>
         </div>
 
@@ -728,11 +728,11 @@
             </div>
             <div class="flex items-center gap-2 pl-0.5">
               <span class="w-3 h-3 bg-[#0d9488] inline-block rotate-45 shadow-sm flex-none border border-white"></span>
-              <span class="font-medium text-slate-700">Literature: in catalogue</span>
+              <span class="font-medium text-slate-700">Literature: in inventory</span>
             </div>
             <div class="flex items-center gap-2 pl-0.5">
               <span class="w-3 h-3 bg-[#d97706] inline-block rotate-45 shadow-sm flex-none border border-white"></span>
-              <span class="font-medium text-slate-700">Literature: not in catalogue</span>
+              <span class="font-medium text-slate-700">Literature: not in inventory</span>
             </div>
           </div>
         </div>
@@ -864,7 +864,7 @@
       <div class="p-3.5 sm:p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 bg-slate-50">
         <div>
           <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-table-list text-cyan-600"></i> <span data-i18n="table_title">Coastal Flood Catalogue Records</span>
+            <i class="fa-solid fa-table-list text-cyan-600"></i> <span data-i18n="table_title">Coastal Flood Inventory Records</span>
           </h2>
           <p class="text-xs text-slate-500" data-i18n="table_subtitle">Comprehensive event-level records with direct links to verified news sources.</p>
         </div>
@@ -886,7 +886,7 @@
           </div>
           <button type="button" onclick="exportCatalogueToCSV()" class="px-2.5 py-1.5 bg-white hover:bg-cyan-50 border border-slate-300 text-slate-700 hover:text-cyan-800 rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 transition cursor-pointer">
             <i class="fa-solid fa-file-csv text-cyan-600"></i>
-            <span>Download catalogue CSV</span>
+            <span>Download inventory CSV</span>
           </button>
           <button type="button" onclick="exportLiteratureToCSV()" class="px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-900 rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 transition cursor-pointer">
             <i class="fa-solid fa-book-open text-amber-600"></i>
@@ -912,8 +912,8 @@
           </div>
           <div class="flex items-center gap-1.5 flex-wrap text-[11px]">
             <span class="px-2 py-0.5 rounded font-bold bg-amber-800 text-white">Total: <span id="lit-sub-cnt-all">109</span></span>
-            <span class="px-2 py-0.5 rounded font-semibold bg-white text-teal-800 border border-teal-300 inline-flex items-center gap-1"><span class="w-2 h-2 bg-[#0d9488] rotate-45 inline-block"></span>in catalogue: <span id="lit-sub-cnt-incat">30</span></span>
-            <span class="px-2 py-0.5 rounded font-semibold bg-white text-amber-900 border border-amber-300 inline-flex items-center gap-1"><span class="w-2 h-2 bg-[#d97706] rotate-45 inline-block"></span>not in catalogue: <span id="lit-sub-cnt-notcat">79</span></span>
+            <span class="px-2 py-0.5 rounded font-semibold bg-white text-teal-800 border border-teal-300 inline-flex items-center gap-1"><span class="w-2 h-2 bg-[#0d9488] rotate-45 inline-block"></span>in inventory: <span id="lit-sub-cnt-incat">30</span></span>
+            <span class="px-2 py-0.5 rounded font-semibold bg-white text-amber-900 border border-amber-300 inline-flex items-center gap-1"><span class="w-2 h-2 bg-[#d97706] rotate-45 inline-block"></span>not in inventory: <span id="lit-sub-cnt-notcat">79</span></span>
             <span class="px-2 py-0.5 rounded font-semibold bg-white text-slate-700 border border-slate-300">no coords (table-only): <span id="lit-sub-cnt-unmapped">22</span></span>
           </div>
         </div>
@@ -1182,9 +1182,9 @@
             <span id="audit-btn-import-text">Impor CSV</span>
             <input type="file" id="audit-csv-file-input" accept=".csv" class="hidden" onchange="handleImportAuditCSV(event)" />
           </label>
-          <button onclick="resetFlagsFromCatalogue()" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs" title="Muat Ulang Tanda dari Katalog Bawaan">
+          <button onclick="resetFlagsFromCatalogue()" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs" title="Muat Ulang Tanda dari Inventaris Bawaan">
             <i class="fa-solid fa-arrows-rotate text-slate-500"></i>
-            <span id="audit-btn-reload-text">Muat dari Katalog</span>
+            <span id="audit-btn-reload-text">Muat dari Inventaris</span>
           </button>
           <button onclick="copyFlaggedIDs()" class="px-2.5 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition shadow-xs">
             <i class="fa-regular fa-copy text-slate-500"></i>
@@ -1298,7 +1298,7 @@
     // ================= I18N DICTIONARY =================
     const I18N = {
       en: {
-        tagline: "Indonesian Coastal Flood Catalogue & Tracker (2015–2026)",
+        tagline: "Indonesian Coastal Flood Inventory & Tracker (2015–2026)",
         stat_total: "Total Events:",
         stat_total_all: "Total Events:",
         stat_total_rob: "Total Tidal Floods:",
@@ -1334,7 +1334,7 @@
         reg_sumatra_west: "West Sumatra",
         province_select: "Filter Specific Province",
         hazard_classification: "Hazard Type",
-        hazard_class_tag: "v5 Catalogue",
+        hazard_class_tag: "v5 Inventory",
         hazard_rob_label: "Banjir Rob (Tidal Flood)",
         hazard_high_wave_label: "Gelombang Tinggi (High Wave)",
         specific_parameters: "Parameters",
@@ -1381,7 +1381,7 @@
         map_report_desc: "Found an inaccurate or non-flood report (such as protests about flooding or seawall plans)? Please mark it directly in the event popup menu on the map, or send an email to:",
         sidebar_report_title: "Report Inaccurate News",
         sidebar_report_desc: "Found an inaccurate or non-flood event? Please mark it directly in the popup menu or send an email to:",
-        table_title: "Coastal Flood Catalogue Records",
+        table_title: "Coastal Flood Inventory Records",
         table_subtitle: "Comprehensive event-level records with direct links to verified news sources. Notice an inaccurate article? Mark it directly on the map or report via email.",
         table_swipe_hint: "Swipe horizontally to view full columns →",
         th_date: "Start Date",
@@ -1433,7 +1433,7 @@
         months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       },
       id: {
-        tagline: "Katalog & Pelacak Kejadian Banjir Rob Pesisir Indonesia (2015–2026)",
+        tagline: "Inventaris & Pelacak Kejadian Banjir Rob Pesisir Indonesia (2015–2026)",
         stat_total: "Total Kejadian:",
         stat_total_all: "Total Semua Kejadian:",
         stat_total_rob: "Total Banjir Rob:",
@@ -1469,7 +1469,7 @@
         reg_sumatra_west: "Sumatera Barat",
         province_select: "Filter Spesifik Provinsi",
         hazard_classification: "Klasifikasi Bahaya",
-        hazard_class_tag: "Katalog v5",
+        hazard_class_tag: "Inventaris v5",
         hazard_rob_label: "Banjir Rob (Tidal Flood)",
         hazard_high_wave_label: "Gelombang Tinggi (High Wave)",
         specific_parameters: "Parameter Khusus",
@@ -1516,7 +1516,7 @@
         map_report_desc: "Menemukan berita yang tidak akurat / bukan banjir rob (seperti demo rob atau rencana proyek tanggul)? Silakan tandai langsung (please mark) pada menu popup kejadian di peta, atau kirim email ke:",
         sidebar_report_title: "Laporkan Berita Keliru",
         sidebar_report_desc: "Menemukan berita keliru atau bukan rob? Silakan tandai langsung di menu popup kejadian di peta, atau kirim email ke:",
-        table_title: "Tabel Data Katalog Banjir Rob",
+        table_title: "Tabel Data Inventaris Banjir Rob",
         table_subtitle: "Daftar lengkap record kejadian terverifikasi dengan tautan berita. Menemukan berita bukan rob? Tandai langsung di peta atau laporkan via email.",
         table_swipe_hint: "Geser horizontal untuk melihat rincian tabel →",
         th_date: "Tanggal Mulai",
@@ -1563,7 +1563,7 @@
         nav_audit: "Audit QC",
         audit_filter_label: "Filter Audit / QC",
         audit_opt_all: "Semua Kejadian (Default)",
-        audit_opt_clean: "Katalog Bersih (Sembunyikan Ditandai)",
+        audit_opt_clean: "Inventaris Bersih (Sembunyikan Ditandai)",
         audit_opt_flagged: "Hanya yang Ditandai Tidak Akurat",
         months: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
       }
@@ -1631,13 +1631,13 @@
           auditSelect.options[1].text = "⏳ Unreviewed (Pending QC)";
           auditSelect.options[2].text = "✅ Verified Events (Ground Truth)";
           auditSelect.options[3].text = "🚫 Flagged: Not an Event / Inaccurate";
-          auditSelect.options[4].text = "🌊 Clean Catalogue (Hide Flagged)";
+          auditSelect.options[4].text = "🌊 Clean Inventory (Hide Flagged)";
         } else {
           auditSelect.options[0].text = "Semua Kejadian (Default)";
           auditSelect.options[1].text = "⏳ Belum Ditinjau (Sisa Kurasi)";
           auditSelect.options[2].text = "✅ Sudah Diverifikasi (Event Benar)";
           auditSelect.options[3].text = "🚫 Ditandai Bukan Event / Inaccurate";
-          auditSelect.options[4].text = "🌊 Katalog Bersih (Sembunyikan Bukan Event)";
+          auditSelect.options[4].text = "🌊 Inventaris Bersih (Sembunyikan Bukan Event)";
         }
         auditSelect.value = curVal;
       }
@@ -1728,7 +1728,7 @@
           <div>
             <h4 class="font-bold text-slate-800 text-sm mb-1">1. Background & Motivation</h4>
             <p>
-              To date, no comprehensive national observational catalogue of coastal flood events exists in Indonesia. This independent catalogue was initiated to address this observational gap by systematically compiling and verifying reported coastal flood events across the Indonesian Maritime Continent from November 2015 to 2026 using online media mining (Google News RSS & independent media verification).
+              To date, no comprehensive national observational inventory of coastal flood events exists in Indonesia. This independent inventory was initiated to address this observational gap by systematically compiling and verifying reported coastal flood events across the Indonesian Maritime Continent from November 2015 to 2026 using online media mining (Google News RSS & independent media verification).
             </p>
           </div>
 
@@ -1738,7 +1738,7 @@
               <ul class="list-disc pl-4 space-y-1.5 text-cyan-950 text-[11px] leading-relaxed">
                 <li><strong>Banjir Rob (Tidal Flood):</strong> Coastal sea-water inundation events reported in coastal settlements, driven primarily by astronomical spring tides and positive sea level anomalies (without concurrent wave reports).</li>
                 <li><strong>Rob + Gelombang (Compound Tide-Wave):</strong> Compound coastal flood events where tidal inundation and ocean swell/high waves co-occur simultaneously, reported in a combined headline or concurrently at the same place and date.</li>
-                <li><strong>Gelombang Tinggi / Abrasi (High Wave / Coastal Erosion):</strong> Coastal damage or inundation events explicitly driven by ocean swells, high waves, or marine erosion along exposed coastlines (without tidal flood components). Retained in the public catalogue, but excluded from daily sea level analysis because wave runup is not resolved by altimetry.</li>
+                <li><strong>Gelombang Tinggi / Abrasi (High Wave / Coastal Erosion):</strong> Coastal damage or inundation events explicitly driven by ocean swells, high waves, or marine erosion along exposed coastlines (without tidal flood components). Retained in the public inventory, but excluded from daily sea level analysis because wave runup is not resolved by altimetry.</li>
               </ul>
             </div>
           </div>
@@ -1746,7 +1746,7 @@
           <div>
             <h4 class="font-bold text-slate-800 text-sm mb-1">3. Scientific Disclaimer</h4>
             <p class="text-slate-500">
-              This catalogue is intended for spatial distribution, seasonal cycle, and physical compound extreme attribution studies. <strong>This catalogue MUST NOT be used for long-term multi-decadal sea level trend analysis</strong> (due to temporal variations in online media coverage).
+              This inventory is intended for spatial distribution, seasonal cycle, and physical compound extreme attribution studies. <strong>This inventory MUST NOT be used for long-term multi-decadal sea level trend analysis</strong> (due to temporal variations in online media coverage).
             </p>
           </div>
 
@@ -1780,7 +1780,7 @@
           <div>
             <h4 class="font-bold text-slate-800 text-sm mb-1">1. Latar Belakang & Motivasi</h4>
             <p>
-              Hingga saat ini, belum tersedia catatan atau katalog kejadian banjir rob yang terhimpun secara nasional di Indonesia. Katalog independen ini dibangun sebagai inisiatif untuk menjembatani kesenjangan tersebut melalui kompilasi observasional kejadian banjir rob pesisir di seluruh Indonesia dari periode November 2015 hingga 2026 yang dihimpun dan diverifikasi secara sistematis dari laporan media daring (Google News RSS & verifikasi independen).
+              Hingga saat ini, belum tersedia catatan atau inventaris kejadian banjir rob yang terhimpun secara nasional di Indonesia. Inventaris independen ini dibangun sebagai inisiatif untuk menjembatani kesenjangan tersebut melalui kompilasi observasional kejadian banjir rob pesisir di seluruh Indonesia dari periode November 2015 hingga 2026 yang dihimpun dan diverifikasi secara sistematis dari laporan media daring (Google News RSS & verifikasi independen).
             </p>
           </div>
 
@@ -1790,7 +1790,7 @@
               <ul class="list-disc pl-4 space-y-1.5 text-cyan-950 text-[11px] leading-relaxed">
                 <li><strong>Banjir Rob (Tidal Flood):</strong> Kejadian genangan air laut di kawasan pesisir atau permukiman yang dipicu pasang air laut purnama dan anomali muka air laut positif (tanpa laporan gelombang tinggi).</li>
                 <li><strong>Rob + Gelombang (Compound Tide-Wave):</strong> Kejadian banjir pesisir majemuk (<em>compound flood</em>) akibat perpaduan pasang air laut tinggi dan hempasan ombak/gelombang besar secara simultan, dilaporkan dalam satu berita atau pada lokasi dan tanggal yang sama.</li>
-                <li><strong>Gelombang Tinggi / Abrasi (High Wave / Coastal Erosion):</strong> Kejadian pesisir yang secara dominan dipicu oleh hempasan gelombang tinggi, swell samudra, atau abrasi pantai terbuka yang mencapai daratan (tanpa komponen pasang rob). Tetap dipertahankan di katalog publik, namun dieksklusikan dari analisis altimetri muka air laut karena run-up gelombang tidak terekam satelit.</li>
+                <li><strong>Gelombang Tinggi / Abrasi (High Wave / Coastal Erosion):</strong> Kejadian pesisir yang secara dominan dipicu oleh hempasan gelombang tinggi, swell samudra, atau abrasi pantai terbuka yang mencapai daratan (tanpa komponen pasang rob). Tetap dipertahankan di inventaris publik, namun dieksklusikan dari analisis altimetri muka air laut karena run-up gelombang tidak terekam satelit.</li>
               </ul>
             </div>
           </div>
@@ -1798,7 +1798,7 @@
           <div>
             <h4 class="font-bold text-slate-800 text-sm mb-1">3. Penafian Ilmiah (Scientific Disclaimer)</h4>
             <p class="text-slate-500">
-              Katalog ini ditujukan untuk analisis distribusi spasial, siklus musiman, dan keterkaitan dengan dinamika pesisir. <strong>Katalog ini TIDAK boleh digunakan untuk menghitung tren jangka panjang</strong> (karena adanya variasi peliputan media massa dari waktu ke waktu).
+              Inventaris ini ditujukan untuk analisis distribusi spasial, siklus musiman, dan keterkaitan dengan dinamika pesisir. <strong>Inventaris ini TIDAK boleh digunakan untuk menghitung tren jangka panjang</strong> (karena adanya variasi peliputan media massa dari waktu ke waktu).
             </p>
           </div>
 
@@ -1806,7 +1806,7 @@
             <h4 class="font-bold text-slate-800 text-sm mb-1">4. Kualitas Data & Pelaporan Berita Tidak Tepat</h4>
             <div class="p-3.5 bg-amber-50/90 border border-amber-200 rounded-xl space-y-1.5">
               <p class="text-amber-900 text-[11px] leading-relaxed">
-                Katalog INA-CoastalFlood dikurasi secara semi-otomatis melalui penelusuran web berita dan klasifikasi NLP. Meskipun filter bertingkat telah diterapkan, artikel yang bukan kejadian banjir rob nyata (misalnya berita aksi unjuk rasa/demo warga menuntut penanganan rob, perdebatan kebijakan, atau rencana pembangunan tanggul/proyek infrastruktur tanpa adanya genangan fisik) terkadang dapat lolos.
+                Inventaris INA-CoastalFlood dikurasi secara semi-otomatis melalui penelusuran web berita dan klasifikasi NLP. Meskipun filter bertingkat telah diterapkan, artikel yang bukan kejadian banjir rob nyata (misalnya berita aksi unjuk rasa/demo warga menuntut penanganan rob, perdebatan kebijakan, atau rencana pembangunan tanggul/proyek infrastruktur tanpa adanya genangan fisik) terkadang dapat lolos.
               </p>
               <p class="text-amber-900 text-[11px] leading-relaxed">
                 Jika Anda menemukan artikel atau data yang tidak tepat atau bukan kejadian rob sesungguhnya, silakan tandai langsung (please mark) pada menu popup kejadian di peta (klik titik kejadian lalu pilih tombol <strong>Bukan Event</strong>), atau laporkan <strong>ID Kejadian</strong> dan tautannya via email ke:
@@ -4071,12 +4071,13 @@
         }
       }
 
+      const displayStatus = isInCat ? 'in inventory' : 'not in inventory';
       const linkedEids = Array.isArray(item.linked_e_ids) ? item.linked_e_ids : [];
       const linkedEidsHtml = linkedEids.length > 0
         ? linkedEids.map(eid =>
-            `<button type="button" onclick="focusCatalogueEventFromLit('${eid}')" class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-teal-600 hover:bg-teal-700 text-white font-mono text-[11px] font-bold shadow-2xs transition cursor-pointer" title="Open catalogue event ${eid} on map"><i class="fa-solid fa-location-crosshairs text-[9px]"></i><span>${eid}</span></button>`
+            `<button type="button" onclick="focusCatalogueEventFromLit('${eid}')" class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-teal-600 hover:bg-teal-700 text-white font-mono text-[11px] font-bold shadow-2xs transition cursor-pointer" title="Open inventory event ${eid} on map"><i class="fa-solid fa-location-crosshairs text-[9px]"></i><span>${eid}</span></button>`
           ).join(' ') + (item.catalogue_event_id ? ` <span class="text-[10px] text-slate-500 font-mono">(v5e: ${escapeHtmlStr(item.catalogue_event_id)})</span>` : '')
-        : `<span class="text-slate-400 italic text-[11px]">None (not in catalogue)</span>`;
+        : `<span class="text-slate-400 italic text-[11px]">None (not in inventory)</span>`;
 
       const floodSentBadge = item.flood_sentence
         ? `<span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono text-[10px] font-bold">true</span>`
@@ -4099,7 +4100,7 @@
               <span class="truncate">${escapeHtmlStr(item.id)}</span>
             </div>
             <span class="text-[10px] uppercase px-2 py-0.5 rounded-full border shrink-0 ${statusBadgeClass}">
-              ${escapeHtmlStr(item.status)}
+              ${escapeHtmlStr(displayStatus)}
             </span>
           </div>
 
@@ -4136,10 +4137,10 @@
               </div>
             </div>
 
-            <!-- Catalogue Link & flood_sentence -->
+            <!-- Inventory Link & flood_sentence -->
             <div class="p-2.5 rounded-lg border ${isInCat ? 'bg-teal-50/70 border-teal-200' : 'bg-amber-50/60 border-amber-200'} space-y-1.5 text-[11px]">
               <div class="flex items-center justify-between">
-                <span class="font-bold text-slate-800">Status: <code class="px-1.5 py-0.5 rounded bg-white border">${escapeHtmlStr(item.status)}</code></span>
+                <span class="font-bold text-slate-800">Status: <code class="px-1.5 py-0.5 rounded bg-white border">${escapeHtmlStr(displayStatus)}</code></span>
                 <span><strong>flood_sentence:</strong> ${floodSentBadge}</span>
               </div>
               <div>
@@ -4294,8 +4295,8 @@
       tbody.innerHTML = items.map(item => {
         const isInCat = item.status === 'in catalogue';
         const statusBadge = isInCat
-          ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-900 border border-teal-300 whitespace-nowrap"><span class="w-2 h-2 bg-[#0d9488] rotate-45 inline-block"></span>in catalogue</span>`
-          : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 whitespace-nowrap"><span class="w-2 h-2 bg-[#d97706] rotate-45 inline-block"></span>not in catalogue</span>`;
+          ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-900 border border-teal-300 whitespace-nowrap"><span class="w-2 h-2 bg-[#0d9488] rotate-45 inline-block"></span>in inventory</span>`
+          : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 whitespace-nowrap"><span class="w-2 h-2 bg-[#d97706] rotate-45 inline-block"></span>not in inventory</span>`;
 
         const eidsHtml = (Array.isArray(item.linked_e_ids) && item.linked_e_ids.length > 0)
           ? item.linked_e_ids.map(eid =>
@@ -4465,7 +4466,7 @@
     function exportCatalogueToCSV() {
       const events = AppState.filteredEvents || [];
       if (events.length === 0) {
-        alert('No catalogue events to export.');
+        alert('No inventory events to export.');
         return;
       }
       const rows = [[
@@ -4497,12 +4498,12 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `rob_catalogue_v5_export.csv`;
+      a.download = `rob_inventory_v5_export.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast(`Downloaded ${events.length} catalogue events to rob_catalogue_v5_export.csv`);
+      showToast(`Downloaded ${events.length} inventory events to rob_inventory_v5_export.csv`);
     }
 
     // Focus Map to Location
@@ -5832,7 +5833,7 @@
       if (btnImportEl) btnImportEl.textContent = isEnglish ? 'Import CSV' : 'Impor CSV';
 
       const btnReloadEl = document.getElementById('audit-btn-reload-text');
-      if (btnReloadEl) btnReloadEl.textContent = isEnglish ? 'Reload Catalogue' : 'Muat dari Katalog';
+      if (btnReloadEl) btnReloadEl.textContent = isEnglish ? 'Reload Inventory' : 'Muat dari Inventaris';
 
       const btnCopyEl = document.getElementById('audit-btn-copy-text');
       if (btnCopyEl) btnCopyEl.textContent = isEnglish ? 'Copy IDs' : 'Salin ID';
@@ -6127,8 +6128,8 @@
 
     function resetFlagsFromCatalogue() {
       const confirmMsg = AppState.lang === 'en' 
-        ? 'Reload all curated flags from default catalogue data?' 
-        : 'Muat ulang semua tanda kurasi & audit dari data bawaan katalog?';
+        ? 'Reload all curated flags from default inventory data?' 
+        : 'Muat ulang semua tanda kurasi & audit dari data bawaan inventaris?';
       if (!confirm(confirmMsg)) return;
 
       AppState.flaggedEvents = {};
@@ -6168,7 +6169,7 @@
       }
       renderAuditModalContent();
       const count = Object.keys(AppState.flaggedEvents).length;
-      showToast(AppState.lang === 'en' ? `Loaded ${count} flags from catalogue.` : `Berhasil memuat ${count} tanda audit dari katalog.`);
+      showToast(AppState.lang === 'en' ? `Loaded ${count} flags from inventory.` : `Berhasil memuat ${count} tanda audit dari inventaris.`);
     }
 
     function parseCSV(text) {
