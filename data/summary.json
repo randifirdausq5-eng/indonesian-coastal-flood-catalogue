@@ -1,5 +1,5 @@
 {
-  "total_events": 1237,
+  "total_events": 1236,
   "unique_places": 207,
   "unique_provinces": [
     "Aceh",
@@ -45,7 +45,7 @@
     "confirmed": 6
   },
   "region_counts": {
-    "java_north": 713,
+    "java_north": 712,
     "sumatra_east": 165,
     "java_south": 104,
     "east_indo": 137,
@@ -53,12 +53,12 @@
     "sumatra_west": 38
   },
   "hazard_counts": {
-    "rob": 1019,
+    "rob": 1018,
     "high_wave": 159,
     "tide_wave": 59
   },
-  "tide_gauge_matches": 404,
-  "tide_gauge_anomalies": 183,
-  "satellite_sla_matches": 926,
-  "generated_at": "2026-11-20T14:26:43.145511"
+  "tide_gauge_matches": 403,
+  "tide_gauge_anomalies": 182,
+  "satellite_sla_matches": 925,
+  "generated_at": "2026-11-24T22:06:27.160158"
 }

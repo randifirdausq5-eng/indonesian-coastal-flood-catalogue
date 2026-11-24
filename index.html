@@ -129,8 +129,8 @@
   </style>
 
   <!-- Pre-load data script for zero-CORS local file:// support -->
-  <script src="data/events.js?v=1237.202611201426"></script>
-  <script src="data/literature.js?v=1237.202611201426"></script>
+  <script src="data/events.js?v=1236.202611242206"></script>
+  <script src="data/literature.js?v=1236.202611242206"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
 
@@ -233,12 +233,12 @@
       <div class="hidden xl:flex items-center gap-2.5 2xl:gap-3.5 px-2.5 py-1 bg-slate-800/80 rounded-lg border border-slate-700/60 text-[11px] whitespace-nowrap shrink-0">
         <div class="flex items-center gap-1.5 whitespace-nowrap">
           <span id="label-stat-total" class="text-slate-400 whitespace-nowrap" data-i18n="stat_total">Total Events:</span>
-          <span id="stat-total" class="font-bold text-white font-mono text-xs 2xl:text-sm whitespace-nowrap">1,019</span>
+          <span id="stat-total" class="font-bold text-white font-mono text-xs 2xl:text-sm whitespace-nowrap">1,018</span>
         </div>
         <div class="h-3.5 w-px bg-slate-700"></div>
         <div class="flex items-center gap-1.5 whitespace-nowrap">
           <span id="label-stat-filtered" class="text-slate-400 whitespace-nowrap" data-i18n="stat_active">Active Shown:</span>
-          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-xs 2xl:text-sm whitespace-nowrap">1,019</span>
+          <span id="stat-filtered" class="font-bold text-cyan-400 font-mono text-xs 2xl:text-sm whitespace-nowrap">1,018</span>
         </div>
 
         <div class="hidden 2xl:block h-3.5 w-px bg-slate-700"></div>
@@ -561,7 +561,7 @@
           <div class="grid grid-cols-2 gap-1.5" id="region-chips-container">
             <button onclick="setRegionFilter('all')" data-region="all" class="region-chip active px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-cyan-50 border-cyan-500 text-cyan-800 font-medium">
               <span data-i18n="reg_all">All Regions</span>
-              <span id="badge-all-reg" class="text-[10px] px-1.5 py-0.2 bg-white rounded-full font-mono">1019</span>
+              <span id="badge-all-reg" class="text-[10px] px-1.5 py-0.2 bg-white rounded-full font-mono">1018</span>
             </button>
             <button onclick="setRegionFilter('java_north')" data-region="java_north" class="region-chip px-2.5 py-1.5 rounded-md border text-left flex items-center justify-between transition bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100">
               <span data-i18n="reg_java_north">Java North Coast</span>
@@ -612,8 +612,8 @@
             <span id="active-percentage" class="font-mono font-bold">100%</span>
           </div>
           <p class="text-xs text-slate-200" id="filter-summary-text">
-            Showing <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,019</span> of 
-            <span class="font-semibold font-mono">1,019</span> verified events in inventory.
+            Showing <span id="label-count-active" class="font-bold text-cyan-300 font-mono">1,018</span> of 
+            <span class="font-semibold font-mono">1,018</span> verified events in inventory.
           </p>
         </div>
 
@@ -748,7 +748,7 @@
         <button id="btn-mobile-fab" onclick="toggleMobileSidebar()" class="px-4 py-2 bg-slate-900/90 hover:bg-slate-900 text-white backdrop-blur-md rounded-full border border-slate-700 shadow-2xl text-xs font-bold flex items-center gap-2 active:scale-95 transition">
           <i class="fa-solid fa-sliders text-cyan-400"></i>
           <span data-i18n="filter_title_short">Filters</span>
-          <span id="mobile-fab-count" class="px-1.5 py-0.2 bg-cyan-500 text-slate-950 font-mono text-[10px] font-extrabold rounded-full">1,019</span>
+          <span id="mobile-fab-count" class="px-1.5 py-0.2 bg-cyan-500 text-slate-950 font-mono text-[10px] font-extrabold rounded-full">1,018</span>
         </button>
       </div>
 
@@ -794,7 +794,7 @@
             <i class="fa-solid fa-sliders text-cyan-600"></i> <span data-i18n="filter_title_short">Filters</span>
           </button>
           <span class="text-xs bg-white px-3 py-1.5 rounded-lg border border-slate-200 font-mono text-slate-600 shadow-sm">
-            <span data-i18n="filtered_data">Filtered Data:</span> <strong id="chart-filter-count" class="text-cyan-600 font-bold">1,019</strong> <span data-i18n="events_unit">events</span>
+            <span data-i18n="filtered_data">Filtered Data:</span> <strong id="chart-filter-count" class="text-cyan-600 font-bold">1,018</strong> <span data-i18n="events_unit">events</span>
           </span>
         </div>
       </div>
@@ -987,7 +987,7 @@
         <!-- Table Pagination / Footer -->
         <div class="p-2.5 sm:p-3 border-t border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
           <div id="table-pagination-info" class="text-[11px] sm:text-xs">
-            Showing rows <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> of <span id="table-total-count" class="font-bold">1,019</span>
+            Showing rows <span id="table-page-start" class="font-bold">1</span> - <span id="table-page-end" class="font-bold">50</span> of <span id="table-total-count" class="font-bold">1,018</span>
           </div>
           <div class="flex items-center gap-1.5 sm:gap-2">
             <button id="btn-page-prev" onclick="changeTablePage(-1)" class="px-2.5 sm:px-3 py-1 bg-white border border-slate-300 rounded text-slate-600 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed">
@@ -2080,7 +2080,7 @@
       } else {
         // Fallback: Fetch from data/events.json
         console.log("Fetching events from data/events.json...");
-        fetch('data/events.json?v=1237.202611201426')
+        fetch('data/events.json?v=1236.202611242206')
           .then(res => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
             return res.json();
@@ -2103,7 +2103,7 @@
         AppState.allLiterature = window.ROB_LITERATURE;
         AppState.filteredLiterature = [...window.ROB_LITERATURE];
       } else {
-        fetch('data/literature.json?v=1237.202611201426')
+        fetch('data/literature.json?v=1236.202611242206')
           .then(res => res.ok ? res.json() : [])
           .then(litData => {
             if (Array.isArray(litData)) {
@@ -3576,6 +3576,7 @@
                 <span class="text-slate-400 block text-[10px]">${dict.popup_date}</span>
                 <span class="font-bold text-slate-900">📅 ${e.date_start}</span>
                 ${e.days > 1 ? `<span class="text-[10px] text-slate-500">(${e.days} ${dict.popup_days})</span>` : ''}
+                ${e.date_note ? `<span class="block mt-0.5 text-[10px] leading-snug text-amber-900 bg-amber-50 border border-amber-200 rounded px-1 py-0.5">${isEnglish ? e.date_note : (e.date_note_id || e.date_note)}</span>` : ''}
               </div>
               <div>
                 <span class="text-slate-400 block text-[10px]">${dict.popup_loc}</span>
@@ -4947,7 +4948,7 @@
                 ${e.id}
                 ${isRowCurated ? `<span class="ml-1 text-[9px] font-bold ${verTier === 'not_rob' ? 'text-red-600 bg-red-100' : 'text-emerald-700 bg-emerald-100'} px-1 py-0.2 rounded font-mono">${verTier === 'not_rob' ? 'FLAG' : 'QC'}</span>` : ''}
               </td>
-              <td class="py-2 px-3 whitespace-nowrap text-slate-600">${e.date_start}</td>
+              <td class="py-2 px-3 whitespace-nowrap text-slate-600">${e.date_start}${e.date_note ? ` <span title="${escapeHtmlStr(AppState.lang === 'en' ? e.date_note : (e.date_note_id || e.date_note))}" class="text-amber-700 font-bold cursor-help">*</span>` : ''}</td>
               <td class="py-2 px-3 font-medium text-slate-900">
                 ${e.place}${(!e.lat || !e.lon) ? ` <span class="ml-1 text-[9.5px] text-amber-700 bg-amber-50 border border-amber-200 px-1 py-0.2 rounded font-normal italic">${AppState.lang === 'en' ? 'regional approx.' : 'arah kawasan'}</span>` : ''}
               </td>

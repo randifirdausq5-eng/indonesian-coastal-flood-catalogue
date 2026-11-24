@@ -231,6 +231,19 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
             df_events = pd.concat([df_events, df_add], ignore_index=True)
             print(f"      Added {len(df_add)} confirmed literature event(s): {list(df_add['event_id'])}")
 
+    # @@AI@@ 2026-11-24 (Randi: "Di web tolong tambahkan keterangannya kalau yang benarnya 15 Jun 2025"): events whose
+    # date was corrected (src.regions.date_overrides, applied with the other corrections above) carry a note, and
+    # their station and satellite values come from the research tables, which are built on the corrected date (the
+    # tables of the web catalogue hold the reported date)
+    date_notes = {}
+    if HAS_REGIONS_MODULE:
+        from src.regions import date_overrides
+        ov = date_overrides()
+        ids = set(df_events["event_id"].astype(str))
+        date_notes = {str(o["event_id"]): o for _, o in ov.iterrows() if str(o["event_id"]) in ids}
+        if date_notes:
+            print(f"      Date corrections: {sorted(date_notes)}")
+
     print(f"[3/5] Reading places coordinates from {places_csv.name}...")
     df_places = pd.read_csv(places_csv)
 
@@ -294,6 +307,24 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
     sat_data = load_satellite_data(REPO_ROOT, cat)
     matched_sat_count = sum(1 for k in ev_keys if k in sat_data and sat_data[k]['sla_cm'] is not None)
     print(f"      Matched {matched_sat_count} events to nearest satellite ocean grid pixels.")
+    if date_notes:   # @@AI@@ 2026-11-24: corrected dates, values from the research tables (see date_notes above)
+        import yaml
+        research_cat = yaml.safe_load((REPO_ROOT / "config.yaml").read_text())["rob"]["catalogue"]
+        tg_res, sat_res = load_tidegauge_data(REPO_ROOT, research_cat), load_satellite_data(REPO_ROOT, research_cat)
+        for _, r in merged[merged["event_id"].astype(str).isin(date_notes)].iterrows():
+            k = (str(r['place']).strip().lower(), str(r['date_start']).strip())
+            tg_data.pop(k, None)
+            sat_data.pop(k, None)
+            if k in tg_res:
+                tg_data[k] = tg_res[k]
+            if k in sat_res:
+                sat_data[k] = sat_res[k]
+            print(f"      {r['event_id']} {k}: station {'yes' if k in tg_res else 'no'}, satellite "
+                  f"{'yes' if k in sat_res else 'no'} ({research_cat} tables)")
+        # summary counts again, with the corrected events
+        matched_tg_count = sum(1 for k in ev_keys if k in tg_data)
+        with_anom_count = sum(1 for k in ev_keys if k in tg_data and tg_data[k]['anom_cm'] is not None)
+        matched_sat_count = sum(1 for k in ev_keys if k in sat_data and sat_data[k]['sla_cm'] is not None)
 
     # Sort descending by date (newest first)
     merged = merged.sort_values(by='date_start', ascending=False)
@@ -553,6 +584,10 @@ def export_catalogue(events_csv: Path, places_csv: Path, out_dir: Path, apply_ex
             'verified_tier': flag_info.get('verified_tier', None),
             'auditor': flag_info.get('auditor', ''),
         })
+        if ev_id in date_notes:   # @@AI@@ 2026-11-24: date corrected by Randi; reported date and note (EN, ID)
+            o = date_notes[ev_id]
+            records[-1].update({'date_reported': str(o['date_start_reported']), 'date_note': str(o['note_en']),
+                                'date_note_id': str(o['note_id'])})
 
     # Summary statistics
     total_events = len(records)
